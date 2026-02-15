@@ -8,15 +8,18 @@ import Badge from '@/components/ui/Badge';
 import { Star, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
-export default function EstablishmentDetailPage({ 
+export default async function EstablishmentDetailPage({ 
   params 
 }: { 
-  params: { id: string } 
+  params: Promise<{ id: string }> 
 }) {
-  // TODO: Remplacer par un vrai appel API
-  // const establishment = await establishmentService.getById(params.id);
+  // Unwrap params avec await
+  const { id } = await params;
   
-  const establishment = mockEstablishments.find((est) => est.id === params.id);
+  // TODO: Remplacer par un vrai appel API
+  // const establishment = await establishmentService.getById(id);
+  
+  const establishment = mockEstablishments.find((est) => est.id === id);
 
   if (!establishment) {
     notFound();

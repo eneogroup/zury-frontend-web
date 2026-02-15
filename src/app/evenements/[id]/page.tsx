@@ -6,15 +6,17 @@ import Button from '@/components/ui/Button';
 import { Calendar, MapPin, Users, Clock, ArrowLeft, Ticket } from 'lucide-react';
 import Link from 'next/link';
 
-export default function EventDetailPage({ 
+export default async function EventDetailPage({ 
   params 
 }: { 
-  params: { id: string } 
+  params: Promise<{ id: string }> 
 }) {
   // TODO: Remplacer par un vrai appel API
   // const event = await eventService.getById(params.id);
   
-  const event = mockEvents.find((evt) => evt.id === params.id);
+  const { id } = await params;
+  
+  const event = mockEvents.find((evt) => evt.id === id);
 
   if (!event) {
     notFound();
