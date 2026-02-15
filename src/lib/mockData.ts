@@ -1,5 +1,13 @@
 import { Establishment, Event } from '@/types';
 
+// Images pour le carousel du Hero
+export const heroImages = [
+  'https://cf.bstatic.com/xdata/images/hotel/max1024x768/246563254.jpg?k=f6401d1ec0d9d3f34990df768fd5d0ac8186daf48bbeb74025e8def6a86d1fb3&o=',
+  'https://cf.bstatic.com/xdata/images/hotel/max1024x768/817052254.jpg?k=2c075509e2a8196301cb4984511faad8d97cd2c75ba4fecc493593102123937b&o=', // Bar
+  'https://res.cloudinary.com/amenitiz/image/upload/c_fill,q_auto:best,w_1200/v1676282731/kkewhjkcage1ytjivu4i.jpg?_a=BACAGSGT',
+  'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=1920&q=80', // Événement
+];
+
 export const mockEstablishments: Establishment[] = [
   {
     id: '1',
