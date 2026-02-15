@@ -10,6 +10,7 @@ export interface Establishment {
   rating: number;
   reviewCount: number;
   imageUrl: string;
+  images?: string[]; // Galerie d'images
   phone?: string;
   hours?: string;
   isOpen?: boolean;
@@ -17,6 +18,16 @@ export interface Establishment {
   description?: string;
   latitude?: number;
   longitude?: number;
+  schedule?: DaySchedule[];
+  amenities?: string[];
+  priceRange?: string;
+}
+
+export interface DaySchedule {
+  day: string;
+  hours: string;
+  isToday?: boolean;
+  isClosed?: boolean;
 }
 
 // Types pour les événements
@@ -27,8 +38,10 @@ export interface Event {
   date: string;
   time: string;
   establishment: string;
+  establishmentId?: string;
   price: string;
   availablePlaces: number;
   totalPlaces: number;
   imageUrl: string;
+  description?: string;
 }

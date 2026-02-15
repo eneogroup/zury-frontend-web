@@ -1,11 +1,14 @@
 import { notFound } from 'next/navigation';
-import { mockEstablishments } from '@/lib/mockData';
+import { mockEstablishments, mockEvents } from '@/lib/mockData';
 import ImageGallery from '@/components/establishments/ImageGallery';
-import ContactInfo from '@/components/establishments/ContactInfo';
+import EstablishmentHeader from '@/components/establishments/EstablishmentHeader';
+import EstablishmentInfo from '@/components/establishments/EstablishmentInfo';
+import EstablishmentEvents from '@/components/establishments/EstablishmentEvents';
+import ContactCard from '@/components/establishments/ContactCard';
 import ScheduleCard from '@/components/establishments/ScheduleCard';
-import ReviewsCard from '@/components/establishments/ReviewsCard';
-import Badge from '@/components/ui/Badge';
-import { Star, ArrowLeft } from 'lucide-react';
+import LocationCard from '@/components/establishments/LocationCard';
+import ReviewsSection from '@/components/establishments/ReviewsSection';
+import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 export default async function EstablishmentDetailPage({ 
@@ -13,12 +16,7 @@ export default async function EstablishmentDetailPage({
 }: { 
   params: Promise<{ id: string }> 
 }) {
-  // Unwrap params avec await
   const { id } = await params;
-  
-  // TODO: Remplacer par un vrai appel API
-  // const establishment = await establishmentService.getById(id);
-  
   const establishment = mockEstablishments.find((est) => est.id === id);
 
   if (!establishment) {
@@ -30,105 +28,70 @@ export default async function EstablishmentDetailPage({
     establishment.imageUrl,
     establishment.imageUrl,
     establishment.imageUrl,
+    establishment.imageUrl,
   ];
 
+  // Trouver les événements de cet établissement
+  const establishmentEvents = mockEvents.filter(
+    (event) => event.establishment === establishment.name
+  );
+
   return (
-    <div className="min-h-screen bg-light py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Bouton retour */}
-        <Link 
-          href="/explorer"
-          className="inline-flex items-center gap-2 text-primary hover:text-primary/80 mb-6 font-medium"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Retour à la liste
-        </Link>
-
-        {/* Galerie */}
-        <div className="mb-8">
-          <ImageGallery images={images} name={establishment.name} />
+    <div className="min-h-screen bg-light">
+      {/* Header fixe avec bouton retour */}
+      <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <Link 
+            href="/explorer"
+            className="inline-flex items-center gap-2 text-gray hover:text-primary font-medium transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Retour
+          </Link>
         </div>
+      </div>
 
+      {/* Galerie d'images */}
+      <ImageGallery images={images} name={establishment.name} />
+
+      {/* Contenu principal */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Colonne principale */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Header */}
-            <div className="bg-white rounded-lg p-6 shadow-md">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h1 className="text-3xl font-bold text-dark mb-2">
-                    {establishment.name}
-                  </h1>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Badge variant={establishment.category}>
-                      {establishment.category}
-                    </Badge>
-                    {establishment.isOpen !== undefined && (
-                      <Badge variant={establishment.isOpen ? 'open' : 'closed'}>
-                        {establishment.isOpen ? 'Ouvert' : 'Fermé'}
-                      </Badge>
-                    )}
-                    {establishment.isPremium && (
-                      <Badge variant="premium">Premium</Badge>
-                    )}
-                  </div>
-                </div>
-              </div>
+          {/* Colonne principale (gauche) */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Header avec titre et badges */}
+            <EstablishmentHeader establishment={establishment} />
 
-              {/* Rating */}
-              <div className="flex items-center gap-2 mb-4">
-                <div className="flex items-center">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`w-5 h-5 ${
-                        i < Math.floor(establishment.rating)
-                          ? 'fill-gold text-gold'
-                          : 'text-gray-300'
-                      }`}
-                    />
-                  ))}
-                </div>
-                <span className="font-semibold text-dark">
-                  {establishment.rating}/5
-                </span>
-                <span className="text-gray">
-                  ({establishment.reviewCount} avis)
-                </span>
-              </div>
+            {/* À propos */}
+            <EstablishmentInfo establishment={establishment} />
 
-              {/* Description */}
-              {establishment.description && (
-                <div>
-                  <h2 className="text-xl font-bold text-dark mb-3">À propos</h2>
-                  <p className="text-gray leading-relaxed">
-                    {establishment.description}
-                  </p>
-                </div>
-              )}
-            </div>
+            {/* Événements */}
+            {establishmentEvents.length > 0 && (
+              <EstablishmentEvents events={establishmentEvents} />
+            )}
 
             {/* Avis */}
-            <ReviewsCard 
-              rating={establishment.rating} 
-              reviewCount={establishment.reviewCount} 
+            <ReviewsSection 
+              rating={establishment.rating}
+              reviewCount={establishment.reviewCount}
             />
           </div>
 
-          {/* Sidebar */}
+          {/* Sidebar (droite) */}
           <div className="space-y-6">
-            {/* Contact */}
-            <ContactInfo
+            {/* Contact et actions */}
+            <ContactCard establishment={establishment} />
+
+            {/* Horaires */}
+            <ScheduleCard schedule={establishment.schedule} />
+
+            {/* Localisation */}
+            <LocationCard 
               address={establishment.address}
-              phone={establishment.phone}
-              hours={establishment.hours}
-              isOpen={establishment.isOpen}
+              neighborhood={establishment.neighborhood}
               latitude={establishment.latitude}
               longitude={establishment.longitude}
             />
-
-            {/* Horaires */}
-            <ScheduleCard />
           </div>
         </div>
       </div>
