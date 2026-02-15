@@ -1,8 +1,8 @@
 import { Establishment } from '@/types';
 import { MapPin, Star } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import Badge from './Badge';
+import ImageWithFallback from './ImageWithFallback';
 
 interface EstablishmentCardProps {
   establishment: Establishment;
@@ -14,7 +14,7 @@ export default function EstablishmentCard({ establishment }: EstablishmentCardPr
       <div className="group bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer">
         {/* Image */}
         <div className="relative h-48 w-full overflow-hidden">
-          <Image
+          <ImageWithFallback
             src={establishment.imageUrl}
             alt={establishment.name}
             fill

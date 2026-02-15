@@ -1,8 +1,8 @@
 import { Event } from '@/types';
 import { Calendar, MapPin } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import Badge from './Badge';
+import ImageWithFallback from './ImageWithFallback';
 
 interface EventCardProps {
   event: Event;
@@ -10,11 +10,11 @@ interface EventCardProps {
 
 export default function EventCard({ event }: EventCardProps) {
   return (
-    <Link href={`/events/${event.id}`}>
+    <Link href={`/evenements/${event.id}`}>
       <div className="group bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer">
         {/* Image */}
         <div className="relative h-40 w-full overflow-hidden">
-          <Image
+          <ImageWithFallback
             src={event.imageUrl}
             alt={event.title}
             fill
