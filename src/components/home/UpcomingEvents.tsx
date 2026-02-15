@@ -14,15 +14,15 @@ export default function UpcomingEvents({ events }: UpcomingEventsProps) {
           <h2 className="text-3xl font-bold text-dark">Événements à venir</h2>
           <Link 
             href="/evenements" 
-            className="text-primary hover:text-primary/80 font-medium"
+            className="text-primary hover:text-primary/80 font-medium transition-colors"
           >
             Voir tout →
           </Link>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {events.slice(0, 3).map((event) => (
-            <EventCard key={event.id} event={event} />
+          {events.slice(0, 3).map((event, index) => (
+            <EventCard key={event.id} event={event} index={index} />
           ))}
         </div>
       </div>

@@ -9,18 +9,18 @@ interface BadgeProps {
 
 export default function Badge({ children, variant = 'restaurant', className }: BadgeProps) {
   const variants = {
-    restaurant: 'bg-primary text-white',
-    bar: 'bg-gold text-dark',
-    hotel: 'bg-accent text-white',
-    lounge: 'bg-dark text-white',
-    open: 'bg-accent text-white',
-    closed: 'bg-red-500 text-white',
-    premium: 'bg-gold text-dark',
+    restaurant: 'bg-primary/90 text-white backdrop-blur-sm',
+    bar: 'bg-gold/90 text-dark backdrop-blur-sm',
+    hotel: 'bg-accent/90 text-white backdrop-blur-sm',
+    lounge: 'bg-dark/90 text-white backdrop-blur-sm',
+    open: 'bg-accent/90 text-white backdrop-blur-sm',
+    closed: 'bg-red-500/90 text-white backdrop-blur-sm',
+    premium: 'bg-gold/90 text-dark backdrop-blur-sm',
   };
 
   return (
     <span className={cn(
-      'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wide',
+      'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide shadow-sm',
       variants[variant],
       className
     )}>
