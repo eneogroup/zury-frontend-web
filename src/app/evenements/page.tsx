@@ -5,8 +5,9 @@ import EventCardSkeleton from '@/components/ui/EventCardSkeleton';
 import EmptyState from '@/components/ui/EmptyState';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import Pagination from '@/components/ui/Pagination';
-import { eventService } from '@/lib/api';
+import { cachedEventService } from '@/lib/cached-api';
 import { transformEvent } from '@/lib/apiTransformers';
+import { filterEventsByPeriod } from '@/lib/dateFilters';
 
 async function EventsList({
   page,
@@ -18,13 +19,17 @@ async function EventsList({
   try {
     const pageSize = 12;
     
-    const response = await eventService.getAll({
-      page,
-      page_size: pageSize,
+    // Récupérer tous les événements (on pourrait optimiser avec un page_size plus grand)
+    const response = await cachedEventService.getAll({
+      page: 1,
+      page_size: 100, // Récupérer plus d'événements pour le filtrage côté client
       ordering: 'date_debut',
     });
 
-    const events = response.results.map(transformEvent);
+    let events = response.results.map(transformEvent);
+
+    // Filtrer par période côté client
+    events = filterEventsByPeriod(events, period);
 
     if (events.length === 0) {
       return (
@@ -36,23 +41,30 @@ async function EventsList({
       );
     }
 
-    const totalPages = Math.ceil(response.count / pageSize);
+    // Pagination manuelle côté client
+    const totalCount = events.length;
+    const totalPages = Math.ceil(totalCount / pageSize);
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginatedEvents = events.slice(startIndex, endIndex);
 
     return (
       <>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {events.map((event, index) => (
+          {paginatedEvents.map((event, index) => (
             <EventCard key={event.id} event={event} index={index} />
           ))}
         </div>
 
         {/* Pagination */}
-        <Pagination
-          currentPage={page}
-          totalPages={totalPages}
-          totalCount={response.count}
-          pageSize={pageSize}
-        />
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            totalCount={totalCount}
+            pageSize={pageSize}
+          />
+        )}
       </>
     );
   } catch (error) {
