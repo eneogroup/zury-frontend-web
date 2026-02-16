@@ -2,7 +2,7 @@ import Skeleton from './Skeleton';
 
 export default function EventCardSkeleton() {
   return (
-    <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
+    <div className="bg-white rounded-xl overflow-hidden shadow-sm">
       {/* Image skeleton */}
       <Skeleton className="h-40 w-full rounded-t-xl" />
       

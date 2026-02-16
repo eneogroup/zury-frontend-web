@@ -26,7 +26,7 @@ export default function EventCard({ event, index = 0 }: EventCardProps) {
   return (
     <FadeIn delay={index * 0.1}>
       <Link href={`/evenements/${event.id}`}>
-        <div className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100">
+        <div className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer">
           {/* Image */}
           <div className="relative h-40 w-full overflow-hidden">
             <ImageWithFallback

@@ -25,7 +25,7 @@ export default function EstablishmentCard({ establishment, index = 0 }: Establis
   return (
     <FadeIn delay={index * 0.1}>
       <Link href={`/establishments/${establishment.id}`}>
-        <div className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100">
+        <div className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer">
           {/* Image */}
           <div className="relative h-48 w-full overflow-hidden">
             <ImageWithFallback

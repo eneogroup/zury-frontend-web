@@ -2,7 +2,7 @@ import Skeleton from './Skeleton';
 
 export default function EstablishmentCardSkeleton() {
   return (
-    <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
+    <div className="bg-white rounded-xl overflow-hidden shadow-sm">
       {/* Image skeleton */}
       <Skeleton className="h-48 w-full rounded-t-xl" />
       
