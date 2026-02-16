@@ -1,15 +1,29 @@
 'use client';
 
-import { Event } from '@/types';
 import { Calendar, Ticket, Users } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+
+interface Event {
+  id: string;
+  title: string;
+  date: string;
+  time: string;
+  price: string;
+  availablePlaces: number;
+  totalPlaces: number;
+  establishment?: string;
+}
 
 interface EstablishmentEventsProps {
   events: Event[];
 }
 
 export default function EstablishmentEvents({ events }: EstablishmentEventsProps) {
+  if (!events || events.length === 0) {
+    return null;
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -18,7 +32,7 @@ export default function EstablishmentEvents({ events }: EstablishmentEventsProps
       className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
     >
       <h2 className="text-2xl font-bold text-dark mb-4">
-        Événements chez {events[0]?.establishment}
+        Événements
       </h2>
       
       <div className="space-y-4">

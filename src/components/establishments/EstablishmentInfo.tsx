@@ -1,10 +1,14 @@
 'use client';
 
-import { Establishment } from '@/types';
 import { motion } from 'framer-motion';
 
 interface EstablishmentInfoProps {
-  establishment: Establishment;
+  establishment: {
+    name: string;
+    category: string;
+    neighborhood: string;
+    description?: string;
+  };
 }
 
 export default function EstablishmentInfo({ establishment }: EstablishmentInfoProps) {

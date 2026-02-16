@@ -1,12 +1,18 @@
 'use client';
 
-import { Establishment } from '@/types';
 import Badge from '@/components/ui/Badge';
 import { Star, Verified } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface EstablishmentHeaderProps {
-  establishment: Establishment;
+  establishment: {
+    name: string;
+    category: 'restaurant' | 'bar' | 'hotel' | 'lounge';
+    rating: number;
+    reviewCount: number;
+    isOpen?: boolean;
+    isPremium?: boolean;
+  };
 }
 
 export default function EstablishmentHeader({ establishment }: EstablishmentHeaderProps) {
@@ -17,7 +23,6 @@ export default function EstablishmentHeader({ establishment }: EstablishmentHead
       transition={{ duration: 0.5 }}
       className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
     >
-      {/* Photo principale et titre */}
       <div className="mb-4">
         <h1 className="text-3xl md:text-4xl font-bold text-dark mb-3">
           {establishment.name}
@@ -46,7 +51,7 @@ export default function EstablishmentHeader({ establishment }: EstablishmentHead
           <div className="flex items-center gap-1">
             <Star className="w-5 h-5 fill-gold text-gold" />
             <span className="text-2xl font-bold text-dark">
-              {establishment.rating}
+              {establishment.rating.toFixed(1)}
             </span>
             <span className="text-gray">/5</span>
           </div>

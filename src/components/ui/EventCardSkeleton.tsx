@@ -1,60 +1,28 @@
-'use client';
+import Skeleton from './Skeleton';
 
-import { Event } from '@/types';
-import { Calendar, MapPin } from 'lucide-react';
-import Link from 'next/link';
-import Badge from './Badge';
-import ImageWithFallback from './ImageWithFallback';
-import FadeIn from './FadeIn';
-
-interface EventCardProps {
-  event: Event;
-  index?: number;
-}
-
-export default function EventCard({ event, index = 0 }: EventCardProps) {
+export default function EventCardSkeleton() {
   return (
-    <FadeIn delay={index * 0.1}>
-      <Link href={`/evenements/${event.id}`}>
-        <div className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100">
-          {/* Image */}
-          <div className="relative h-40 w-full overflow-hidden">
-            <ImageWithFallback
-              src={event.imageUrl}
-              alt={event.title}
-              fill
-              className="object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
-            />
-            <div className="absolute top-3 left-3">
-              <Badge variant="premium">{event.category}</Badge>
-            </div>
-          </div>
-
-          {/* Content */}
-          <div className="p-4">
-            <h3 className="text-lg font-semibold text-dark mb-2 group-hover:text-primary transition-colors line-clamp-1">
-              {event.title}
-            </h3>
-            
-            <div className="flex items-center text-gray text-sm mb-2">
-              <Calendar className="w-4 h-4 mr-1 flex-shrink-0" />
-              <span className="line-clamp-1">{event.date} · {event.time}</span>
-            </div>
-
-            <div className="flex items-center text-gray text-sm mb-3">
-              <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
-              <span className="line-clamp-1">{event.establishment}</span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-primary font-bold">{event.price}</span>
-              <span className="text-sm text-gray">
-                {event.availablePlaces}/{event.totalPlaces} places
-              </span>
-            </div>
-          </div>
+    <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
+      {/* Image skeleton */}
+      <Skeleton className="h-40 w-full rounded-t-xl" />
+      
+      {/* Content skeleton */}
+      <div className="p-4 space-y-3">
+        {/* Titre */}
+        <Skeleton className="h-5 w-3/4" />
+        
+        {/* Date */}
+        <Skeleton className="h-4 w-1/2" />
+        
+        {/* Lieu */}
+        <Skeleton className="h-4 w-2/3" />
+        
+        {/* Prix et places */}
+        <div className="flex justify-between">
+          <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-4 w-16" />
         </div>
-      </Link>
-    </FadeIn>
+      </div>
+    </div>
   );
 }

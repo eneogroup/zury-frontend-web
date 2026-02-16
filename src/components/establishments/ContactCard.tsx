@@ -1,13 +1,19 @@
 'use client';
 
-import { Establishment } from '@/types';
 import { Phone, Navigation, Share2, Heart } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 
 interface ContactCardProps {
-  establishment: Establishment;
+  establishment: {
+    phone?: string;
+    hours?: string;
+    isOpen?: boolean;
+    latitude?: number;
+    longitude?: number;
+    name?: string;
+  };
 }
 
 export default function ContactCard({ establishment }: ContactCardProps) {
@@ -32,8 +38,8 @@ export default function ContactCard({ establishment }: ContactCardProps) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: establishment.name,
-          text: `Découvrez ${establishment.name} sur Zury`,
+          title: establishment.name || 'Établissement',
+          text: `Découvrez cet établissement sur Zury`,
           url: window.location.href,
         });
       } catch (err) {

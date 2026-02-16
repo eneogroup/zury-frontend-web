@@ -4,11 +4,13 @@ import FilterChips from '@/components/establishments/FilterChips';
 import AdvancedFilters from '@/components/establishments/AdvancedFilters';
 import EstablishmentCard from '@/components/ui/EstablishmentCard';
 import EstablishmentCardSkeleton from '@/components/ui/EstablishmentCardSkeleton';
-import MobileFiltersButton from '@/components/establishments/MobileFiltersButton';
 import EmptyState from '@/components/ui/EmptyState';
-import { mockEstablishments } from '@/lib/mockData';
+import ErrorMessage from '@/components/ui/ErrorMessage';
+import MobileFiltersButton from '@/components/establishments/MobileFiltersButton';
+import { establishmentService } from '@/lib/api';
+import { transformEstablishmentList } from '@/lib/apiTransformers';
 
-function EstablishmentsList({
+async function EstablishmentsList({
   searchParams,
 }: {
   searchParams: { 
@@ -16,60 +18,78 @@ function EstablishmentsList({
     category?: string; 
     neighborhood?: string;
     minRating?: string;
+    page?: string;
   };
 }) {
-  // TODO: Remplacer par un vrai appel API
-  let establishments = mockEstablishments;
+  try {
+    let response;
+    const page = searchParams.page ? parseInt(searchParams.page) : 1;
 
-  // Filtrage par recherche
-  if (searchParams.q) {
-    establishments = establishments.filter((est) =>
-      est.name.toLowerCase().includes(searchParams.q!.toLowerCase())
-    );
-  }
+    // Si recherche active
+    if (searchParams.q) {
+      response = await establishmentService.search(searchParams.q, {
+        page,
+        page_size: 25,
+      });
+    } else {
+      response = await establishmentService.getAll({
+        page,
+        page_size: 25,
+        search: searchParams.q,
+      });
+    }
 
-  // Filtrage par catégories (support multiple)
-  if (searchParams.category) {
-    const categories = searchParams.category.split(',');
-    establishments = establishments.filter((est) =>
-      categories.includes(est.category)
-    );
-  }
+    let establishments = response.results.map(transformEstablishmentList);
 
-  // Filtrage par quartiers (support multiple)
-  if (searchParams.neighborhood) {
-    const neighborhoods = searchParams.neighborhood.split(',');
-    establishments = establishments.filter((est) =>
-      neighborhoods.includes(est.neighborhood)
-    );
-  }
+    // Filtrage côté client (temporaire - à faire côté API plus tard)
+    if (searchParams.category) {
+      const categories = searchParams.category.split(',');
+      establishments = establishments.filter((est) =>
+        categories.includes(est.category)
+      );
+    }
 
-  // Filtrage par note minimale
-  if (searchParams.minRating) {
-    const minRating = Number(searchParams.minRating);
-    establishments = establishments.filter((est) => est.rating >= minRating);
-  }
+    if (searchParams.neighborhood) {
+      const neighborhoods = searchParams.neighborhood.split(',');
+      establishments = establishments.filter((est) =>
+        neighborhoods.includes(est.neighborhood)
+      );
+    }
 
-  if (establishments.length === 0) {
+    if (searchParams.minRating) {
+      const minRating = Number(searchParams.minRating);
+      establishments = establishments.filter((est) => est.rating >= minRating);
+    }
+
+    if (establishments.length === 0) {
+      return (
+        <EmptyState
+          title="Aucun établissement trouvé"
+          message="Essayez de modifier vos critères de recherche ou explorez d'autres catégories."
+        />
+      );
+    }
+
     return (
-      <EmptyState
-        title="Aucun établissement trouvé"
-        message="Essayez de modifier vos critères de recherche ou explorez d'autres catégories."
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {establishments.map((establishment, index) => (
+          <EstablishmentCard 
+            key={establishment.id} 
+            establishment={establishment}
+            index={index}
+          />
+        ))}
+      </div>
+    );
+  } catch (error) {
+    console.error('Error loading establishments:', error);
+    return (
+      <ErrorMessage
+        title="Erreur de chargement"
+        message="Impossible de charger les établissements. Vérifiez votre connexion."
       />
     );
   }
-
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {establishments.map((establishment, index) => (
-        <EstablishmentCard 
-          key={establishment.id} 
-          establishment={establishment}
-          index={index}
-        />
-      ))}
-    </div>
-  );
 }
 
 export default function ExplorerPage({
@@ -80,35 +100,9 @@ export default function ExplorerPage({
     category?: string;
     neighborhood?: string;
     minRating?: string;
+    page?: string;
   };
 }) {
-  // Calculer le nombre de résultats
-  let resultCount = mockEstablishments.length;
-  
-  if (searchParams.q || searchParams.category || searchParams.neighborhood || searchParams.minRating) {
-    let filtered = mockEstablishments;
-    
-    if (searchParams.q) {
-      filtered = filtered.filter((est) =>
-        est.name.toLowerCase().includes(searchParams.q!.toLowerCase())
-      );
-    }
-    if (searchParams.category) {
-      const categories = searchParams.category.split(',');
-      filtered = filtered.filter((est) => categories.includes(est.category));
-    }
-    if (searchParams.neighborhood) {
-      const neighborhoods = searchParams.neighborhood.split(',');
-      filtered = filtered.filter((est) => neighborhoods.includes(est.neighborhood));
-    }
-    if (searchParams.minRating) {
-      const minRating = Number(searchParams.minRating);
-      filtered = filtered.filter((est) => est.rating >= minRating);
-    }
-    
-    resultCount = filtered.length;
-  }
-
   return (
     <div className="min-h-screen bg-light py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -118,28 +112,21 @@ export default function ExplorerPage({
           <SearchBar />
         </div>
 
-        {/* Filtres rapides (chips) */}
+        {/* Filtres rapides */}
         <div className="mb-6">
           <FilterChips />
         </div>
 
         {/* Layout avec sidebar */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar - Filtres avancés (desktop uniquement) */}
+          {/* Sidebar - Filtres avancés */}
           <aside className="hidden lg:block">
             <AdvancedFilters />
           </aside>
 
           {/* Contenu principal */}
           <div className="lg:col-span-3">
-            {/* Nombre de résultats */}
-            <div className="mb-6">
-              <p className="text-gray">
-                <span className="font-semibold text-dark">{resultCount}</span> résultat{resultCount > 1 ? 's' : ''} trouvé{resultCount > 1 ? 's' : ''}
-              </p>
-            </div>
-
-            {/* Grille d'établissements avec loading state */}
+            {/* Grille d'établissements */}
             <Suspense
               fallback={
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -154,6 +141,7 @@ export default function ExplorerPage({
           </div>
         </div>
       </div>
+
       {/* Bouton filtres mobile */}
       <MobileFiltersButton />
     </div>
