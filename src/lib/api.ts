@@ -9,6 +9,16 @@ import {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+// Durées de revalidation (en secondes)
+const CACHE_TIMES = {
+  CATEGORIES: 3600,      // 1 heure
+  QUARTIERS: 3600,       // 1 heure
+  ESTABLISHMENTS: 300,   // 5 minutes
+  FEATURED: 600,         // 10 minutes
+  EVENTS: 180,           // 3 minutes
+  DETAIL: 300,           // 5 minutes
+};
+
 // Helper pour gérer les erreurs
 async function handleResponse<T>(response: Response): Promise<T> {
   const contentType = response.headers.get('content-type');
@@ -47,7 +57,10 @@ export const categoryService = {
     console.log('Fetching categories from:', `${API_BASE_URL}/api/v1/categories/`);
     
     const response = await fetch(`${API_BASE_URL}/api/v1/categories/`, {
-      cache: 'no-store',
+      next: { 
+        revalidate: CACHE_TIMES.CATEGORIES,
+        tags: ['categories'] 
+      },
     });
     
     return handleResponse<ApiCategory[]>(response);
@@ -60,7 +73,10 @@ export const quartierService = {
     console.log('Fetching quartiers from:', `${API_BASE_URL}/api/v1/quartiers/`);
     
     const response = await fetch(`${API_BASE_URL}/api/v1/quartiers/`, {
-      cache: 'no-store',
+      next: { 
+        revalidate: CACHE_TIMES.QUARTIERS,
+        tags: ['quartiers'] 
+      },
     });
     
     return handleResponse<ApiQuartier[]>(response);
@@ -85,7 +101,13 @@ export const establishmentService = {
     const url = `${API_BASE_URL}/api/v1/etablissements/?${queryParams}`;
     console.log('Fetching establishments from:', url);
 
-    const response = await fetch(url, { cache: 'no-store' });
+    const response = await fetch(url, { 
+      next: { 
+        revalidate: CACHE_TIMES.ESTABLISHMENTS,
+        tags: ['establishments', `establishments-page-${params?.page || 1}`] 
+      },
+    });
+    
     return handleResponse<PaginatedResponse<EstablishmentListItem>>(response);
   },
 
@@ -101,7 +123,13 @@ export const establishmentService = {
     const url = `${API_BASE_URL}/api/v1/etablissements/featured/?${queryParams}`;
     console.log('Fetching featured establishments from:', url);
 
-    const response = await fetch(url, { cache: 'no-store' });
+    const response = await fetch(url, { 
+      next: { 
+        revalidate: CACHE_TIMES.FEATURED,
+        tags: ['establishments', 'featured'] 
+      },
+    });
+    
     const data = await handleResponse<any>(response);
     
     // Si l'API retourne un tableau direct (pas paginé)
@@ -131,7 +159,14 @@ export const establishmentService = {
     const url = `${API_BASE_URL}/api/v1/etablissements/search/?${queryParams}`;
     console.log('Searching establishments:', url);
 
-    const response = await fetch(url, { cache: 'no-store' });
+    // Pour la recherche, on utilise un cache plus court car c'est dynamique
+    const response = await fetch(url, { 
+      next: { 
+        revalidate: 60, // 1 minute pour les recherches
+        tags: ['establishments', 'search'] 
+      },
+    });
+    
     return handleResponse<PaginatedResponse<EstablishmentListItem>>(response);
   },
 
@@ -140,7 +175,13 @@ export const establishmentService = {
     const url = `${API_BASE_URL}/api/v1/etablissements/${id}/`;
     console.log('Fetching establishment detail:', url);
 
-    const response = await fetch(url, { cache: 'no-store' });
+    const response = await fetch(url, { 
+      next: { 
+        revalidate: CACHE_TIMES.DETAIL,
+        tags: ['establishments', `establishment-${id}`] 
+      },
+    });
+    
     return handleResponse<Establishment>(response);
   },
 };
@@ -163,7 +204,13 @@ export const eventService = {
     const url = `${API_BASE_URL}/api/v1/events/?${queryParams}`;
     console.log('Fetching events from:', url);
 
-    const response = await fetch(url, { cache: 'no-store' });
+    const response = await fetch(url, { 
+      next: { 
+        revalidate: CACHE_TIMES.EVENTS,
+        tags: ['events', `events-page-${params?.page || 1}`] 
+      },
+    });
+    
     return handleResponse<PaginatedResponse<Event>>(response);
   },
 
@@ -172,7 +219,13 @@ export const eventService = {
     const url = `${API_BASE_URL}/api/v1/events/${id}/`;
     console.log('Fetching event detail:', url);
 
-    const response = await fetch(url, { cache: 'no-store' });
+    const response = await fetch(url, { 
+      next: { 
+        revalidate: CACHE_TIMES.DETAIL,
+        tags: ['events', `event-${id}`] 
+      },
+    });
+    
     return handleResponse<Event>(response);
   },
 };

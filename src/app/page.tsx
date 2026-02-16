@@ -5,9 +5,11 @@ import UpcomingEvents from '@/components/home/UpcomingEvents';
 import NewEstablishments from '@/components/home/NewEstablishments';
 import FadeIn from '@/components/ui/FadeIn';
 import ErrorMessage from '@/components/ui/ErrorMessage';
-import { establishmentService, eventService } from '@/lib/api';
+import { cachedEstablishmentService, cachedEventService } from '@/lib/cached-api';
 import { transformEstablishmentList, transformEvent } from '@/lib/apiTransformers';
 import { mockEstablishments, mockEvents } from '@/lib/mockData';
+
+export const revalidate = 300; // Revalider toute la page toutes les 5 minutes
 
 export default async function Home() {
   let featuredEstablishments = [];
@@ -15,27 +17,21 @@ export default async function Home() {
   let hasError = false;
 
   try {
-    // Récupérer les établissements featured
-    const featuredResponse = await establishmentService.getFeatured({ page_size: 6 });
-    
-    console.log('Featured Response:', JSON.stringify(featuredResponse, null, 2));
+    // Récupérer les établissements featured (cached)
+    const featuredResponse = await cachedEstablishmentService.getFeatured({ page_size: 6 });
     
     if (featuredResponse && featuredResponse.results && Array.isArray(featuredResponse.results)) {
       featuredEstablishments = featuredResponse.results.map(transformEstablishmentList);
     } else {
-      console.error('Featured response format incorrect:', featuredResponse);
       throw new Error('Format de réponse invalide');
     }
 
-    // Récupérer tous les événements
-    const eventsResponse = await eventService.getAll({ page_size: 10, ordering: 'date_debut' });
-    
-    console.log('Events Response:', JSON.stringify(eventsResponse, null, 2));
+    // Récupérer tous les événements (cached)
+    const eventsResponse = await cachedEventService.getAll({ page_size: 10, ordering: 'date_debut' });
     
     if (eventsResponse && eventsResponse.results && Array.isArray(eventsResponse.results)) {
       events = eventsResponse.results.map(transformEvent);
     } else {
-      console.error('Events response format incorrect:', eventsResponse);
       throw new Error('Format de réponse invalide');
     }
 
@@ -43,8 +39,7 @@ export default async function Home() {
     console.error('Error loading home page:', error);
     hasError = true;
     
-    // Fallback sur les données mock en cas d'erreur
-    console.log('Using mock data as fallback');
+    // Fallback sur les données mock
     featuredEstablishments = mockEstablishments.map(est => ({
       id: est.id,
       name: est.name,
@@ -103,3 +98,15 @@ export default async function Home() {
     </>
   );
 }
+
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'ZURY - Découvrez Brazzaville | Restaurants, Bars, Hôtels & Événements',
+  description: 'Explorez les meilleurs restaurants, bars, hôtels et événements de Brazzaville. Trouvez votre prochain lieu favori avec Zury.',
+  openGraph: {
+    title: 'ZURY - Plateforme HoReCa Brazzaville',
+    description: 'Découvrez les meilleurs lieux de Brazzaville',
+    type: 'website',
+  },
+};
