@@ -6,59 +6,62 @@ import EstablishmentCard from '@/components/ui/EstablishmentCard';
 import EstablishmentCardSkeleton from '@/components/ui/EstablishmentCardSkeleton';
 import EmptyState from '@/components/ui/EmptyState';
 import ErrorMessage from '@/components/ui/ErrorMessage';
+import Pagination from '@/components/ui/Pagination';
 import MobileFiltersButton from '@/components/establishments/MobileFiltersButton';
 import { establishmentService } from '@/lib/api';
 import { transformEstablishmentList } from '@/lib/apiTransformers';
 
 async function EstablishmentsList({
-  searchParams,
+  q,
+  category,
+  neighborhood,
+  minRating,
+  page,
 }: {
-  searchParams: { 
-    q?: string; 
-    category?: string; 
-    neighborhood?: string;
-    minRating?: string;
-    page?: string;
-  };
+  q?: string;
+  category?: string;
+  neighborhood?: string;
+  minRating?: string;
+  page: number;
 }) {
   try {
+    const pageSize = 12;
+
     let response;
-    const page = searchParams.page ? parseInt(searchParams.page) : 1;
 
     // Si recherche active
-    if (searchParams.q) {
-      response = await establishmentService.search(searchParams.q, {
+    if (q) {
+      response = await establishmentService.search(q, {
         page,
-        page_size: 25,
+        page_size: pageSize,
       });
     } else {
       response = await establishmentService.getAll({
         page,
-        page_size: 25,
-        search: searchParams.q,
+        page_size: pageSize,
       });
     }
 
     let establishments = response.results.map(transformEstablishmentList);
 
     // Filtrage côté client (temporaire - à faire côté API plus tard)
-    if (searchParams.category) {
-      const categories = searchParams.category.split(',');
+    if (category) {
+      const categories = category.split(',');
       establishments = establishments.filter((est) =>
         categories.includes(est.category)
       );
     }
 
-    if (searchParams.neighborhood) {
-      const neighborhoods = searchParams.neighborhood.split(',');
+    if (neighborhood) {
+      const neighborhoods = neighborhood.split(',');
       establishments = establishments.filter((est) =>
         neighborhoods.includes(est.neighborhood)
       );
     }
 
-    if (searchParams.minRating) {
-      const minRating = Number(searchParams.minRating);
-      establishments = establishments.filter((est) => est.rating >= minRating);
+    if (minRating) {
+      const minRatingNum = Number(minRating);
+      establishments = establishments.filter((est) => est.rating >= minRatingNum);
     }
 
     if (establishments.length === 0) {
@@ -70,16 +73,29 @@ async function EstablishmentsList({
       );
     }
 
+    // Calculer le nombre total de pages
+    const totalPages = Math.ceil(response.count / pageSize);
+
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {establishments.map((establishment, index) => (
-          <EstablishmentCard 
-            key={establishment.id} 
-            establishment={establishment}
-            index={index}
-          />
-        ))}
-      </div>
+      <>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {establishments.map((establishment, index) => (
+            <EstablishmentCard 
+              key={establishment.id} 
+              establishment={establishment}
+              index={index}
+            />
+          ))}
+        </div>
+
+        {/* Pagination */}
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          totalCount={response.count}
+          pageSize={pageSize}
+        />
+      </>
     );
   } catch (error) {
     console.error('Error loading establishments:', error);
@@ -92,17 +108,21 @@ async function EstablishmentsList({
   }
 }
 
-export default function ExplorerPage({
+export default async function ExplorerPage({
   searchParams,
 }: {
-  searchParams: { 
+  searchParams: Promise<{ 
     q?: string; 
     category?: string;
     neighborhood?: string;
     minRating?: string;
     page?: string;
-  };
+  }>;
 }) {
+  // Unwrap searchParams
+  const params = await searchParams;
+  const page = params.page ? parseInt(params.page) : 1;
+
   return (
     <div className="min-h-screen bg-light py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -136,7 +156,13 @@ export default function ExplorerPage({
                 </div>
               }
             >
-              <EstablishmentsList searchParams={searchParams} />
+              <EstablishmentsList 
+                q={params.q}
+                category={params.category}
+                neighborhood={params.neighborhood}
+                minRating={params.minRating}
+                page={page}
+              />
             </Suspense>
           </div>
         </div>
