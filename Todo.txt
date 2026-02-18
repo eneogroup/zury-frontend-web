@@ -26,6 +26,13 @@
 [] Code splitting avancé
 [] Prefetching "intelligent
 
+##=================== INTEGRATION DE GOOGLE MAPS ==============
+[] Intégrer Google Maps JavaScript API
+[] Afficher tous les établissements avec markers
+[] Clusters pour grouper les markers proches
+[] InfoWindow au clic sur marker
+[] Filtres sur la carte
+
 ##==================== 4. PWA (Progressive Web App) ===============
 [] Manifest.json
 [] Service Worker
