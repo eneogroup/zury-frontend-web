@@ -14,6 +14,8 @@ export default function Header() {
     { href: '/explorer', label: 'Explorer' },
     { href: '/carte', label: 'Carte' },
     { href: '/evenements', label: 'Événements' },
+    { href: '/rejoindre-zury', label: 'Rejoignez ZURY' },
+    { href: '/eneo-academy', label: 'Eneo Academy' },
   ];
 
   return (
