@@ -87,13 +87,13 @@ export default async function Home() {
         <Categories />
       </FadeIn>
       <FadeIn delay={0.3}>
-        <FeaturedEstablishments establishments={featuredEstablishments.slice(0, 3)} />
+        <FeaturedEstablishments establishments={featuredEstablishments.slice(0, 8)} />
       </FadeIn>
       <FadeIn delay={0.4}>
-        <UpcomingEvents events={events.slice(0, 3)} />
+        <UpcomingEvents events={events.slice(0, 8)} />
       </FadeIn>
       <FadeIn delay={0.5}>
-        <NewEstablishments establishments={featuredEstablishments.slice(3, 6)} />
+        <NewEstablishments establishments={featuredEstablishments.slice(3, 8)} />
       </FadeIn>
     </>
   );
