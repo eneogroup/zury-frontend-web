@@ -13,7 +13,11 @@ const heroImages = [
   'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=2074', // Restaurant extérieur
 ];
 
-export default function Hero() {
+interface HeroProps {
+  stats?: any;
+}
+
+export default function Hero({ stats }: HeroProps) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [category, setCategory] = useState('all');
@@ -214,20 +218,23 @@ export default function Hero() {
         </form>
 
         {/* Stats rapides */}
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-8 text-white">
-          <div className="text-center">
-            <div className="text-3xl font-bold">200+</div>
-            <div className="text-sm text-white/80">Établissements</div>
+        {/* Stats rapides */}
+        {stats && (
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-8 text-white">
+            <div className="text-center">
+              <div className="text-3xl font-bold">{stats.etablissements.total}+</div>
+              <div className="text-sm text-white/80">Établissements</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold">{stats.events.total_a_venir}+</div>
+              <div className="text-sm text-white/80">Événements à venir</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold">{stats.utilisateurs.total_installations}+</div>
+              <div className="text-sm text-white/80">Utilisateurs</div>
+            </div>
           </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold">50+</div>
-            <div className="text-sm text-white/80">Événements/mois</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold">10K+</div>
-            <div className="text-sm text-white/80">Visiteurs</div>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

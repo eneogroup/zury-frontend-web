@@ -7,9 +7,10 @@ import EstablishmentCardSkeleton from '@/components/ui/EstablishmentCardSkeleton
 import EmptyState from '@/components/ui/EmptyState';
 import Pagination from '@/components/ui/Pagination';
 import MobileFiltersButton from '@/components/establishments/MobileFiltersButton';
-import { mockEstablishments } from '@/lib/mockData';
+import { cachedEstablishmentService } from '@/lib/cached-api';
+import { transformEstablishmentList } from '@/lib/apiTransformers';
 
-function EstablishmentsList({
+async function EstablishmentsList({
   q,
   category,
   neighborhood,
@@ -22,74 +23,78 @@ function EstablishmentsList({
   minRating?: string;
   page: number;
 }) {
-  const pageSize = 12;
-  let establishments = mockEstablishments;
+  try {
+    const pageSize = 12;
 
-  // Filtrage par recherche
-  if (q) {
-    establishments = establishments.filter((est) =>
-      est.name.toLowerCase().includes(q.toLowerCase())
+    // Construire les paramètres de filtre
+    const params: any = {
+      page,
+      page_size: pageSize,
+    };
+
+    // Ajouter la recherche si présente
+    if (q) {
+      params.search = q;
+    }
+
+    // Ajouter les filtres
+    if (category && category !== 'all') {
+      params.categorie = category;
+    }
+
+    if (neighborhood) {
+      params.quartier = neighborhood;
+    }
+
+    if (minRating) {
+      params.note_min = parseFloat(minRating);
+    }
+
+    // Toujours utiliser getAll qui supporte tous les paramètres
+    const response = await cachedEstablishmentService.getAll(params);
+
+    const establishments = response.results.map(transformEstablishmentList);
+
+    if (establishments.length === 0) {
+      return (
+        <EmptyState
+          title="Aucun établissement trouvé"
+          message="Essayez de modifier vos critères de recherche ou explorez d'autres catégories."
+        />
+      );
+    }
+
+    const totalPages = response.total_pages || Math.ceil(response.count / pageSize);
+
+    return (
+      <>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {establishments.map((establishment, index) => (
+            <EstablishmentCard 
+              key={establishment.id} 
+              establishment={establishment}
+              index={index}
+            />
+          ))}
+        </div>
+
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          totalCount={response.count}
+          pageSize={pageSize}
+        />
+      </>
     );
-  }
-
-  // Filtrage par catégories
-  if (category) {
-    const categories = category.split(',');
-    establishments = establishments.filter((est) =>
-      categories.includes(est.category)
-    );
-  }
-
-  // Filtrage par quartiers
-  if (neighborhood) {
-    const neighborhoods = neighborhood.split(',');
-    establishments = establishments.filter((est) =>
-      neighborhoods.includes(est.neighborhood)
-    );
-  }
-
-  // Filtrage par note minimale
-  if (minRating) {
-    const minRatingNum = Number(minRating);
-    establishments = establishments.filter((est) => est.rating >= minRatingNum);
-  }
-
-  if (establishments.length === 0) {
+  } catch (error) {
+    console.error('Error loading establishments:', error);
     return (
       <EmptyState
-        title="Aucun établissement trouvé"
-        message="Essayez de modifier vos critères de recherche ou explorez d'autres catégories."
+        title="Erreur de chargement"
+        message="Impossible de charger les établissements. Vérifiez votre connexion."
       />
     );
   }
-
-  // Pagination
-  const totalCount = establishments.length;
-  const totalPages = Math.ceil(totalCount / pageSize);
-  const startIndex = (page - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-  const paginatedEstablishments = establishments.slice(startIndex, endIndex);
-
-  return (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {paginatedEstablishments.map((establishment, index) => (
-          <EstablishmentCard 
-            key={establishment.id} 
-            establishment={establishment}
-            index={index}
-          />
-        ))}
-      </div>
-
-      <Pagination
-        currentPage={page}
-        totalPages={totalPages}
-        totalCount={totalCount}
-        pageSize={pageSize}
-      />
-    </>
-  );
 }
 
 export default async function ExplorerPage({

@@ -4,56 +4,83 @@ import EventCard from '@/components/ui/EventCard';
 import EventCardSkeleton from '@/components/ui/EventCardSkeleton';
 import EmptyState from '@/components/ui/EmptyState';
 import Pagination from '@/components/ui/Pagination';
-import { mockEvents } from '@/lib/mockData';
-import { filterEventsByPeriod } from '@/lib/dateFilters';
+import { cachedEventService } from '@/lib/cached-api';
+import { transformEvent } from '@/lib/apiTransformers';
 
-function EventsList({
+async function EventsList({
   page,
   period,
 }: {
   page: number;
   period?: string;
 }) {
-  const pageSize = 12;
-  let events = mockEvents;
+  try {
+    const pageSize = 12;
+    
+    let response;
 
-  // Filtrer par période
-  events = filterEventsByPeriod(events, period);
+    // Filtrer selon la période
+    switch (period) {
+      case 'today':
+        response = await cachedEventService.getToday();
+        break;
+      case 'weekend':
+        response = await cachedEventService.getThisWeekend();
+        break;
+      case 'week':
+      case 'month':
+      case 'all':
+      default:
+        response = await cachedEventService.getUpcoming();
+        break;
+    }
 
-  if (events.length === 0) {
+    let events = response.results ? response.results.map(transformEvent) : response.map(transformEvent);
+
+    if (events.length === 0) {
+      return (
+        <EmptyState
+          title="Aucun événement trouvé"
+          message="Il n'y a pas d'événements prévus pour cette période. Revenez plus tard !"
+          icon="empty"
+        />
+      );
+    }
+
+    // Pagination manuelle pour les endpoints qui ne retournent pas de pagination
+    const totalCount = events.length;
+    const totalPages = Math.ceil(totalCount / pageSize);
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginatedEvents = events.slice(startIndex, endIndex);
+
+    return (
+      <>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {paginatedEvents.map((event, index) => (
+            <EventCard key={event.id} event={event} index={index} />
+          ))}
+        </div>
+
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            totalCount={totalCount}
+            pageSize={pageSize}
+          />
+        )}
+      </>
+    );
+  } catch (error) {
+    console.error('Error loading events:', error);
     return (
       <EmptyState
-        title="Aucun événement trouvé"
-        message="Il n'y a pas d'événements prévus pour cette période. Revenez plus tard !"
-        icon="empty"
+        title="Erreur de chargement"
+        message="Impossible de charger les événements."
       />
     );
   }
-
-  const totalCount = events.length;
-  const totalPages = Math.ceil(totalCount / pageSize);
-  const startIndex = (page - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-  const paginatedEvents = events.slice(startIndex, endIndex);
-
-  return (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {paginatedEvents.map((event, index) => (
-          <EventCard key={event.id} event={event} index={index} />
-        ))}
-      </div>
-
-      {totalPages > 1 && (
-        <Pagination
-          currentPage={page}
-          totalPages={totalPages}
-          totalCount={totalCount}
-          pageSize={pageSize}
-        />
-      )}
-    </>
-  );
 }
 
 export default async function EventsPage({
@@ -86,7 +113,7 @@ export default async function EventsPage({
         {/* Grille d'événements */}
         <Suspense
           fallback={
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
                 <EventCardSkeleton key={i} />
               ))}

@@ -3,7 +3,9 @@ import {
   establishmentService, 
   eventService, 
   categoryService, 
-  quartierService 
+  quartierService,
+  statsService,
+  searchService,
 } from './api';
 
 /**
@@ -16,10 +18,15 @@ export const cachedEstablishmentService = {
   getFeatured: cache(establishmentService.getFeatured),
   search: cache(establishmentService.search),
   getById: cache(establishmentService.getById),
+  getOpenStatus: cache(establishmentService.getOpenStatus),
+  getNearby: cache(establishmentService.getNearby),
 };
 
 export const cachedEventService = {
   getAll: cache(eventService.getAll),
+  getUpcoming: cache(eventService.getUpcoming),
+  getToday: cache(eventService.getToday),
+  getThisWeekend: cache(eventService.getThisWeekend),
   getById: cache(eventService.getById),
 };
 
@@ -29,4 +36,13 @@ export const cachedCategoryService = {
 
 export const cachedQuartierService = {
   getAll: cache(quartierService.getAll),
+};
+
+export const cachedStatsService = {
+  getGlobalStats: cache(statsService.getGlobalStats),
+};
+
+export const cachedSearchService = {
+  search: cache(searchService.search),
+  autocomplete: cache(searchService.autocomplete),
 };

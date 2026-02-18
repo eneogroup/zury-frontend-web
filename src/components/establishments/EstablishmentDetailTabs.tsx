@@ -6,6 +6,7 @@ import { Star, MapPin, Phone, Clock, Calendar, Image as ImageIcon, Video, Info, 
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import ImageWithFallback from '@/components/ui/ImageWithFallback';
+import ShareButton from '@/components/ui/ShareButton';
 import { cn } from '@/lib/utils';
 
 interface Establishment {
@@ -155,9 +156,7 @@ export default function EstablishmentDetailTabs({
                   <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500' : ''}`} />
                 </button>
 
-                <button className="px-4 py-2 rounded-lg font-medium bg-gray-100 border-2 border-gray-200 text-gray-700 hover:border-primary transition-all">
-                  <Share2 className="w-5 h-5" />
-                </button>
+                <ShareButton establishmentId={establishment.id} variant="outline" size="md" />
               </div>
             </div>
           </div>
