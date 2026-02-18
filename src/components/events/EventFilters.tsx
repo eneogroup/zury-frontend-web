@@ -4,11 +4,11 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
 const periods = [
-  { label: 'Tout', value: 'all' },
-  { label: "Aujourd'hui", value: 'today' },
-  { label: 'Ce weekend', value: 'weekend' },
-  { label: 'Cette semaine', value: 'week' },
-  { label: 'Ce mois', value: 'month' },
+  { id: 'all', label: 'Tout' },
+  { id: 'today', label: "Aujourd'hui" },
+  { id: 'weekend', label: 'Ce weekend' },
+  { id: 'week', label: 'Cette semaine' },
+  { id: 'month', label: 'Ce mois' },
 ];
 
 export default function EventFilters() {
@@ -16,40 +16,39 @@ export default function EventFilters() {
   const searchParams = useSearchParams();
   const currentPeriod = searchParams.get('period') || 'all';
 
-  const handleFilterChange = (period: string) => {
+  const handlePeriodChange = (periodId: string) => {
     const params = new URLSearchParams(searchParams);
     
-    if (period === 'all') {
+    if (periodId === 'all') {
       params.delete('period');
     } else {
-      params.set('period', period);
+      params.set('period', periodId);
     }
     
-    // Réinitialiser la pagination quand on change de filtre
-    params.delete('page');
+    params.delete('page'); // Reset pagination
     
     router.push(`/evenements?${params.toString()}`);
   };
 
   return (
-    <div className="flex items-center gap-3 overflow-x-auto pb-2">
-      <span className="text-sm font-medium text-dark whitespace-nowrap">Période :</span>
-      <div className="flex gap-2">
-        {periods.map((period) => (
-          <button
-            key={period.value}
-            onClick={() => handleFilterChange(period.value)}
-            className={cn(
-              "px-4 py-2 rounded-lg font-medium transition-all whitespace-nowrap",
-              currentPeriod === period.value
-                ? "bg-primary text-white shadow-md"
-                : "bg-white text-gray border border-gray-200 hover:border-primary hover:text-primary"
-            )}
-          >
-            {period.label}
-          </button>
-        ))}
-      </div>
+    <div className="flex items-center gap-2 overflow-x-auto pb-2">
+      <span className="text-sm font-semibold text-dark whitespace-nowrap mr-2">
+        Période :
+      </span>
+      {periods.map((period) => (
+        <button
+          key={period.id}
+          onClick={() => handlePeriodChange(period.id)}
+          className={cn(
+            "px-5 py-2.5 rounded-full font-medium transition-all whitespace-nowrap shadow-sm",
+            currentPeriod === period.id || (period.id === 'all' && !currentPeriod)
+              ? "bg-primary text-white scale-105"
+              : "bg-white text-dark border border-gray-200 hover:border-primary hover:shadow-md"
+          )}
+        >
+          {period.label}
+        </button>
+      ))}
     </div>
   );
 }
