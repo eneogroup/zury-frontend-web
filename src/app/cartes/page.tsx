@@ -1,30 +1,25 @@
+// Si c'est dans src/app/carte/page.tsx
 import MapView from '@/components/map/MapView';
-import { cachedEstablishmentService } from '@/lib/cached-api';
-import { transformEstablishmentList } from '@/lib/apiTransformers';
-import ErrorMessage from '@/components/ui/ErrorMessage';
-
-export const revalidate = 300; // Revalider toutes les 5 minutes
 
 export default async function CartePage() {
-  try {
-    // Récupérer tous les établissements
-    const response = await cachedEstablishmentService.getAll({
-      page: 1,
-      page_size: 100, // Récupérer beaucoup d'établissements pour la carte
-    });
-
-    const establishments = response.results.map(transformEstablishmentList);
-
-    return <MapView establishments={establishments} />;
-  } catch (error) {
-    console.error('Error loading map:', error);
-    return (
-      <div className="min-h-screen bg-light py-20">
-        <ErrorMessage
-          title="Erreur de chargement"
-          message="Impossible de charger la carte. Vérifiez votre connexion."
-        />
+  // Pour l'instant, retourner une page simple
+  return (
+    <div className="min-h-screen bg-light">
+      <div className="bg-gradient-to-r from-dark to-dark/90 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h1 className="text-4xl font-bold mb-2">Carte</h1>
+          <p className="text-white/80 text-lg">
+            Trouvez les établissements près de vous
+          </p>
+        </div>
       </div>
-    );
-  }
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white rounded-2xl p-6 text-center">
+          <p className="text-gray-600 mb-4">La carte interactive sera bientôt disponible.</p>
+          <p className="text-sm text-gray-400">Google Maps en cours d'intégration</p>
+        </div>
+      </div>
+    </div>
+  );
 }

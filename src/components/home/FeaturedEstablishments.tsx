@@ -1,8 +1,8 @@
 import EstablishmentCard from '@/components/ui/EstablishmentCard';
-import { Establishment } from '@/types';
+import type { TransformedEstablishment } from '@/types';
 
 interface FeaturedEstablishmentsProps {
-  establishments: Establishment[];
+  establishments: TransformedEstablishment[];
 }
 
 export default function FeaturedEstablishments({ establishments }: FeaturedEstablishmentsProps) {

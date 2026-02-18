@@ -29,8 +29,8 @@ export interface Establishment {
   site_web?: string;
   facebook?: string;
   instagram?: string;
-  latitude: string | null;
-  longitude: string | null;
+  latitude: string | number | null;
+  longitude: string | number | null;
   horaires?: any;
   tags?: string[];
   medias?: any;
@@ -53,8 +53,8 @@ export interface EstablishmentListItem {
   quartier_nom: string;
   ville_nom: string;
   adresse: string;
-  latitude: string | null;
-  longitude: string | null;
+  latitude: string | number | null;
+  longitude: string | number | null;
   note_moyenne: string;
   nombre_avis: number;
   image_principale: string;
@@ -82,6 +82,38 @@ export interface Event {
   statut_display?: string;
   created_at?: string;
   updated_at?: string;
+}
+
+export interface TransformedEvent {
+  id: string;
+  title: string;
+  category: string;
+  date: string;
+  time: string;
+  establishment: string;
+  establishmentId?: string;
+  price: string;
+  availablePlaces: number;
+  totalPlaces: number;
+  imageUrl: string;
+  description?: string;
+  dateDebut: string;
+  dateFin: string;
+  isComplete: boolean;
+}
+
+export interface TransformedEstablishment {
+  id: string;
+  name: string;
+  category: EstablishmentCategory;
+  address: string;
+  neighborhood: string;
+  rating: number;
+  reviewCount: number;
+  imageUrl: string;
+  latitude?: number;
+  longitude?: number;
+  isPremium: boolean;
 }
 
 export interface PaginatedResponse<T> {

@@ -1,9 +1,9 @@
 import EventCard from '@/components/ui/EventCard';
-import { Event } from '@/types';
+import type { TransformedEvent } from '@/types';
 import Link from 'next/link';
 
 interface UpcomingEventsProps {
-  events: Event[];
+  events: TransformedEvent[];
 }
 
 export default function UpcomingEvents({ events }: UpcomingEventsProps) {

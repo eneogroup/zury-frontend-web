@@ -9,6 +9,7 @@ import Pagination from '@/components/ui/Pagination';
 import MobileFiltersButton from '@/components/establishments/MobileFiltersButton';
 import { cachedEstablishmentService } from '@/lib/cached-api';
 import { transformEstablishmentList } from '@/lib/apiTransformers';
+import type { TransformedEstablishment } from '@/types';
 
 async function EstablishmentsList({
   q,
@@ -51,9 +52,9 @@ async function EstablishmentsList({
     }
 
     // Toujours utiliser getAll qui supporte tous les paramètres
-    const response = await cachedEstablishmentService.getAll(params);
+    const response = await cachedEstablishmentService.getAll(params) as any;
 
-    const establishments = response.results.map(transformEstablishmentList);
+    const establishments: TransformedEstablishment[] = response.results.map(transformEstablishmentList);
 
     if (establishments.length === 0) {
       return (

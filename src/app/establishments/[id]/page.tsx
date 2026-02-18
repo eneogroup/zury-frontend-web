@@ -17,25 +17,30 @@ export default async function EstablishmentDetailPage({
     const establishmentData = await cachedEstablishmentService.getById(id);
     const establishment = transformEstablishmentDetail(establishmentData);
 
-    // Essayer de récupérer le statut d'ouverture (peut échouer si endpoint non implémenté)
+    // Essayer de récupérer le statut d'ouverture
     try {
-      const statusData = await cachedEstablishmentService.getOpenStatus(id);
-      establishment.isOpen = statusData.est_ouvert;
+      const statusData = await cachedEstablishmentService.getOpenStatus(id) as { est_ouvert: boolean };
+      establishment.isOpen = statusData.est_ouvert || false;
     } catch (error) {
       // Utiliser le champ est_ouvert de l'établissement si disponible
-      establishment.isOpen = establishmentData.est_ouvert || false;
+      const estData = establishmentData as { est_ouvert?: boolean };
+      establishment.isOpen = estData.est_ouvert || false;
       console.log('Open status endpoint not available, using default');
     }
 
     // Récupérer les événements
-    let events = [];
+    let events: any[] = [];
     try {
       const eventsResponse = await cachedEventService.getAll({ 
         etablissement_id: id,
         a_venir: true,
         page_size: 10 
-      });
-      const eventsList = eventsResponse.results || eventsResponse;
+      }) as { results?: any[] } | any[];
+      
+      const eventsList = Array.isArray(eventsResponse) 
+        ? eventsResponse 
+        : (eventsResponse.results || []);
+      
       events = eventsList.map(transformEvent);
     } catch (error) {
       console.log('No events for this establishment');

@@ -1,4 +1,4 @@
-import { revalidateTag, revalidatePath } from 'next/cache';
+import { revalidatePath } from 'next/cache';
 
 /**
  * Utilitaires pour invalider le cache Next.js
@@ -7,45 +7,36 @@ import { revalidateTag, revalidatePath } from 'next/cache';
 
 export const cacheUtils = {
   // Invalider toutes les pages d'établissements
-  revalidateEstablishments: () => {
-    revalidateTag('establishments');
-    revalidatePath('/explorer');
-    revalidatePath('/');
+  revalidateEstablishments: async () => {
+    await revalidatePath('/explorer');
+    await revalidatePath('/');
   },
 
   // Invalider un établissement spécifique
-  revalidateEstablishment: (id: string) => {
-    revalidateTag(`establishment-${id}`);
-    revalidatePath(`/establishments/${id}`);
+  revalidateEstablishment: async (id: string) => {
+    await revalidatePath(`/establishments/${id}`);
   },
 
   // Invalider tous les événements
-  revalidateEvents: () => {
-    revalidateTag('events');
-    revalidatePath('/evenements');
-    revalidatePath('/');
+  revalidateEvents: async () => {
+    await revalidatePath('/evenements');
+    await revalidatePath('/');
   },
 
   // Invalider un événement spécifique
-  revalidateEvent: (id: string) => {
-    revalidateTag(`event-${id}`);
-    revalidatePath(`/evenements/${id}`);
+  revalidateEvent: async (id: string) => {
+    await revalidatePath(`/evenements/${id}`);
   },
 
   // Invalider les featured
-  revalidateFeatured: () => {
-    revalidateTag('featured');
-    revalidatePath('/');
+  revalidateFeatured: async () => {
+    await revalidatePath('/');
   },
 
   // Invalider tout
-  revalidateAll: () => {
-    revalidateTag('establishments');
-    revalidateTag('events');
-    revalidateTag('categories');
-    revalidateTag('quartiers');
-    revalidatePath('/');
-    revalidatePath('/explorer');
-    revalidatePath('/evenements');
+  revalidateAll: async () => {
+    await revalidatePath('/');
+    await revalidatePath('/explorer');
+    await revalidatePath('/evenements');
   },
 };

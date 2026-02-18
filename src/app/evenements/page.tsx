@@ -6,6 +6,7 @@ import EmptyState from '@/components/ui/EmptyState';
 import Pagination from '@/components/ui/Pagination';
 import { cachedEventService } from '@/lib/cached-api';
 import { transformEvent } from '@/lib/apiTransformers';
+import type { TransformedEvent } from '@/types';
 
 async function EventsList({
   page,
@@ -35,7 +36,7 @@ async function EventsList({
         break;
     }
 
-    let events = response.results ? response.results.map(transformEvent) : response.map(transformEvent);
+    let events: TransformedEvent[] = response.results ? response.results.map(transformEvent) : response.map(transformEvent);
 
     if (events.length === 0) {
       return (
