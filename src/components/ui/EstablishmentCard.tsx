@@ -25,27 +25,28 @@ export default function EstablishmentCard({ establishment, index = 0 }: Establis
   return (
     <FadeIn delay={index * 0.1}>
       <Link href={`/establishments/${establishment.id}`}>
-        <div className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer">
+        <div className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer border border-gray-100/50 hover:border-primary/20 hover:-translate-y-1">
           {/* Image */}
           <div className="relative h-48 w-full overflow-hidden">
             <ImageWithFallback
               src={establishment.imageUrl}
               alt={establishment.name}
               fill
-              className="object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
+              className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="absolute top-3 right-3">
               <Badge variant={establishment.category}>{establishment.category}</Badge>
             </div>
           </div>
 
           {/* Content */}
-          <div className="p-4">
+          <div className="p-5">
             <h3 className="text-lg font-semibold text-dark mb-2 group-hover:text-primary transition-colors line-clamp-1">
               {establishment.name}
             </h3>
             
-            <div className="flex items-center text-gray text-sm mb-3">
+            <div className="flex items-center text-gray-600 text-sm mb-3">
               <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
               <span className="line-clamp-1">{establishment.neighborhood}</span>
             </div>
@@ -63,8 +64,11 @@ export default function EstablishmentCard({ establishment, index = 0 }: Establis
                   />
                 ))}
               </div>
-              <span className="ml-2 text-sm font-medium text-dark">
+              <span className="ml-2 text-sm font-semibold text-dark">
                 {establishment.rating.toFixed(1)}/5
+              </span>
+              <span className="ml-1 text-sm text-gray-500">
+                ({establishment.reviewCount})
               </span>
             </div>
           </div>

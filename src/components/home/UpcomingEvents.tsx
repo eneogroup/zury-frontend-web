@@ -8,7 +8,7 @@ interface UpcomingEventsProps {
 
 export default function UpcomingEvents({ events }: UpcomingEventsProps) {
   return (
-    <section className="py-12 bg-accent/90">
+    <section className="py-12 bg-dark/90">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-3xl font-bold text-white">Événements à venir</h2>

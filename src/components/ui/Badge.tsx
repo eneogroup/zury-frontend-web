@@ -9,18 +9,18 @@ interface BadgeProps {
 
 export default function Badge({ children, variant = 'restaurant', className }: BadgeProps) {
   const variants = {
-    restaurant: 'bg-primary/90 text-white backdrop-blur-sm',
-    bar: 'bg-gold/90 text-dark backdrop-blur-sm',
-    hotel: 'bg-accent/90 text-white backdrop-blur-sm',
-    lounge: 'bg-dark/90 text-white backdrop-blur-sm',
-    open: 'bg-accent/90 text-white backdrop-blur-sm',
-    closed: 'bg-red-500/90 text-white backdrop-blur-sm',
-    premium: 'bg-gold/90 text-dark backdrop-blur-sm',
+    restaurant: 'bg-gradient-to-r from-primary to-primary/80 text-white shadow-md',
+    bar: 'bg-gradient-to-r from-gold to-gold/80 text-dark shadow-md',
+    hotel: 'bg-gradient-to-r from-accent to-accent/80 text-white shadow-md',
+    lounge: 'bg-gradient-to-r from-dark to-dark/80 text-white shadow-md',
+    open: 'bg-gradient-to-r from-accent to-accent/80 text-white shadow-md',
+    closed: 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md',
+    premium: 'bg-gradient-to-r from-gold to-gold/80 text-dark shadow-md',
   };
 
   return (
     <span className={cn(
-      'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide shadow-sm',
+      'inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide backdrop-blur-sm transition-transform hover:scale-105',
       variants[variant],
       className
     )}>
