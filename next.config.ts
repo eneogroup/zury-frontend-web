@@ -16,6 +16,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    staleTimes: {
+      dynamic: 3600, // 1 heure
+      static: 86400, // 24 heures
+    },
+  },
 };
 
 export default nextConfig;
