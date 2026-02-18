@@ -7,6 +7,8 @@ import Link from 'next/link';
 import TrackView from '@/components/tracking/TrackView';
 import { Metadata } from 'next';
 import { generateSiteMetadata } from '@/lib/metadata';
+import { RestaurantJsonLd } from '@/components/seo/JsonLd';
+
 
 
 export async function generateMetadata({ 
@@ -95,6 +97,8 @@ export default async function EstablishmentDetailPage({
 
     return (
       <>
+        <RestaurantJsonLd establishment={establishment} />
+        
         <TrackView establishmentId={id} source="direct" />
 
         <div className="min-h-screen bg-light">

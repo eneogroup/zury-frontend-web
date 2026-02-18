@@ -4,7 +4,7 @@ import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { siteConfig } from "@/lib/metadata";
-import { OrganizationJsonLd } from '@/components/seo/JsonLd';
+import { OrganizationJsonLd, SearchActionJsonLd } from '@/components/seo/JsonLd';
 
 const poppins = Poppins({ 
   weight: ['300', '400', '500', '600', '700', '800'],
@@ -72,6 +72,7 @@ export default function RootLayout({
     <html lang="fr">
       <head>
         <OrganizationJsonLd />
+        <SearchActionJsonLd />
       </head>
       <body className={`${poppins.variable} font-sans antialiased`}>
         <Header />

@@ -10,6 +10,7 @@ import { Calendar, MapPin, Users, Clock, ArrowLeft, Ticket } from 'lucide-react'
 import Link from 'next/link';
 import { Metadata } from 'next';
 import { generateSiteMetadata } from '@/lib/metadata';
+import { EventJsonLd } from '@/components/seo/JsonLd'; 
 
 export async function generateMetadata({ 
   params 
@@ -64,6 +65,7 @@ export default async function EventDetailPage({
 
     return (
       <>
+        <EventJsonLd event={event} />
         {/* Tracking */}
         <TrackView eventId={id} source="direct" />
 

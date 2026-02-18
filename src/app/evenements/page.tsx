@@ -9,6 +9,8 @@ import { transformEvent } from '@/lib/apiTransformers';
 import { Metadata } from 'next';
 import { generateSiteMetadata } from '@/lib/metadata';
 
+
+
 export async function generateMetadata({
   searchParams,
 }: {
