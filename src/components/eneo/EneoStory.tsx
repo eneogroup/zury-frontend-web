@@ -26,7 +26,7 @@ export default function EneoStory() {
               <p>
                 C'est dans nos locaux, lors d'un projet de formation pratique, que <strong className="text-dark">ZURY</strong> a 
                 vu le jour. Nos étudiants en développement web ont identifié un besoin réel : faciliter la découverte 
-                des établissements HoReCa à Brazzaville et Pointe-Noire.
+                des établissements à Brazzaville et Pointe-Noire.
               </p>
               
               <p>
@@ -75,7 +75,7 @@ export default function EneoStory() {
             
             {/* Badge decoratif */}
             <div className="absolute -bottom-6 -right-6 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-2xl p-6 shadow-2xl">
-              <div className="text-3xl font-bold">2020</div>
+              <div className="text-3xl font-bold">2024</div>
               <div className="text-sm opacity-90">Année de création</div>
             </div>
           </div>

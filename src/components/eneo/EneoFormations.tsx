@@ -13,7 +13,7 @@ const formations = [
     icon: Smartphone,
     title: 'Développement Mobile',
     description: 'React Native, Flutter, iOS & Android',
-    duration: '5 mois',
+    duration: '6 mois',
     level: 'Intermédiaire',
     color: 'from-purple-500 to-pink-500',
   },

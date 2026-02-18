@@ -40,7 +40,7 @@ export default function EneoHero() {
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
               <Award className="w-8 h-8 text-cyan-300 mx-auto mb-2" />
-              <div className="text-2xl font-bold">200+</div>
+              <div className="text-2xl font-bold">20+</div>
               <div className="text-sm text-white/70">Étudiants</div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">

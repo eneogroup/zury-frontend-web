@@ -72,7 +72,7 @@ export default function EneoContact() {
                 <div>
                   <h4 className="font-bold text-dark mb-1">Adresse</h4>
                   <p className="text-gray">
-                    Avenue de la Paix, Quartier Plateau<br />
+                    115 bis avenue Boueta Mbongo, Moungali<br />
                     Brazzaville, République du Congo
                   </p>
                 </div>
@@ -85,10 +85,10 @@ export default function EneoContact() {
                 </div>
                 <div>
                   <h4 className="font-bold text-dark mb-1">Téléphone</h4>
-                  <p className="text-gray">+242 06 XXX XX XX</p>
-                  <p className="text-gray">+242 05 XXX XX XX</p>
+                  <p className="text-gray">+242 06 183 5363</p>
+                  <p className="text-gray">+242 05 395 6653</p>
                 </div>
-              </div>
+              </div> 
 
               {/* Email */}
               <div className="flex items-start gap-4">
@@ -97,8 +97,8 @@ export default function EneoContact() {
                 </div>
                 <div>
                   <h4 className="font-bold text-dark mb-1">Email</h4>
-                  <p className="text-gray">contact@eneogroup.cg</p>
-                  <p className="text-gray">formations@eneogroup.cg</p>
+                  <p className="text-gray">eneogroup.cg@gmail.com</p>
+                  {/* <p className="text-gray">formations@eneogroup.cg</p> */}
                 </div>
               </div>
             </div>
@@ -109,15 +109,15 @@ export default function EneoContact() {
               <div className="space-y-2 text-gray">
                 <div className="flex justify-between">
                   <span>Lundi - Vendredi</span>
-                  <span className="font-semibold text-dark">8h00 - 17h00</span>
+                  <span className="font-semibold text-dark">8h00 - 20h00</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Samedi</span>
-                  <span className="font-semibold text-dark">9h00 - 13h00</span>
+                  <span className="font-semibold text-dark">9h00 - 14h00</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Dimanche</span>
-                  <span className="font-semibold text-dark">Fermé</span>
+                  <span className="font-semibold text-primary">Fermé</span>
                 </div>
               </div>
             </div>
