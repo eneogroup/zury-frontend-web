@@ -6,7 +6,6 @@ import EmptyState from '@/components/ui/EmptyState';
 import Pagination from '@/components/ui/Pagination';
 import { cachedEventService } from '@/lib/cached-api';
 import { transformEvent } from '@/lib/apiTransformers';
-import type { TransformedEvent } from '@/types';
 
 async function EventsList({
   page,
@@ -20,7 +19,7 @@ async function EventsList({
     
     let response;
 
-    // Filtrer selon la période
+    // Appeler l'endpoint approprié selon la période
     switch (period) {
       case 'today':
         response = await cachedEventService.getToday();
@@ -36,19 +35,25 @@ async function EventsList({
         break;
     }
 
-    let events: TransformedEvent[] = response.results ? response.results.map(transformEvent) : response.map(transformEvent);
+    // Gérer les différents formats de réponse
+    let events: any[] = [];
+
+    if (Array.isArray(response)) {
+      events = response.map(transformEvent);
+    } else if (response && response.results && Array.isArray(response.results)) {
+      events = response.results.map(transformEvent);
+    }
 
     if (events.length === 0) {
       return (
         <EmptyState
           title="Aucun événement trouvé"
           message="Il n'y a pas d'événements prévus pour cette période. Revenez plus tard !"
-          icon="empty"
         />
       );
     }
 
-    // Pagination manuelle pour les endpoints qui ne retournent pas de pagination
+    // Pagination côté client
     const totalCount = events.length;
     const totalPages = Math.ceil(totalCount / pageSize);
     const startIndex = (page - 1) * pageSize;
@@ -78,7 +83,7 @@ async function EventsList({
     return (
       <EmptyState
         title="Erreur de chargement"
-        message="Impossible de charger les événements."
+        message="Impossible de charger les événements. Vérifiez votre connexion."
       />
     );
   }

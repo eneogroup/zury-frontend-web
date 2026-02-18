@@ -75,6 +75,16 @@ export default function Footer() {
                   Carte
                 </Link>
               </li>
+              <li>
+                <Link href="/rejoindre-zury" className="block text-white/70 hover:text-primary transition-colors">
+                  Devenir partenaire
+                </Link>
+              </li>
+              <li>
+                <Link href="/eneo-academy" className="block text-white/70 hover:text-primary transition-colors">
+                  Eneo Academy
+                </Link>
+              </li>
             </ul>
           </div>
 

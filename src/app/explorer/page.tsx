@@ -13,13 +13,13 @@ import type { TransformedEstablishment } from '@/types';
 
 async function EstablishmentsList({
   q,
-  category,
+  categorie,
   neighborhood,
   minRating,
   page,
 }: {
   q?: string;
-  category?: string;
+  categorie?: string;
   neighborhood?: string;
   minRating?: string;
   page: number;
@@ -39,8 +39,8 @@ async function EstablishmentsList({
     }
 
     // Ajouter les filtres
-    if (category && category !== 'all') {
-      params.categorie = category;
+    if (categorie && categorie !== 'all') {
+      params.categorie = categorie;
     }
 
     if (neighborhood) {
@@ -103,7 +103,7 @@ export default async function ExplorerPage({
 }: {
   searchParams: Promise<{ 
     q?: string; 
-    category?: string;
+    categorie?: string;
     neighborhood?: string;
     minRating?: string;
     page?: string;
@@ -156,7 +156,7 @@ export default async function ExplorerPage({
             >
               <EstablishmentsList 
                 q={params.q}
-                category={params.category}
+                categorie={params.categorie}
                 neighborhood={params.neighborhood}
                 minRating={params.minRating}
                 page={page}

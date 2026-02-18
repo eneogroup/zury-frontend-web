@@ -3,150 +3,110 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-
-const categories = [
-  { label: 'Restaurant', value: 'restaurant' },
-  { label: 'Bar', value: 'bar' },
-  { label: 'Hôtel', value: 'hotel' },
-  { label: 'Lounge', value: 'lounge' },
-];
-
-const neighborhoods = [
-  { label: 'Bacongo', value: 'Bacongo' },
-  { label: 'Centre-ville', value: 'Centre-ville' },
-  { label: 'Poto-Poto', value: 'Poto-Poto' },
-  { label: 'Moungali', value: 'Moungali' },
-  { label: 'Djiri', value: 'Djiri' },
-];
-
-const minRatings = [
-  { label: '5 étoiles', value: 5, stars: 5 },
-  { label: '4+ étoiles', value: 4, stars: 4 },
-  { label: '3+ étoiles', value: 3, stars: 3 },
-];
+import { useFilters } from '@/hooks/useFilters';
 
 export default function AdvancedFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { categories, quartiers, loading } = useFilters();
   
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    searchParams.get('category')?.split(',').filter(Boolean) || []
-  );
-  const [selectedNeighborhoods, setSelectedNeighborhoods] = useState<string[]>(
-    searchParams.get('neighborhood')?.split(',').filter(Boolean) || []
-  );
-  const [selectedMinRating, setSelectedMinRating] = useState<number>(
-    Number(searchParams.get('minRating')) || 0
-  );
-
   const [isCategoryOpen, setIsCategoryOpen] = useState(true);
   const [isNeighborhoodOpen, setIsNeighborhoodOpen] = useState(true);
-  const [isRatingOpen, setIsRatingOpen] = useState(true);
+  const [isRatingOpen, setIsRatingOpen] = useState(false);
 
-  const handleCategoryToggle = (value: string) => {
-    const newCategories = selectedCategories.includes(value)
-      ? selectedCategories.filter(c => c !== value)
-      : [...selectedCategories, value];
-    
-    setSelectedCategories(newCategories);
-    updateURL({ categories: newCategories });
-  };
+  const selectedCategories = searchParams.get('categorie')?.split(',') || [];
+  const selectedNeighborhoods = searchParams.get('quartier')?.split(',') || [];
+  const minRating = searchParams.get('minRating') || '';
 
-  const handleNeighborhoodToggle = (value: string) => {
-    const newNeighborhoods = selectedNeighborhoods.includes(value)
-      ? selectedNeighborhoods.filter(n => n !== value)
-      : [...selectedNeighborhoods, value];
-    
-    setSelectedNeighborhoods(newNeighborhoods);
-    updateURL({ neighborhoods: newNeighborhoods });
-  };
-
-  const handleRatingSelect = (value: number) => {
-    const newRating = selectedMinRating === value ? 0 : value;
-    setSelectedMinRating(newRating);
-    updateURL({ minRating: newRating });
-  };
-
-  const updateURL = ({ 
-    categories, 
-    neighborhoods, 
-    minRating 
-  }: { 
-    categories?: string[], 
-    neighborhoods?: string[], 
-    minRating?: number 
-  }) => {
+  const handleCategoryChange = (categoryId: string) => {
     const params = new URLSearchParams(searchParams);
-    
-    // Update categories
-    if (categories !== undefined) {
-      if (categories.length > 0) {
-        params.set('category', categories.join(','));
-      } else {
-        params.delete('category');
-      }
+    let selected = [...selectedCategories];
+
+    if (selected.includes(categoryId)) {
+      selected = selected.filter((c) => c !== categoryId);
+    } else {
+      selected.push(categoryId);
     }
 
-    // Update neighborhoods
-    if (neighborhoods !== undefined) {
-      if (neighborhoods.length > 0) {
-        params.set('neighborhood', neighborhoods.join(','));
-      } else {
-        params.delete('neighborhood');
-      }
+    if (selected.length > 0) {
+      params.set('categorie', selected.join(','));
+    } else {
+      params.delete('categorie');
     }
 
-    // Update min rating
-    if (minRating !== undefined) {
-      if (minRating > 0) {
-        params.set('minRating', minRating.toString());
-      } else {
-        params.delete('minRating');
-      }
-    }
-
+    params.delete('page');
     router.push(`/explorer?${params.toString()}`);
   };
 
-  const clearAllFilters = () => {
-    setSelectedCategories([]);
-    setSelectedNeighborhoods([]);
-    setSelectedMinRating(0);
+  const handleNeighborhoodChange = (quartierId: string) => {
     const params = new URLSearchParams(searchParams);
-    params.delete('category');
-    params.delete('neighborhood');
-    params.delete('minRating');
+    let selected = [...selectedNeighborhoods];
+
+    if (selected.includes(quartierId)) {
+      selected = selected.filter((n) => n !== quartierId);
+    } else {
+      selected.push(quartierId);
+    }
+
+    if (selected.length > 0) {
+      params.set('quartier', selected.join(','));
+    } else {
+      params.delete('quartier');
+    }
+
+    params.delete('page');
     router.push(`/explorer?${params.toString()}`);
   };
 
-  const hasActiveFilters = selectedCategories.length > 0 || 
-                          selectedNeighborhoods.length > 0 || 
-                          selectedMinRating > 0;
+  const handleRatingChange = (rating: string) => {
+    const params = new URLSearchParams(searchParams);
+
+    if (rating) {
+      params.set('minRating', rating);
+    } else {
+      params.delete('minRating');
+    }
+
+    params.delete('page');
+    router.push(`/explorer?${params.toString()}`);
+  };
+
+  const handleReset = () => {
+    router.push('/explorer');
+  };
+
+  const hasFilters = selectedCategories.length > 0 || selectedNeighborhoods.length > 0 || minRating;
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <p className="text-gray-400">Chargement des filtres...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 sticky top-28">
-      {/* Header */}
+    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 sticky top-24">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold text-dark">Filtres avancés</h3>
-        {hasActiveFilters && (
+        <h3 className="text-lg font-bold text-dark">Filtres avancés</h3>
+        {hasFilters && (
           <button
-            onClick={clearAllFilters}
-            className="text-sm text-primary hover:text-primary/80 font-medium transition-colors"
+            onClick={handleReset}
+            className="text-sm text-primary hover:text-primary/80 font-medium"
           >
             Réinitialiser
           </button>
         )}
       </div>
 
-      {/* Catégorie */}
+      {/* Catégories */}
       <div className="mb-6">
         <button
           onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-          className="flex items-center justify-between w-full mb-3 text-dark font-semibold"
+          className="flex items-center justify-between w-full mb-3"
         >
-          <span>Catégorie</span>
+          <span className="font-semibold text-dark">Catégorie</span>
           {isCategoryOpen ? (
             <ChevronUp className="w-5 h-5 text-gray" />
           ) : (
@@ -154,43 +114,36 @@ export default function AdvancedFilters() {
           )}
         </button>
 
-        <AnimatePresence>
-          {isCategoryOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="space-y-2 overflow-hidden"
-            >
-              {categories.map((category) => (
-                <label
-                  key={category.value}
-                  className="flex items-center gap-3 cursor-pointer group"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedCategories.includes(category.value)}
-                    onChange={() => handleCategoryToggle(category.value)}
-                    className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0 cursor-pointer"
-                  />
-                  <span className="text-gray group-hover:text-dark transition-colors">
-                    {category.label}
-                  </span>
-                </label>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {isCategoryOpen && (
+          <div className="space-y-2">
+            {categories.map((category) => (
+              <label
+                key={category.value}
+                className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedCategories.includes(category.value)}
+                  onChange={() => handleCategoryChange(category.value)}
+                  className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+                />
+                <span className="text-dark flex-1">{category.label}</span>
+                {category.count !== undefined && (
+                  <span className="text-sm text-gray">({category.count})</span>
+                )}
+              </label>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Quartier */}
+      {/* Quartiers */}
       <div className="mb-6">
         <button
           onClick={() => setIsNeighborhoodOpen(!isNeighborhoodOpen)}
-          className="flex items-center justify-between w-full mb-3 text-dark font-semibold"
+          className="flex items-center justify-between w-full mb-3"
         >
-          <span>Quartier</span>
+          <span className="font-semibold text-dark">Quartier</span>
           {isNeighborhoodOpen ? (
             <ChevronUp className="w-5 h-5 text-gray" />
           ) : (
@@ -198,43 +151,36 @@ export default function AdvancedFilters() {
           )}
         </button>
 
-        <AnimatePresence>
-          {isNeighborhoodOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="space-y-2 overflow-hidden"
-            >
-              {neighborhoods.map((neighborhood) => (
-                <label
-                  key={neighborhood.value}
-                  className="flex items-center gap-3 cursor-pointer group"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedNeighborhoods.includes(neighborhood.value)}
-                    onChange={() => handleNeighborhoodToggle(neighborhood.value)}
-                    className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0 cursor-pointer"
-                  />
-                  <span className="text-gray group-hover:text-dark transition-colors">
-                    {neighborhood.label}
-                  </span>
-                </label>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {isNeighborhoodOpen && (
+          <div className="space-y-2 max-h-64 overflow-y-auto">
+            {quartiers.map((quartier) => (
+              <label
+                key={quartier.value}
+                className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedNeighborhoods.includes(quartier.value)}
+                  onChange={() => handleNeighborhoodChange(quartier.value)}
+                  className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+                />
+                <span className="text-dark text-sm flex-1">{quartier.label}</span>
+                {quartier.count !== undefined && (
+                  <span className="text-xs text-gray">({quartier.count})</span>
+                )}
+              </label>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Note minimale */}
       <div>
         <button
           onClick={() => setIsRatingOpen(!isRatingOpen)}
-          className="flex items-center justify-between w-full mb-3 text-dark font-semibold"
+          className="flex items-center justify-between w-full mb-3"
         >
-          <span>Note min.</span>
+          <span className="font-semibold text-dark">Note min.</span>
           {isRatingOpen ? (
             <ChevronUp className="w-5 h-5 text-gray" />
           ) : (
@@ -242,44 +188,38 @@ export default function AdvancedFilters() {
           )}
         </button>
 
-        <AnimatePresence>
-          {isRatingOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="space-y-2 overflow-hidden"
-            >
-              {minRatings.map((rating) => (
-                <button
-                  key={rating.value}
-                  onClick={() => handleRatingSelect(rating.value)}
-                  className={cn(
-                    "w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-all",
-                    selectedMinRating === rating.value
-                      ? "bg-primary/10 border border-primary/30"
-                      : "hover:bg-light"
-                  )}
-                >
-                  <div className="flex items-center">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <span
-                        key={i}
-                        className={cn(
-                          "text-lg",
-                          i < rating.stars ? "text-gold" : "text-gray-300"
-                        )}
-                      >
-                        ★
-                      </span>
-                    ))}
-                  </div>
-                </button>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {isRatingOpen && (
+          <div className="space-y-2">
+            {['4.5', '4.0', '3.5', '3.0'].map((rating) => (
+              <label
+                key={rating}
+                className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
+              >
+                <input
+                  type="radio"
+                  name="rating"
+                  checked={minRating === rating}
+                  onChange={() => handleRatingChange(rating)}
+                  className="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
+                />
+                <span className="flex items-center gap-1 text-dark">
+                  {[...Array(5)].map((_, i) => (
+                    <span
+                      key={i}
+                      className={cn(
+                        'text-lg',
+                        i < Math.floor(parseFloat(rating)) ? 'text-gold' : 'text-gray-300'
+                      )}
+                    >
+                      ★
+                    </span>
+                  ))}
+                  <span className="ml-1 text-sm">& plus</span>
+                </span>
+              </label>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
