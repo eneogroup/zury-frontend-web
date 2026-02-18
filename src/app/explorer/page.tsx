@@ -16,12 +16,14 @@ async function EstablishmentsList({
   categorie,
   neighborhood,
   minRating,
+  sort,
   page,
 }: {
   q?: string;
   categorie?: string;
   neighborhood?: string;
   minRating?: string;
+  sort?: string;
   page: number;
 }) {
   try {
@@ -41,6 +43,10 @@ async function EstablishmentsList({
     // Ajouter les filtres
     if (categorie && categorie !== 'all') {
       params.categorie = categorie;
+    }
+    // Ajouter le tri
+    if (sort === 'recent') {
+      params.ordering = '-date_creation'; // ou '-created_at' selon ton API
     }
 
     if (neighborhood) {
@@ -106,6 +112,7 @@ export default async function ExplorerPage({
     categorie?: string;
     neighborhood?: string;
     minRating?: string;
+    sort?: string;
     page?: string;
   }>;
 }) {
@@ -159,6 +166,7 @@ export default async function ExplorerPage({
                 categorie={params.categorie}
                 neighborhood={params.neighborhood}
                 minRating={params.minRating}
+                sort={params.sort}
                 page={page}
               />
             </Suspense>
