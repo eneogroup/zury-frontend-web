@@ -6,6 +6,7 @@ import NewEstablishments from '@/components/home/NewEstablishments';
 import FadeIn from '@/components/ui/FadeIn';
 import { cachedEstablishmentService, cachedEventService, cachedStatsService } from '@/lib/cached-api';
 import { transformEstablishmentList, transformEvent } from '@/lib/apiTransformers';
+import JoinZuryCTA from '@/components/home/JoinZuryCTA';
 
 export const revalidate = 300;
 
@@ -43,20 +44,25 @@ export default async function Home() {
 
   return (
     <>
-      <Hero stats={stats} />
       
+      <FadeIn delay={0.3}>
+          <Hero stats={stats} />
+      </FadeIn>
       <div className="bg-light">
-        <FadeIn delay={0.2}>
+        <FadeIn delay={0.5}>
           <Categories />
         </FadeIn>
-        <FadeIn delay={0.3}>
+        <FadeIn delay={0.5}>
           <FeaturedEstablishments establishments={featuredEstablishments.slice(0, 3)} />
         </FadeIn>
-        <FadeIn delay={0.4}>
+        <FadeIn delay={0.5}>
           <UpcomingEvents events={events.slice(0, 3)} />
         </FadeIn>
         <FadeIn delay={0.5}>
           <NewEstablishments establishments={featuredEstablishments.slice(3, 6)} />
+        </FadeIn>
+        <FadeIn delay={0.5}>
+          <JoinZuryCTA />
         </FadeIn>
       </div>
     </>
