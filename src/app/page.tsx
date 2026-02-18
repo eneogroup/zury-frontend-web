@@ -7,8 +7,22 @@ import FadeIn from '@/components/ui/FadeIn';
 import { cachedEstablishmentService, cachedEventService, cachedStatsService } from '@/lib/cached-api';
 import { transformEstablishmentList, transformEvent } from '@/lib/apiTransformers';
 import JoinZuryCTA from '@/components/home/JoinZuryCTA';
-
+import { generateSiteMetadata } from '@/lib/metadata';
+import { Metadata } from 'next';
 export const revalidate = 300;
+
+export const metadata: Metadata = generateSiteMetadata({
+  title: 'Accueil',
+  description: 'Découvrez les meilleurs restaurants, bars, hôtels et événements à Brazzaville et Pointe-Noire. La plateforme HoReCa de référence au Congo.',
+  keywords: [
+    'restaurants Brazzaville',
+    'bars Brazzaville',
+    'hôtels Brazzaville',
+    'événements Brazzaville',
+    'sorties Congo',
+    'zury Congo',
+  ],
+});
 
 export default async function Home() {
   let featuredEstablishments = [];

@@ -6,6 +6,45 @@ import EmptyState from '@/components/ui/EmptyState';
 import Pagination from '@/components/ui/Pagination';
 import { cachedEventService } from '@/lib/cached-api';
 import { transformEvent } from '@/lib/apiTransformers';
+import { Metadata } from 'next';
+import { generateSiteMetadata } from '@/lib/metadata';
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ period?: string }>;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  
+  let title = 'Événements à Brazzaville';
+  let description = 'Découvrez tous les événements, concerts, soirées et animations à Brazzaville et Pointe-Noire.';
+  
+  if (params.period === 'today') {
+    title = "Événements aujourd'hui";
+    description = "Découvrez les événements qui se déroulent aujourd'hui à Brazzaville.";
+  } else if (params.period === 'weekend') {
+    title = 'Événements ce weekend';
+    description = 'Découvrez les meilleurs événements du weekend à Brazzaville.';
+  } else if (params.period === 'week') {
+    title = 'Événements cette semaine';
+    description = 'Tous les événements de la semaine à Brazzaville et Pointe-Noire.';
+  } else if (params.period === 'month') {
+    title = 'Événements ce mois-ci';
+    description = 'Calendrier complet des événements du mois à Brazzaville.';
+  }
+  
+  return generateSiteMetadata({
+    title,
+    description,
+    keywords: [
+      'événements Brazzaville',
+      'concerts Brazzaville',
+      'soirées Brazzaville',
+      'sorties Congo',
+      'agenda Brazzaville',
+    ],
+  });
+}
 
 async function EventsList({
   page,

@@ -10,6 +10,40 @@ import MobileFiltersButton from '@/components/establishments/MobileFiltersButton
 import { cachedEstablishmentService } from '@/lib/cached-api';
 import { transformEstablishmentList } from '@/lib/apiTransformers';
 import type { TransformedEstablishment } from '@/types';
+import { Metadata } from 'next';
+import { generateSiteMetadata } from '@/lib/metadata';
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; categorie?: string }>;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  
+  let title = 'Explorer les établissements';
+  let description = 'Découvrez tous les restaurants, bars, hôtels et lounges à Brazzaville et Pointe-Noire.';
+  
+  if (params.q) {
+    title = `Recherche : ${params.q}`;
+    description = `Résultats de recherche pour "${params.q}" - Trouvez les meilleurs établissements à Brazzaville.`;
+  } else if (params.categorie) {
+    const categoryNames: Record<string, string> = {
+      '1': 'Restaurants',
+      '2': 'Bars',
+      '3': 'Hôtels',
+      '4': 'Lounges',
+    };
+    const categoryName = categoryNames[params.categorie] || 'Établissements';
+    title = `${categoryName} à Brazzaville`;
+    description = `Découvrez les meilleurs ${categoryName.toLowerCase()} à Brazzaville et Pointe-Noire.`;
+  }
+  
+  return generateSiteMetadata({
+    title,
+    description,
+  });
+}
+
 
 async function EstablishmentsList({
   q,
