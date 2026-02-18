@@ -48,7 +48,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let categoryPages: MetadataRoute.Sitemap = [];
   try {
     const categoriesResponse = await categoryService.getAll();
-    const categories = categoriesResponse || [];
+    const categories = (categoriesResponse as any) || [];
     
     categoryPages = categories.map((category: any) => ({
       url: `${BASE_URL}/explorer?categorie=${category.value}`,
@@ -68,7 +68,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       page_size: 1000
     });
     
-    const establishments = response.results || response || [];
+    const establishments = (response as any)?.results || response || [];
     
     establishmentPages = establishments.map((establishment: any) => ({
       url: `${BASE_URL}/establishments/${establishment.id}`,
@@ -86,7 +86,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let eventPages: MetadataRoute.Sitemap = [];
   try {
     const response = await eventService.getUpcoming();
-    const events = response.results || response || [];
+    const events = (response as any)?.results || response || [];
     
     eventPages = events.map((event: any) => ({
       url: `${BASE_URL}/evenements/${event.id}`,

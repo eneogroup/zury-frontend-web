@@ -73,7 +73,7 @@ export default function HowItWorks() {
 
               <motion.div 
                 className="bg-white rounded-2xl p-8 shadow-sm relative z-10"
-                whileHover={{ y: -5, shadow: "0 20px 40px rgba(0,0,0,0.1)" }}
+                whileHover={{ y: -5, boxShadow: "0 20px 40px rgba(0,0,0,0.1)" }}
                 transition={{ duration: 0.3 }}
               >
                 <div className="flex items-center justify-between mb-6">

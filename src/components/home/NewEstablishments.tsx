@@ -54,7 +54,7 @@ export default async function NewEstablishmentsSection() {
 
         {/* Grille d'établissements */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {newEstablishments.map((establishment, index) => (
+          {newEstablishments.map((establishment: any, index: number) => (
             <div key={establishment.id} className="relative">
               {/* Badge "Nouveau" */}
               <div className="absolute top-4 left-4 z-10 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">

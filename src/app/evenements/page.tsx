@@ -99,7 +99,7 @@ async function EventsList({
           return null;
         }
       })
-      .filter(Boolean); // Enlever les événements null
+      .filter((event): event is NonNullable<typeof event> => event !== null); // Enlever les événements null
 
     // Filtrer selon la période (côté client en attendant que le backend corrige)
     let events = transformedEvents;

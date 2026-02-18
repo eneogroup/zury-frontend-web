@@ -73,7 +73,7 @@ export default async function Home() {
           <UpcomingEvents events={events.slice(0, 3)} />
         </FadeIn>
         <FadeIn delay={0.5}>
-          <NewEstablishments establishments={featuredEstablishments.slice(3, 6)} />
+          <NewEstablishments />
         </FadeIn>
         <FadeIn delay={0.5}>
           <JoinZuryCTA />

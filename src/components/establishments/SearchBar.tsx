@@ -44,8 +44,8 @@ export default function SearchBar({ initialQuery = '' }: SearchBarProps) {
 
       setIsLoading(true);
       try {
-        const results = await searchService.autocomplete(query, 5);
-        setSuggestions(results);
+        const results = await searchService.autocomplete(query);
+        setSuggestions((results as any[]) || []);
         setShowSuggestions(true);
       } catch (error) {
         console.error('Error fetching suggestions:', error);
