@@ -1,4 +1,7 @@
+'use client';
+
 import { Code, Smartphone, Database, Globe, Palette, TrendingUp } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const formations = [
   {
@@ -51,28 +54,62 @@ const formations = [
   },
 ];
 
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const item = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 }
+};
+
 export default function EneoFormations() {
   return (
     <section className="py-20 bg-light">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
+        <motion.div 
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
           <h2 className="text-4xl font-bold text-dark mb-4">
             Nos Formations Populaires
           </h2>
           <p className="text-xl text-gray max-w-3xl mx-auto">
             Des programmes complets, orientés pratique, avec des projets réels comme ZURY
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          variants={container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+        >
           {formations.map((formation, index) => (
-            <div
+            <motion.div
               key={index}
-              className="bg-white rounded-2xl p-8 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-100 group"
+              variants={item}
+              whileHover={{ y: -10, scale: 1.02 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-2xl transition-all border border-gray-100 group"
             >
-              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${formation.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+              <motion.div 
+                className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${formation.color} flex items-center justify-center mb-6`}
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                transition={{ duration: 0.3 }}
+              >
                 <formation.icon className="w-8 h-8 text-white" />
-              </div>
+              </motion.div>
 
               <h3 className="text-2xl font-bold text-dark mb-3">
                 {formation.title}
@@ -92,19 +129,29 @@ export default function EneoFormations() {
                   <div className="text-sm font-bold text-dark">{formation.level}</div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
-        <div className="mt-12 text-center">
+        <motion.div 
+          className="mt-12 text-center"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+        >
           <p className="text-gray mb-4">
             Toutes nos formations incluent des projets pratiques, un suivi personnalisé et un certificat de fin de formation.
           </p>
           <div className="inline-flex items-center gap-2 bg-blue-50 rounded-full px-6 py-3">
-            <span className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></span>
+            <motion.span 
+              className="w-2 h-2 bg-blue-600 rounded-full"
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
             <span className="text-blue-800 font-semibold">Inscriptions ouvertes toute l'année</span>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

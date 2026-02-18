@@ -1,0 +1,41 @@
+[] Ajouter des animations dans les page "Eneo Academy" et "Devenir partenaire"
+[] Dans le formulaire de contat dans la page Eneo Academy, faire en sorte que 
+   le formulaire envois un mail sur cet boite <eneogroup.cg@gmail.com>
+   NB: Prendre en compte la sécurité et autres
+[] Faire en sorte que le bouton "Reserver maintenant" puisse lancer un appel
+   téléphonique du numéro lié à l'établissement.
+[] Vérifier la pagination au niveau de la page evenements
+[] Dans l'eran acceuil ajouter une section qui demande de rejoindre zury et ça va
+   le redigirer dans la page "Devenir partenaire"
+[] Dans l'ecran acceuil au niveau de la section "nouveau établissement", lister les 
+   4 établissement les plus recent sur une durée de 30 jour (ça veut dire que si ça fait
+   déjà 30 jours que l'établissement dans la plateforme on ne lui affiche pas sinon oui
+   et peut importe le nombre on prendra que les plus recent)
+[] Au niveau du header, le champ de recherche doit lancer la rechercher et rediriger dans 
+   la page explorer avec le texte de recherche tout en lancan la recherche
+[] Métadonnées dynamiques par page
+[] Sitemap.xml
+[] Robots.txt
+[] Open Graph tags pour partage social
+[] Schema.org markup
+[] Google Analytics 4
+[] Google Search Console
+[] Sentry pour error tracking
+[] Optimiser les images (WebP, tailles multiples)
+[] Lazy loading agressif
+[] Code splitting avancé
+[] Prefetching "intelligent
+
+##=================== INTEGRATION DE GOOGLE MAPS ==============
+[] Intégrer Google Maps JavaScript API
+[] Afficher tous les établissements avec markers
+[] Clusters pour grouper les markers proches
+[] InfoWindow au clic sur marker
+[] Filtres sur la carte
+
+##==================== 4. PWA (Progressive Web App) ===============
+[] Manifest.json
+[] Service Worker
+[] Offline support
+[] Bouton "Installer l'app"
+[] Push notifications

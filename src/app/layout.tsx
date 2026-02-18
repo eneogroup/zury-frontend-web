@@ -3,7 +3,9 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+import { siteConfig } from "@/lib/metadata";
+import { OrganizationJsonLd, SearchActionJsonLd } from '@/components/seo/JsonLd';
+
 const poppins = Poppins({ 
   weight: ['300', '400', '500', '600', '700', '800'],
   subsets: ['latin'],
@@ -12,8 +14,53 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "ZURY - Découvrez Brazzaville",
-  description: "Plateforme HoReCa pour découvrir les meilleurs restaurants, bars, hôtels et événements de Brazzaville",
+  metadataBase: new URL(siteConfig.url),
+  title: {
+    default: siteConfig.name,
+    template: `%s | ${siteConfig.name}`,
+  },
+  description: siteConfig.description,
+  keywords: siteConfig.keywords,
+  authors: [{ name: 'Eneo Academy', url: 'https://eneogroup.cg' }],
+  creator: 'Eneo Academy',
+  publisher: 'ZURY',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'fr_FR',
+    url: siteConfig.url,
+    siteName: siteConfig.name,
+    title: siteConfig.name,
+    description: siteConfig.description,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    creator: '@zury_cg',
+  },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+  },
+  verification: {
+    // google: 'xxx', // Ajouter après vérification Google Search Console
+    // yandex: 'xxx',
+  },
 };
 
 export default function RootLayout({
@@ -23,6 +70,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
+      <head>
+        <OrganizationJsonLd />
+        <SearchActionJsonLd />
+      </head>
       <body className={`${poppins.variable} font-sans antialiased`}>
         <Header />
         <main>{children}</main>

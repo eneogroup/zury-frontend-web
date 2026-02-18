@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robots.txt - ZURY</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 { color: #E63946; }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🤖 Politique de Crawling - ZURY</h1>
+    
+    <p>Bienvenue sur la documentation du fichier robots.txt de ZURY.</p>
+    
+    <h2>📋 Règles principales</h2>
+    <ul>
+        <li>✅ Toutes les pages publiques sont accessibles aux moteurs de recherche</li>
+        <li>❌ Les routes API et fichiers internes sont bloqués</li>
+        <li>🗺️ Le sitemap est disponible à : <a href="/sitemap.xml">/sitemap.xml</a></li>
+    </ul>
+    
+    <h2>🔍 Moteurs de recherche autorisés</h2>
+    <ul>
+        <li>Google (Googlebot)</li>
+        <li>Bing (Bingbot)</li>
+        <li>Yahoo (Slurp)</li>
+        <li>DuckDuckGo (DuckDuckBot)</li>
+        <li>Yandex (YandexBot)</li>
+    </ul>
+    
+    <h2>🚫 Crawlers bloqués</h2>
+    <ul>
+        <li>GPTBot (OpenAI)</li>
+        <li>Claude-Web (Anthropic)</li>
+        <li>CCBot (Common Crawl)</li>
+    </ul>
+    
+    <h2>📄 Contenu du robots.txt</h2>
+    <pre><code>User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+
+Sitemap: https://zury-web.vercel.app/sitemap.xml
+</code></pre>
+    
+    <h2>📞 Contact</h2>
+    <p>Pour toute question concernant le crawling : <a href="mailto:contact@zury.cg">contact@zury.cg</a></p>
+    
+    <p><a href="/">← Retour à l'accueil</a></p>
+</body>
+</html>

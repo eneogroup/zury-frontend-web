@@ -8,6 +8,49 @@ import TrackView from '@/components/tracking/TrackView';
 import ShareButton from '@/components/ui/ShareButton';
 import { Calendar, MapPin, Users, Clock, ArrowLeft, Ticket } from 'lucide-react';
 import Link from 'next/link';
+import { Metadata } from 'next';
+import { generateSiteMetadata } from '@/lib/metadata';
+import { EventJsonLd } from '@/components/seo/JsonLd'; 
+
+export async function generateMetadata({ 
+  params 
+}: { 
+  params: Promise<{ id: string }> 
+}): Promise<Metadata> {
+  const { id } = await params;
+  
+  try {
+    const eventData = await cachedEventService.getById(id);
+    const event = transformEvent(eventData);
+    
+    const title = event.title;
+    const description = event.description 
+      ? event.description.slice(0, 160) 
+      : `${event.title} - ${event.category} le ${new Date(event.dateDebut).toLocaleDateString('fr-FR')} à ${event.availablePlaces || 'Brazzaville'}.`;
+    
+    const ogImage = event.imageUrl || undefined;
+    
+    return generateSiteMetadata({
+      title,
+      description,
+      ogImage,
+      ogType: 'article',
+      keywords: [
+        event.title,
+        event.category,
+        'événement Brazzaville',
+        event.availablePlaces || 'Brazzaville',
+        'sortie Congo',
+      ],
+    });
+  } catch (error) {
+    return generateSiteMetadata({
+      title: 'Événement introuvable',
+      noIndex: true,
+    });
+  }
+}
+
 
 export default async function EventDetailPage({ 
   params 
@@ -22,6 +65,7 @@ export default async function EventDetailPage({
 
     return (
       <>
+        <EventJsonLd event={event} />
         {/* Tracking */}
         <TrackView eventId={id} source="direct" />
 

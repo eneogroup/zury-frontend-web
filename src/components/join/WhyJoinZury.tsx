@@ -1,4 +1,7 @@
+'use client';
+
 import { Eye, TrendingUp, Calendar, BarChart3, Star, Users } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const benefits = [
   {
@@ -39,11 +42,32 @@ const benefits = [
   },
 ];
 
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const item = {
+  hidden: { opacity: 0, y: 30 },
+  show: { opacity: 1, y: 0 }
+};
+
 export default function WhyJoinZury() {
   return (
     <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
+        <motion.div 
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
           <h2 className="text-4xl font-bold text-dark mb-4">
             Pourquoi rejoindre ZURY ?
           </h2>
@@ -51,26 +75,39 @@ export default function WhyJoinZury() {
             Une plateforme complète pour développer votre présence en ligne 
             et attirer plus de clients
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          variants={container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+        >
           {benefits.map((benefit, index) => (
-            <div
+            <motion.div
               key={index}
-              className="bg-light rounded-2xl p-8 hover:shadow-xl transition-all duration-500 hover:-translate-y-2 border border-gray-100"
+              variants={item}
+              whileHover={{ y: -10, scale: 1.03 }}
+              transition={{ duration: 0.3 }}
+              className="bg-light rounded-2xl p-8 border border-gray-100 hover:shadow-xl transition-shadow"
             >
-              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br from-${benefit.color.replace('text-', '')}/10 to-${benefit.color.replace('text-', '')}/5 flex items-center justify-center mb-6`}>
+              <motion.div 
+                className={`w-16 h-16 rounded-2xl bg-gradient-to-br from-${benefit.color.replace('text-', '')}/10 to-${benefit.color.replace('text-', '')}/5 flex items-center justify-center mb-6`}
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                transition={{ duration: 0.3 }}
+              >
                 <benefit.icon className={`w-8 h-8 ${benefit.color}`} />
-              </div>
+              </motion.div>
               <h3 className="text-xl font-bold text-dark mb-3">
                 {benefit.title}
               </h3>
               <p className="text-gray leading-relaxed">
                 {benefit.description}
               </p>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
