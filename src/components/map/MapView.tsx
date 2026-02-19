@@ -36,7 +36,7 @@ export default function MapView() {
           page_size: 100
         });
         
-        const data = response.results || response || [];
+        const data = (response as any).results || (response as any) || [];
         
         // Filtrer uniquement ceux qui ont des coordonnées VALIDES
         const withCoordinates = data.filter((est: any) => {

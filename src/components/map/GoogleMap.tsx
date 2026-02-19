@@ -71,7 +71,7 @@ export default function GoogleMap({
         <div className="text-center p-8">
           <p className="text-red-600 font-semibold mb-2">Erreur de chargement de la carte</p>
           <p className="text-gray-600 text-sm">
-            {(loadError as unknown) instanceof Error ? loadError.message : String(loadError)}
+            {(loadError as unknown) instanceof Error ? (loadError as Error).message : String(loadError)}
           </p>
         </div>
       </div>

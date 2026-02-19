@@ -29,7 +29,9 @@ export default function EstablishmentsMap({
   const [clusterer, setClusterer] = useState<MarkerClusterer | null>(null);
   const [selectedMarker, setSelectedMarker] = useState<string | null>(null);
   const [infoWindows, setInfoWindows] = useState<Map<string, google.maps.InfoWindow>>(new Map());
-  const { isLoaded, loadError } = useGoogleMaps();
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+  }) as { isLoaded: boolean; loadError: Error | null };
 
   // Initialiser la carte
   useEffect(() => {
@@ -210,3 +212,36 @@ export default function EstablishmentsMap({
     </div>
   );
 }
+function useJsApiLoader({ googleMapsApiKey }: { googleMapsApiKey: string }) {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [loadError, setLoadError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (!googleMapsApiKey) {
+      setLoadError(new Error('Google Maps API key is missing'));
+      return;
+    }
+
+    if (window.google?.maps) {
+      setIsLoaded(true);
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&libraries=places,marker`;
+    script.async = true;
+    script.defer = true;
+
+    script.onload = () => setIsLoaded(true);
+    script.onerror = () => setLoadError(new Error('Failed to load Google Maps API'));
+
+    document.head.appendChild(script);
+
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, [googleMapsApiKey]);
+
+  return { isLoaded, loadError };
+}
+
