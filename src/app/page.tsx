@@ -8,8 +8,13 @@ import { cachedEstablishmentService, cachedEventService, cachedStatsService } fr
 import { transformEstablishmentList, transformEvent } from '@/lib/apiTransformers';
 import JoinZuryCTA from '@/components/home/JoinZuryCTA';
 import { generateSiteMetadata } from '@/lib/metadata';
-import { Metadata } from 'next';
+import { Metadata, Viewport } from 'next';
 export const revalidate = 300;
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+};
 
 export const metadata: Metadata = generateSiteMetadata({
   title: 'Accueil',
