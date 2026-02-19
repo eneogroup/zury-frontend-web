@@ -1,10 +1,15 @@
-import { Metadata } from 'next';
+import { Metadata, Viewport } from 'next';
 import { generateSiteMetadata } from '@/lib/metadata';
 import EneoHero from '@/components/eneo/EneoHero';
 import EneoStory from '@/components/eneo/EneoStory';
 import EneoFormations from '@/components/eneo/EneoFormations';
-import EneoContact from '@/components/eneo/EneoContact';
 import EneoLocation from '@/components/eneo/EneoLocation';
+import EneoContact from '@/components/eneo/EneoContact';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+};
 
 export const metadata: Metadata = generateSiteMetadata({
   title: 'Eneo Academy - Centre de formation en Informatique',

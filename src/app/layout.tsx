@@ -5,6 +5,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { siteConfig } from "@/lib/metadata";
 import { OrganizationJsonLd, SearchActionJsonLd } from '@/components/seo/JsonLd';
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const poppins = Poppins({ 
   weight: ['300', '400', '500', '600', '700', '800'],
@@ -78,6 +79,7 @@ export default function RootLayout({
         <Header />
         <main>{children}</main>
         <Footer />
+        <SpeedInsights />
       </body>
     </html>
   );
