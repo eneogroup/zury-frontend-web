@@ -5,6 +5,51 @@ import EstablishmentDetailTabs from '@/components/establishments/EstablishmentDe
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import TrackView from '@/components/tracking/TrackView';
+import { Metadata } from 'next';
+import { generateSiteMetadata } from '@/lib/metadata';
+import { RestaurantJsonLd } from '@/components/seo/JsonLd';
+
+
+
+export async function generateMetadata({ 
+  params 
+}: { 
+  params: Promise<{ id: string }> 
+}): Promise<Metadata> {
+  const { id } = await params;
+  
+  try {
+    const establishmentData = await cachedEstablishmentService.getById(id);
+    const establishment = transformEstablishmentDetail(establishmentData);
+    
+    const title = establishment.name;
+    const description = establishment.description 
+      ? establishment.description.slice(0, 160) 
+      : `${establishment.name} - ${establishment.category} à ${establishment.neighborhood || 'Brazzaville'}. ${establishment.address || ''}`;
+    
+    const ogImage = establishment.imageUrl || undefined;
+    
+    return generateSiteMetadata({
+      title,
+      description,
+      ogImage,
+      ogType: 'article',
+      keywords: [
+        establishment.name,
+        establishment.category,
+        establishment.neighborhood || 'Brazzaville',
+        `${establishment.category} Brazzaville`,
+        'HoReCa Congo',
+      ],
+    });
+  } catch (error) {
+    return generateSiteMetadata({
+      title: 'Établissement introuvable',
+      noIndex: true,
+    });
+  }
+}
+
 
 export default async function EstablishmentDetailPage({ 
   params 
@@ -52,6 +97,8 @@ export default async function EstablishmentDetailPage({
 
     return (
       <>
+        <RestaurantJsonLd establishment={establishment} />
+        
         <TrackView establishmentId={id} source="direct" />
 
         <div className="min-h-screen bg-light">

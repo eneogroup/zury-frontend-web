@@ -1,4 +1,7 @@
+'use client';
+
 import { FileText, CheckCircle, Rocket, TrendingUp } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const steps = [
   {
@@ -31,28 +34,56 @@ export default function HowItWorks() {
   return (
     <section className="py-20 bg-light">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
+        <motion.div 
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
           <h2 className="text-4xl font-bold text-dark mb-4">
             Comment ça marche ?
           </h2>
           <p className="text-xl text-gray max-w-2xl mx-auto">
             Un processus simple et rapide pour rejoindre ZURY
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {steps.map((step, index) => (
-            <div key={index} className="relative">
+            <motion.div 
+              key={index} 
+              className="relative"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+            >
               {/* Ligne de connexion */}
               {index < steps.length - 1 && (
-                <div className="hidden lg:block absolute top-12 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-primary to-primary/20"></div>
+                <motion.div 
+                  className="hidden lg:block absolute top-12 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-primary to-primary/20"
+                  initial={{ scaleX: 0 }}
+                  whileInView={{ scaleX: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: index * 0.1 + 0.3 }}
+                  style={{ transformOrigin: 'left' }}
+                />
               )}
 
-              <div className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl transition-all duration-500 relative z-10">
+              <motion.div 
+                className="bg-white rounded-2xl p-8 shadow-sm relative z-10"
+                whileHover={{ y: -5, boxShadow: "0 20px 40px rgba(0,0,0,0.1)" }}
+                transition={{ duration: 0.3 }}
+              >
                 <div className="flex items-center justify-between mb-6">
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
+                  <motion.div 
+                    className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center"
+                    whileHover={{ scale: 1.1, rotate: 10 }}
+                    transition={{ duration: 0.3 }}
+                  >
                     <step.icon className="w-7 h-7 text-white" />
-                  </div>
+                  </motion.div>
                   <div className="text-5xl font-bold text-primary/10">
                     {step.number}
                   </div>
@@ -64,8 +95,8 @@ export default function HowItWorks() {
                 <p className="text-gray leading-relaxed">
                   {step.description}
                 </p>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           ))}
         </div>
       </div>

@@ -183,6 +183,51 @@ export const establishmentService = {
     return handleResponse(response);
   },
 
+  // Dans establishmentService, ajoute cette méthode
+  async getRecent(days: number = 30) {
+    const response = await fetch(`${API_BASE_URL}/api/v1/etablissements/recents/`, { 
+      next: { 
+        revalidate: CACHE_TIMES.FEATURED,
+        tags: ['establishments', 'recent'] 
+      },
+    });
+    
+    if (!response.ok) {
+      // Si l'endpoint n'existe pas, utiliser getAll avec tri
+      const allResponse = await fetch(`${API_BASE_URL}/api/v1/etablissements/?page_size=50&ordering=-date_creation`, { 
+        next: { 
+          revalidate: CACHE_TIMES.FEATURED,
+          tags: ['establishments', 'recent'] 
+        },
+      });
+      
+      const data = await handleResponse<any>(allResponse);
+      
+      // Filtrer côté client pour les 30 derniers jours
+      const now = new Date();
+      const thirtyDaysAgo = new Date(now.getTime() - (days * 24 * 60 * 60 * 1000));
+      
+      let establishments = data.results || data || [];
+      
+      // Filtrer par date
+      establishments = establishments.filter((est: any) => {
+        if (!est.date_creation && !est.created_at) return false;
+        
+        const createdDate = new Date(est.date_creation || est.created_at);
+        return createdDate >= thirtyDaysAgo;
+      });
+      
+      // Limiter à 4
+      return { results: establishments.slice(0, 4) };
+    }
+    
+    const data = await handleResponse<any>(response);
+    if (Array.isArray(data)) {
+      return { results: data.slice(0, 4) };
+    }
+    return data;
+  },
+
   // Établissements à proximité
   async getNearby(params: {
     latitude: number;

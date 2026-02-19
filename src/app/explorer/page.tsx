@@ -10,18 +10,54 @@ import MobileFiltersButton from '@/components/establishments/MobileFiltersButton
 import { cachedEstablishmentService } from '@/lib/cached-api';
 import { transformEstablishmentList } from '@/lib/apiTransformers';
 import type { TransformedEstablishment } from '@/types';
+import { Metadata } from 'next';
+import { generateSiteMetadata } from '@/lib/metadata';
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; categorie?: string }>;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  
+  let title = 'Explorer les établissements';
+  let description = 'Découvrez tous les restaurants, bars, hôtels et lounges à Brazzaville et Pointe-Noire.';
+  
+  if (params.q) {
+    title = `Recherche : ${params.q}`;
+    description = `Résultats de recherche pour "${params.q}" - Trouvez les meilleurs établissements à Brazzaville.`;
+  } else if (params.categorie) {
+    const categoryNames: Record<string, string> = {
+      '1': 'Restaurants',
+      '2': 'Bars',
+      '3': 'Hôtels',
+      '4': 'Lounges',
+    };
+    const categoryName = categoryNames[params.categorie] || 'Établissements';
+    title = `${categoryName} à Brazzaville`;
+    description = `Découvrez les meilleurs ${categoryName.toLowerCase()} à Brazzaville et Pointe-Noire.`;
+  }
+  
+  return generateSiteMetadata({
+    title,
+    description,
+  });
+}
+
 
 async function EstablishmentsList({
   q,
   categorie,
   neighborhood,
   minRating,
+  sort,
   page,
 }: {
   q?: string;
   categorie?: string;
   neighborhood?: string;
   minRating?: string;
+  sort?: string;
   page: number;
 }) {
   try {
@@ -41,6 +77,10 @@ async function EstablishmentsList({
     // Ajouter les filtres
     if (categorie && categorie !== 'all') {
       params.categorie = categorie;
+    }
+    // Ajouter le tri
+    if (sort === 'recent') {
+      params.ordering = '-date_creation'; // ou '-created_at' selon ton API
     }
 
     if (neighborhood) {
@@ -106,6 +146,7 @@ export default async function ExplorerPage({
     categorie?: string;
     neighborhood?: string;
     minRating?: string;
+    sort?: string;
     page?: string;
   }>;
 }) {
@@ -119,7 +160,10 @@ export default async function ExplorerPage({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-4xl font-bold mb-2">Explorer</h1>
           <p className="text-white/80 text-lg">
-            Découvrez les meilleurs établissements de Brazzaville
+            {params.q 
+              ? `Résultats de recherche pour "${params.q}"` 
+              : 'Découvrez les meilleurs établissements de Brazzaville'
+            }
           </p>
         </div>
       </div>
@@ -127,27 +171,26 @@ export default async function ExplorerPage({
       {/* Contenu */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Barre de recherche */}
-        <div className="mb-6">
-          <SearchBar />
-        </div>
+        <SearchBar initialQuery={params.q} />
 
         {/* Filtres rapides */}
         <div className="mb-8">
           <FilterChips />
         </div>
 
-        {/* Layout avec sidebar */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar - Filtres avancés */}
-          <aside className="hidden lg:block">
+        {/* Contenu principal */}
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Sidebar filtres avancés */}
+          <aside className="lg:w-80">
             <AdvancedFilters />
           </aside>
 
-          {/* Contenu principal */}
-          <div className="lg:col-span-3">
+          {/* Grille d'établissements */}
+          <div className="flex-1">
             <Suspense
+              key={`${params.q}-${params.categorie}-${params.neighborhood}-${params.minRating}-${params.sort}-${page}`}
               fallback={
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {[...Array(6)].map((_, i) => (
                     <EstablishmentCardSkeleton key={i} />
                   ))}
@@ -159,15 +202,13 @@ export default async function ExplorerPage({
                 categorie={params.categorie}
                 neighborhood={params.neighborhood}
                 minRating={params.minRating}
+                sort={params.sort}
                 page={page}
               />
             </Suspense>
           </div>
         </div>
       </div>
-
-      {/* Bouton filtres mobile */}
-      <MobileFiltersButton />
     </div>
   );
 }

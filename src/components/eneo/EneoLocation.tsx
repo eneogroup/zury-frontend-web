@@ -21,7 +21,7 @@ export default function EneoLocation() {
                 Intégration de la carte à venir
               </p>
               <p className="text-sm text-gray mt-4">
-                Avenue de la Paix, Quartier Plateau<br />
+                115 bis avenue Boueta Mbongo, Moungali, <br />
                 Brazzaville, République du Congo
               </p>
             </div>

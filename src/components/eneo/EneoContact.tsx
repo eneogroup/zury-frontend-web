@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Mail, Phone, MapPin, Send, CheckCircle } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle } from 'lucide-react';
 import Button from '@/components/ui/Button';
 
 export default function EneoContact() {
@@ -15,28 +15,47 @@ export default function EneoContact() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError('');
 
-    // Simulation d'envoi (à remplacer par vraie API)
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    setIsSubmitting(false);
-    setIsSuccess(true);
-
-    // Reset après 3 secondes
-    setTimeout(() => {
-      setIsSuccess(false);
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        formation: '',
-        message: '',
+    try {
+      const response = await fetch('/api/contact-eneo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
       });
-    }, 3000);
+
+      const data = await response.json();
+
+      if (data.success) {
+        setIsSuccess(true);
+        
+        // Reset après 5 secondes
+        setTimeout(() => {
+          setIsSuccess(false);
+          setFormData({
+            name: '',
+            email: '',
+            phone: '',
+            formation: '',
+            message: '',
+          });
+        }, 5000);
+      } else {
+        setError(data.error || 'Une erreur est survenue. Veuillez réessayer.');
+      }
+    } catch (err) {
+      console.error('Erreur:', err);
+      setError('Impossible d\'envoyer le message. Vérifiez votre connexion.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -97,7 +116,7 @@ export default function EneoContact() {
                 </div>
                 <div>
                   <h4 className="font-bold text-dark mb-1">Email</h4>
-                  <p className="text-gray">contact@eneogroup.cg</p>
+                  <p className="text-gray">eneogroup.cg@gmail.com</p>
                   <p className="text-gray">formations@eneogroup.cg</p>
                 </div>
               </div>
@@ -129,6 +148,14 @@ export default function EneoContact() {
 
             {!isSuccess ? (
               <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Message d'erreur */}
+                {error && (
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <p className="text-red-800 text-sm">{error}</p>
+                  </div>
+                )}
+
                 <div>
                   <label className="block text-sm font-semibold text-dark mb-2">
                     Nom complet *
@@ -186,13 +213,13 @@ export default function EneoContact() {
                     className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Sélectionnez une formation</option>
-                    <option value="web">Développement Web</option>
-                    <option value="mobile">Développement Mobile</option>
-                    <option value="data">Data Science & IA</option>
-                    <option value="python">Programmation Python</option>
-                    <option value="design">UI/UX Design</option>
-                    <option value="marketing">Marketing Digital</option>
-                    <option value="autre">Autre</option>
+                    <option value="Développement Web">Développement Web</option>
+                    <option value="Développement Mobile">Développement Mobile</option>
+                    <option value="Data Science & IA">Data Science & IA</option>
+                    <option value="Programmation Python">Programmation Python</option>
+                    <option value="UI/UX Design">UI/UX Design</option>
+                    <option value="Marketing Digital">Marketing Digital</option>
+                    <option value="Autre">Autre</option>
                   </select>
                 </div>
 
@@ -218,7 +245,12 @@ export default function EneoContact() {
                   className="w-full bg-gradient-to-r from-blue-600 to-cyan-600"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? 'Envoi en cours...' : (
+                  {isSubmitting ? (
+                    <>
+                      <span className="inline-block animate-spin mr-2">⏳</span>
+                      Envoi en cours...
+                    </>
+                  ) : (
                     <>
                       Envoyer le message
                       <Send className="w-5 h-5 ml-2" />
@@ -232,8 +264,11 @@ export default function EneoContact() {
                   <CheckCircle className="w-12 h-12 text-green-600" />
                 </div>
                 <h4 className="text-2xl font-bold text-dark mb-2">Message envoyé !</h4>
-                <p className="text-gray">
-                  Nous vous répondrons dans les plus brefs délais.
+                <p className="text-gray mb-4">
+                  Nous avons bien reçu votre message et vous répondrons dans les plus brefs délais.
+                </p>
+                <p className="text-sm text-gray">
+                  Vous allez recevoir un email de confirmation à <strong>{formData.email}</strong>
                 </p>
               </div>
             )}

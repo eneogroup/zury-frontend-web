@@ -6,8 +6,23 @@ import NewEstablishments from '@/components/home/NewEstablishments';
 import FadeIn from '@/components/ui/FadeIn';
 import { cachedEstablishmentService, cachedEventService, cachedStatsService } from '@/lib/cached-api';
 import { transformEstablishmentList, transformEvent } from '@/lib/apiTransformers';
-
+import JoinZuryCTA from '@/components/home/JoinZuryCTA';
+import { generateSiteMetadata } from '@/lib/metadata';
+import { Metadata } from 'next';
 export const revalidate = 300;
+
+export const metadata: Metadata = generateSiteMetadata({
+  title: 'Accueil',
+  description: 'Découvrez les meilleurs restaurants, bars, hôtels et événements à Brazzaville et Pointe-Noire. La plateforme HoReCa de référence au Congo.',
+  keywords: [
+    'restaurants Brazzaville',
+    'bars Brazzaville',
+    'hôtels Brazzaville',
+    'événements Brazzaville',
+    'sorties Congo',
+    'zury Congo',
+  ],
+});
 
 export default async function Home() {
   let featuredEstablishments = [];
@@ -43,20 +58,25 @@ export default async function Home() {
 
   return (
     <>
-      <Hero stats={stats} />
       
+      <FadeIn delay={0.3}>
+          <Hero stats={stats} />
+      </FadeIn>
       <div className="bg-light">
-        <FadeIn delay={0.2}>
+        <FadeIn delay={0.5}>
           <Categories />
         </FadeIn>
-        <FadeIn delay={0.3}>
+        <FadeIn delay={0.5}>
           <FeaturedEstablishments establishments={featuredEstablishments.slice(0, 3)} />
         </FadeIn>
-        <FadeIn delay={0.4}>
+        <FadeIn delay={0.5}>
           <UpcomingEvents events={events.slice(0, 3)} />
         </FadeIn>
         <FadeIn delay={0.5}>
-          <NewEstablishments establishments={featuredEstablishments.slice(3, 6)} />
+          <NewEstablishments />
+        </FadeIn>
+        <FadeIn delay={0.5}>
+          <JoinZuryCTA />
         </FadeIn>
       </div>
     </>
