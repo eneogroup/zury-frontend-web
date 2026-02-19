@@ -117,12 +117,6 @@ export default function MapView() {
           <LocationButton map={map} />
         </div>
       )}
-      
-      {map &&(
-        <div className="absolute top-12 right-12 z-10 space-y-2">
-          <ZoomControls map={map} />
-        </div>
-      )}
 
       {/* Loading indicator */}
       {isLoading && (
