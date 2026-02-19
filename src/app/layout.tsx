@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
@@ -13,6 +13,12 @@ const poppins = Poppins({
   display: 'swap',
   variable: '--font-poppins',
 });
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -52,11 +58,6 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     creator: '@zury_cg',
-  },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 5,
   },
   verification: {
     // google: 'xxx', // Ajouter après vérification Google Search Console
