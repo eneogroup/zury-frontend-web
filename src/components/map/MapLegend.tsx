@@ -10,7 +10,7 @@ interface MapLegendProps {
 
 export default function MapLegend({ categories }: MapLegendProps) {
   return (
-    <div className="absolute top-2 left-4 z-10 bg-white rounded-lg shadow-lg p-4 max-w-xs">
+    <div className="absolute bottom-2 right-4 mr-10 z-10 bg-white rounded-lg shadow-lg p-4 max-w-xs">
       <h3 className="text-sm font-bold text-dark mb-3">Légende</h3>
       <div className="space-y-2">
         {categories.map((category, index) => (

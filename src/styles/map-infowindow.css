@@ -1,53 +1,80 @@
-/* Styles pour les InfoWindows Google Maps */
+/* Styles pour InfoWindow Google Maps */
 .gm-style .gm-style-iw-c {
-  padding: 0 !important;
-  border-radius: 12px !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+  padding: 16px !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15) !important;
+  max-width: 400px !important;
 }
 
 .gm-style .gm-style-iw-d {
   overflow: hidden !important;
-  border-radius: 12px;
+  max-height: none !important;
 }
 
 .gm-style .gm-style-iw-t::after {
-  display: none;
+  display: none !important;
 }
 
-/* Bouton de fermeture */
+/* Bouton de fermeture stylé */
 .gm-style .gm-ui-hover-effect {
-  top: 8px !important;
-  right: 8px !important;
-  width: 32px !important;
-  height: 32px !important;
+  top: 12px !important;
+  right: 12px !important;
+  width: 36px !important;
+  height: 36px !important;
   border-radius: 50% !important;
-  background: rgba(0, 0, 0, 0.5) !important;
+  background: rgba(0, 0, 0, 0.6) !important;
   opacity: 1 !important;
+  transition: all 0.2s !important;
 }
 
 .gm-style .gm-ui-hover-effect:hover {
-  background: rgba(0, 0, 0, 0.7) !important;
+  background: rgba(0, 0, 0, 0.8) !important;
+  transform: scale(1.1) !important;
 }
 
 .gm-style .gm-ui-hover-effect > span {
   background-color: #fff !important;
-  width: 16px !important;
-  height: 16px !important;
-  margin: 8px !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin: 9px !important;
 }
 
 /* Animation d'apparition */
 .gm-style-iw-c {
-  animation: fadeInUp 0.3s ease-out;
+  animation: slideUpFade 0.3s ease-out;
 }
 
-@keyframes fadeInUp {
+@keyframes slideUpFade {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Scroll dans l'InfoWindow */
+.gm-style .gm-style-iw-d {
+  max-height: 500px !important;
+  overflow-y: auto !important;
+}
+
+.gm-style .gm-style-iw-d::-webkit-scrollbar {
+  width: 6px;
+}
+
+.gm-style .gm-style-iw-d::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.gm-style .gm-style-iw-d::-webkit-scrollbar-thumb {
+  background: #E63946;
+  border-radius: 10px;
+}
+
+.gm-style .gm-style-iw-d::-webkit-scrollbar-thumb:hover {
+  background: #C62E38;
 }

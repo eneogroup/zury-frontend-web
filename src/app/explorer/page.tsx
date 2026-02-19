@@ -12,6 +12,7 @@ import { transformEstablishmentList } from '@/lib/apiTransformers';
 import type { TransformedEstablishment } from '@/types';
 import { Metadata } from 'next';
 import { generateSiteMetadata } from '@/lib/metadata';
+import { console } from 'inspector';
 
 export async function generateMetadata({
   searchParams,
@@ -86,7 +87,7 @@ async function EstablishmentsList({
     if (neighborhood) {
       params.quartier = neighborhood;
     }
-
+    
     if (minRating) {
       params.note_min = parseFloat(minRating);
     }
@@ -95,7 +96,7 @@ async function EstablishmentsList({
     const response = await cachedEstablishmentService.getAll(params) as any;
 
     const establishments: TransformedEstablishment[] = response.results.map(transformEstablishmentList);
-
+    console.log('Fetched establishments:', establishments);
     if (establishments.length === 0) {
       return (
         <EmptyState
