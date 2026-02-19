@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Badge from './Badge';
 import ImageWithFallback from './ImageWithFallback';
 import FadeIn from './FadeIn';
+import OptimizedImage from './OptimizedImage';
 
 interface EventCardProps {
   event: {
@@ -29,11 +30,13 @@ export default function EventCard({ event, index = 0 }: EventCardProps) {
         <div className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer border border-gray-100/50 hover:border-primary/20 hover:-translate-y-1">
           {/* Image */}
           <div className="relative h-40 w-full overflow-hidden">
-            <ImageWithFallback
-              src={event.imageUrl}
+            <OptimizedImage
+              src={event.imageUrl || '/placeholder.svg'}
               alt={event.title}
               fill
-              className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover"
+              priority={index < 3} // Priorité pour les 3 premières images
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="absolute top-3 left-3">
