@@ -1,0 +1,53 @@
+/* Styles pour les InfoWindows Google Maps */
+.gm-style .gm-style-iw-c {
+  padding: 0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+.gm-style .gm-style-iw-d {
+  overflow: hidden !important;
+  border-radius: 12px;
+}
+
+.gm-style .gm-style-iw-t::after {
+  display: none;
+}
+
+/* Bouton de fermeture */
+.gm-style .gm-ui-hover-effect {
+  top: 8px !important;
+  right: 8px !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  opacity: 1 !important;
+}
+
+.gm-style .gm-ui-hover-effect:hover {
+  background: rgba(0, 0, 0, 0.7) !important;
+}
+
+.gm-style .gm-ui-hover-effect > span {
+  background-color: #fff !important;
+  width: 16px !important;
+  height: 16px !important;
+  margin: 8px !important;
+}
+
+/* Animation d'apparition */
+.gm-style-iw-c {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

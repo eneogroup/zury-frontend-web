@@ -8,17 +8,19 @@ interface GoogleMapProps {
   zoom?: number;
   className?: string;
   onMapLoad?: (map: google.maps.Map) => void;
+  onMapClick?: () => void;
 }
 
 // Centre sur Brazzaville par défaut
 const DEFAULT_CENTER = { lat: -4.2634, lng: 15.2429 };
-const DEFAULT_ZOOM = 13;
+const DEFAULT_ZOOM = 50;
 
 export default function GoogleMap({
   center = DEFAULT_CENTER,
   zoom = DEFAULT_ZOOM,
   className = 'w-full h-full',
   onMapLoad,
+  onMapClick,
 }: GoogleMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
@@ -55,17 +57,22 @@ export default function GoogleMap({
         position: google.maps.ControlPosition.RIGHT_TOP,
       },
     });
+    if (onMapClick) {
+      newMap.addListener('click', onMapClick);
+    }
 
     setMap(newMap);
     onMapLoad?.(newMap);
-  }, [isLoaded, center, zoom, map, onMapLoad]);
+  }, [isLoaded, center, zoom, map, onMapLoad, onMapClick]);
 
   if (loadError) {
     return (
       <div className={`${className} flex items-center justify-center bg-gray-100`}>
         <div className="text-center p-8">
           <p className="text-red-600 font-semibold mb-2">Erreur de chargement de la carte</p>
-          <p className="text-gray-600 text-sm">{loadError.message}</p>
+          <p className="text-gray-600 text-sm">
+            {(loadError as unknown) instanceof Error ? loadError.message : String(loadError)}
+          </p>
         </div>
       </div>
     );

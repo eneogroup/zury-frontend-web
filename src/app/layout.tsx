@@ -5,7 +5,9 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { siteConfig } from "@/lib/metadata";
 import { OrganizationJsonLd, SearchActionJsonLd } from '@/components/seo/JsonLd';
-import { SpeedInsights } from "@vercel/speed-insights/next";
+// import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
+// import PrefetchController from '@/components/PrefetchController';
+import Script from 'next/script';
 
 const poppins = Poppins({ 
   weight: ['300', '400', '500', '600', '700', '800'],
@@ -14,55 +16,14 @@ const poppins = Poppins({
   variable: '--font-poppins',
 });
 
+export const metadata: Metadata = {
+  // ... metadata existante
+};
+
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
-};
-
-export const metadata: Metadata = {
-  metadataBase: new URL(siteConfig.url),
-  title: {
-    default: siteConfig.name,
-    template: `%s | ${siteConfig.name}`,
-  },
-  description: siteConfig.description,
-  keywords: siteConfig.keywords,
-  authors: [{ name: 'Eneo Academy', url: 'https://eneogroup.cg' }],
-  creator: 'Eneo Academy',
-  publisher: 'ZURY',
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
-  openGraph: {
-    type: 'website',
-    locale: 'fr_FR',
-    url: siteConfig.url,
-    siteName: siteConfig.name,
-    title: siteConfig.name,
-    description: siteConfig.description,
-  },
-  twitter: {
-    card: 'summary_large_image',
-    creator: '@zury_cg',
-  },
-  verification: {
-    // google: 'xxx', // Ajouter après vérification Google Search Console
-    // yandex: 'xxx',
-  },
 };
 
 export default function RootLayout({
@@ -73,14 +34,32 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <head>
+        {/* DNS Prefetch */}
+        <link rel="dns-prefetch" href="https://maps.googleapis.com" />
+        <link rel="dns-prefetch" href="https://zury-backend-production.up.railway.app" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        
+        {/* Preconnect */}
+        <link rel="preconnect" href="https://maps.googleapis.com" />
+        <link rel="preconnect" href="https://zury-backend-production.up.railway.app" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        
         <OrganizationJsonLd />
         <SearchActionJsonLd />
       </head>
       <body className={`${poppins.variable} font-sans antialiased`}>
+        {/* Google Maps Script */}
+        <Script
+          src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places,marker`}
+          strategy="beforeInteractive"
+        />
+        
+        {/* <GoogleAnalytics />
+        <PrefetchController /> */}
         <Header />
         <main>{children}</main>
         <Footer />
-        <SpeedInsights />
       </body>
     </html>
   );
