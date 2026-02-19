@@ -110,7 +110,7 @@ export default function EstablishmentDetailTabs({
                       {establishment.name}
                     </h1>
                     <p className="text-gray text-sm mb-2">
-                      {establishment.reviewCount > 1000 ? `${(establishment.reviewCount / 1000).toFixed(1)}K` : establishment.reviewCount} abonnés
+                      {establishment.reviewCount > 1000 ? `${(establishment.reviewCount / 1000).toFixed(1)}K` : establishment.reviewCount} vues
                     </p>
                     <Badge variant={establishment.category} className="uppercase">
                       {establishment.category}
@@ -144,7 +144,7 @@ export default function EstablishmentDetailTabs({
                   Appeler
                 </Button>
                 
-                <button
+                {/* <button
                   onClick={() => setIsFavorite(!isFavorite)}
                   className={cn(
                     "px-4 py-2 rounded-lg font-medium transition-all border-2",
@@ -154,7 +154,7 @@ export default function EstablishmentDetailTabs({
                   )}
                 >
                   <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500' : ''}`} />
-                </button>
+                </button> */}
 
                 <ShareButton establishmentId={establishment.id} variant="outline" size="md" />
               </div>

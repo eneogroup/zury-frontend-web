@@ -138,7 +138,7 @@ export default function AdvancedFilters() {
       </div>
 
       {/* Quartiers */}
-      <div className="mb-6">
+      {/* <div className="mb-6">
         <button
           onClick={() => setIsNeighborhoodOpen(!isNeighborhoodOpen)}
           className="flex items-center justify-between w-full mb-3"
@@ -172,10 +172,10 @@ export default function AdvancedFilters() {
             ))}
           </div>
         )}
-      </div>
+      </div> */}
 
       {/* Note minimale */}
-      <div>
+      {/* <div>
         <button
           onClick={() => setIsRatingOpen(!isRatingOpen)}
           className="flex items-center justify-between w-full mb-3"
@@ -220,7 +220,7 @@ export default function AdvancedFilters() {
             ))}
           </div>
         )}
-      </div>
+      </div> */}
     </div>
   );
 }
