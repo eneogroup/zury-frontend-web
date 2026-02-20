@@ -47,7 +47,7 @@ export default function EneoStory() {
               >
                 C'est dans nos locaux, lors d'un projet de formation pratique, que <strong className="text-dark">ZURY</strong> a 
                 vu le jour. Nos étudiants en développement web ont identifié un besoin réel : faciliter la découverte 
-                des établissements HoReCa à Brazzaville et Pointe-Noire.
+                des établissements à Brazzaville et Pointe-Noire.
               </motion.p>
               
               <motion.p
@@ -136,7 +136,7 @@ export default function EneoStory() {
               transition={{ duration: 0.6, delay: 0.3 }}
               whileHover={{ scale: 1.1 }}
             >
-              <div className="text-3xl font-bold">2020</div>
+              <div className="text-3xl font-bold">2024</div>
               <div className="text-sm opacity-90">Année de création</div>
             </motion.div>
           </motion.div>

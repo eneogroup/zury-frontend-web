@@ -92,7 +92,7 @@ export default function EneoHero() {
           >
             {[
               { icon: Code, number: '5+', label: 'Formations' },
-              { icon: Award, number: '200+', label: 'Étudiants' },
+              { icon: Award, number: '10+', label: 'Étudiants' },
               { icon: GraduationCap, number: '95%', label: 'Satisfaction' }
             ].map((stat, index) => (
               <motion.div

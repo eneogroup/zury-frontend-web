@@ -1,7 +1,7 @@
 export default function JoinStats() {
   const stats = [
     { number: '50+', label: 'Établissements partenaires' },
-    { number: '1200+', label: 'Utilisateurs actifs' },
+    { number: '20+', label: 'Quartiers couvert' },
     { number: '10+', label: 'Événements par mois' },
     { number: '5000+', label: 'Vues mensuelles' },
   ];
