@@ -49,9 +49,12 @@ export default function EstablishmentCard({ establishment, index = 0 }: Establis
               {establishment.name}
             </h3>
             
-            <div className="flex items-center text-gray-600 text-sm mb-3">
+            <div className="flex items-center text-gray-600 text-sm">
               <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
               <span className="line-clamp-1">{establishment.neighborhood}</span>
+            </div>
+            <div className="flex items-center text-gray-600 text-sm mb-3">
+              <span className="line-clamp-1">{establishment.address}</span>
             </div>
 
             <div className="flex items-center">

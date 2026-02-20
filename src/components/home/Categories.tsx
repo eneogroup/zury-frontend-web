@@ -1,24 +1,10 @@
 'use client';
 
-import { UtensilsCrossed, Wine, Hotel, Sofa } from 'lucide-react';
+import { UtensilsCrossed, Wine, Hotel, Cake } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
 const categories = [
-  { 
-    name: 'Restaurant', 
-    icon: UtensilsCrossed, 
-    slug: 'restaurant', 
-    gradient: 'from-primary to-primary/10',
-    image: 'https://www.olympic-palace-hotel.net/assets/img/oph_oriental1.jpg'
-  },
-  { 
-    name: 'Bar', 
-    icon: Wine, 
-    slug: 'bar', 
-    gradient: 'from-gold to-gold/10',
-    image: 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1b/07/b2/3b/vue-d-ensemble-du-pichichi.jpg?w=1200&h=-1&s=1'
-  },
   { 
     name: 'Hôtel', 
     icon: Hotel, 
@@ -27,11 +13,25 @@ const categories = [
     image: 'https://media-cdn.tripadvisor.com/media/photo-s/2e/3b/29/4b/caption.jpg'
   },
   { 
-    name: 'Lounge', 
-    icon: Sofa, 
+    name: 'Restaurant', 
+    icon: UtensilsCrossed, 
+    slug: 'restaurant', 
+    gradient: 'from-primary to-primary/10',
+    image: 'https://www.olympic-palace-hotel.net/assets/img/oph_oriental1.jpg'
+  },
+  { 
+    name: 'Bar/Lounge', 
+    icon: Wine, 
+    slug: 'bar', 
+    gradient: 'from-gold to-gold/10',
+    image: 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1b/07/b2/3b/vue-d-ensemble-du-pichichi.jpg?w=1200&h=-1&s=1'
+  },
+  { 
+    name: 'Patisserie', 
+    icon: Cake, 
     slug: 'lounge', 
     gradient: 'from-dark to-dark/10',
-    image: 'https://images.unsplash.com/photo-1582037928769-181f2644ecb7?w=800&q=80'
+    image: 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0f/1c/3d/82/photo0jpg.jpg?w=900&h=500&s=1'
   },
 ];
 

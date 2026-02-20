@@ -231,7 +231,7 @@ export default function Hero({ stats }: HeroProps) {
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold">50+</div>
-              <div className="text-sm text-white/80">Utilisateurs</div>
+              <div className="text-sm text-white/80">Recherches journalières</div>
             </div>
           </div>
         )}
