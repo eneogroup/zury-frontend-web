@@ -50,7 +50,7 @@ export default function Hero({ stats }: HeroProps) {
   };
 
   return (
-    <div className="relative h-[600px] flex items-center justify-center overflow-hidden">
+    <div className="relative  min-h-[100dvh] flex items-center justify-center overflow-hidden">
       {/* Carousel d'images de fond */}
       <div className="absolute inset-0">
         {heroImages.map((image, index) => (
