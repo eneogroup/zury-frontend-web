@@ -29,12 +29,12 @@ export default function EventCard({ event, index = 0 }: EventCardProps) {
       <Link href={`/evenements/${event.id}`}>
         <div className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer border border-gray-100/50 hover:border-primary/20 hover:-translate-y-1">
           {/* Image */}
-          <div className="relative h-40 w-full overflow-hidden">
+          <div className="relative h-full w-full overflow-hidden">
             <OptimizedImage
               src={event.imageUrl || '/placeholder.svg'}
               alt={event.title}
               fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              sizes="(max-width: 768px) 200vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover"
               priority={index < 3} // Priorité pour les 3 premières images
             />

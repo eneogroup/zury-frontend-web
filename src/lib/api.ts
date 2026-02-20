@@ -173,7 +173,7 @@ export const establishmentService = {
 
   // Statut d'ouverture
   async getOpenStatus(id: string) {
-    const response = await fetch(`${API_BASE_URL}/api/v1/etablissements/${id}/statut_ouverture/`, { 
+    const response = await fetch(`${API_BASE_URL}/api/v1/etablissements/${id}/statut-ouverture/`, { 
       next: { 
         revalidate: 60,
         tags: [`establishment-status-${id}`] 

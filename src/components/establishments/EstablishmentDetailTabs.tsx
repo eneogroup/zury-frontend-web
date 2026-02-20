@@ -84,7 +84,8 @@ export default function EstablishmentDetailTabs({
       {/* Image de couverture */}
       <div className="relative h-96 w-full">
         <ImageWithFallback
-          src={establishment.imageUrl}
+          // mettre la dernière image de la liste en image de couverture, sinon l'image principale de l'établissement
+          src={images.length > 0 ? images[images.length - 1] : establishment.imageUrl}
           alt={establishment.name}
           fill
           className="object-cover"
@@ -101,8 +102,18 @@ export default function EstablishmentDetailTabs({
               <div className="flex-1">
                 <div className="flex items-start gap-4 mb-4">
                   {/* Logo/Avatar */}
-                  <div className="w-24 h-24 rounded-full bg-dark flex items-center justify-center text-white text-3xl font-bold flex-shrink-0 shadow-lg">
-                    {establishment.name.charAt(0)}
+                  <div className="w-24 h-24 rounded-full bg-dark flex items-center justify-center text-white text-3xl font-bold flex-shrink-0 shadow-lg overflow-hidden">
+                    {images.length > 0 && images[0] ? (
+                      <ImageWithFallback
+                        src={images[0]}
+                        alt={establishment.name}
+                        width={96}
+                        height={96}
+                        className="rounded-full object-cover w-full h-full"
+                      />
+                    ) : (
+                      establishment.name.charAt(0)
+                    )}
                   </div>
 
                   <div className="flex-1">

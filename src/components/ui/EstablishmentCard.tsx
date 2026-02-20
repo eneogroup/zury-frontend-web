@@ -28,7 +28,7 @@ export default function EstablishmentCard({ establishment, index = 0 }: Establis
       <Link href={`/establishments/${establishment.id}`}>
         <div className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer border border-gray-100/50 hover:border-primary/20 hover:-translate-y-1">
           {/* Image */}
-          <div className="relative h-48 w-full overflow-hidden">
+          <div className="relative  w-full overflow-hidden">
             <OptimizedImage
               src={establishment.imageUrl || '/placeholder.svg'}
               alt={establishment.name}

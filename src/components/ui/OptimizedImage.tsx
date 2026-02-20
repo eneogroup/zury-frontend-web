@@ -17,7 +17,7 @@ interface OptimizedImageProps {
   onLoadingComplete?: () => void;
 }
 
-const PLACEHOLDER_IMAGE = '/placeholder-image.jpg'; // Image par défaut
+const PLACEHOLDER_IMAGE = '/placeholder-image.svg'; // Image par défaut
 
 export default function OptimizedImage({
   src,
@@ -26,7 +26,7 @@ export default function OptimizedImage({
   height,
   className,
   priority = false,
-  fill = false,
+  fill = true,
   sizes,
   quality = 85,
   onLoadingComplete,
@@ -46,7 +46,7 @@ export default function OptimizedImage({
   };
 
   return (
-    <div className={cn('relative overflow-hidden', className)}>
+    <div className={cn('relative aspect-video', className)}>
       <Image
         src={imageSrc}
         alt={alt}
