@@ -195,9 +195,9 @@ export default function MapView() {
         </div>
       )}
 
-      {/* Bouton de localisation - En haut à gauche sous les filtres sur desktop, en bas à droite sur mobile */}
+      {/* Bouton de localisation - centré en bas sur desktop et mobile */}
       {map && (
-        <div className="absolute bottom-24 right-4 md:top-20 md:left-4 md:right-auto md:bottom-auto z-10">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
           <LocationButton map={map} />
         </div>
       )}

@@ -6,7 +6,7 @@ const CACHE_TIMES = {
   CATEGORIES: 3600,      // 1 heure
   QUARTIERS: 3600,       // 1 heure
   ESTABLISHMENTS: 300,   // 5 minutes
-  FEATURED: 600,         // 10 minutes
+  FEATURED: 300,         // 10 minutes
   EVENTS: 180,           // 3 minutes
   DETAIL: 300,           // 5 minutes
   STATS: 300,            // 5 minutes
@@ -165,6 +165,19 @@ export const establishmentService = {
       next: { 
         revalidate: CACHE_TIMES.DETAIL,
         tags: ['establishments', `establishment-${id}`] 
+      },
+    });
+    
+    return handleResponse(response);
+  },
+
+  // Etablissements similaires
+  //GET /api/v1/etablissements/{id}/similaires/?limit=5
+  async getSimilar(id: string) {
+    const response = await fetch(`${API_BASE_URL}/api/v1/etablissements/${id}/similaires/?limit=8`,{ 
+      next: { 
+        revalidate: CACHE_TIMES.ESTABLISHMENTS,
+        tags: ['establishments', `similar-${id}`] 
       },
     });
     

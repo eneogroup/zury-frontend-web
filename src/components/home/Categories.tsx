@@ -84,7 +84,7 @@ export default function Categories() {
                 whileTap={{ scale: 0.95 }}
               >
                 <Link
-                  href={`/explorer?category=${category.slug}`}
+                  href={`/explorer`}
                   className="group block"
                 >
                   <div className="relative rounded-2xl p-8 md:p-10 text-center overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 h-48">

@@ -20,7 +20,8 @@ export const cachedEstablishmentService = {
   getById: cache(establishmentService.getById),
   getOpenStatus: cache(establishmentService.getOpenStatus),
   getNearby: cache(establishmentService.getNearby),
-  getRecent: cache(establishmentService.getRecent), 
+  getRecent: cache(establishmentService.getRecent),
+  getSimilar : cache(establishmentService.getSimilar),
 };
 
 export const cachedEventService = {

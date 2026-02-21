@@ -69,6 +69,7 @@ export interface Event {
   date_debut: string;
   date_fin: string;
   prix: string;
+  telephone?: string;
   est_gratuit?: boolean;
   nb_places_total: number;
   nb_places_reservees?: number;
@@ -90,6 +91,7 @@ export interface TransformedEvent {
   category: string;
   date: string;
   time: string;
+  telephone?: string;
   establishment: string;
   establishmentId?: string;
   price: string;

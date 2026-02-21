@@ -59,7 +59,7 @@ export default function RegistrationModal({ isOpen, onClose }: RegistrationModal
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const API_URL = 'http://127.0.0.1:8000/api/v1';
+  const API_URL = 'https://zury-backend-production.up.railway.app/api/v1';
 
   // Charger les données du formulaire
   useEffect(() => {

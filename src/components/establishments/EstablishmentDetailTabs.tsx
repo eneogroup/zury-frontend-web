@@ -70,6 +70,8 @@ export default function EstablishmentDetailTabs({
     }
   };
 
+  
+
   const handleDirections = () => {
     if (establishment.latitude && establishment.longitude) {
       window.open(

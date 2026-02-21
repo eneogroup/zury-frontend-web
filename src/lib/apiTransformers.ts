@@ -90,6 +90,7 @@ export function transformEvent(event: any) {
     category: event.type_event_display || event.type_event || 'Événement',
     date: formatDate(dateDebut),
     time: formatTime(dateDebut),
+    phone: event.telephone,
     establishment: event.etablissement_nom || event.etablissement?.nom || '',
     establishmentId: event.etablissement_id || event.etablissement?.id,
     price: event.est_gratuit ? 'Gratuit' : `${parseInt(event.prix || '0')} FCFA`,

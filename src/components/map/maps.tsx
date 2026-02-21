@@ -85,7 +85,7 @@ export default function MapFilters({
           />
           
           {/* Panel */}
-          <div className="fixed inset-x-0 bottom-0 md:top-20 md:left-8 md:bottom-auto md:inset-x-auto bg-white rounded-t-2xl md:rounded-lg shadow-2xl p-4 max-w-sm max-h-[85vh] md:max-h-[calc(100vh-120px)] overflow-y-auto z-[1000]">
+          <div className="fixed inset-x-0 bottom-0 md:absolute md:top-14 md:left-0 md:inset-x-auto bg-white rounded-t-2xl md:rounded-lg shadow-2xl p-4 max-w-sm md:max-w-sm max-h-[85vh] md:max-h-[calc(100vh-120px)] overflow-y-auto z-50">
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-base md:text-lg text-dark">Filtrer la carte</h3>

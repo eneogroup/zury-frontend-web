@@ -8,6 +8,7 @@ import TrackView from '@/components/tracking/TrackView';
 import { Metadata } from 'next';
 import { generateSiteMetadata } from '@/lib/metadata';
 import { RestaurantJsonLd } from '@/components/seo/JsonLd';
+import EstablishmentSimilarSection from '@/components/establishments/EtablishmentSimilar';
 
 
 
@@ -120,6 +121,9 @@ export default async function EstablishmentDetailPage({
             events={events}
           />
         </div>
+
+        {/* Section établissements similaires */}
+        <EstablishmentSimilarSection params={params} />
       </>
     );
   } catch (error) {

@@ -62,7 +62,6 @@ export default async function EventDetailPage({
   try {
     const eventData = await cachedEventService.getById(id);
     const event = transformEvent(eventData);
-
     return (
       <>
         <EventJsonLd event={event} />
@@ -164,7 +163,7 @@ export default async function EventDetailPage({
                 {/* Description */}
                 {event.description && (
                   <div className="mb-8">
-                    <h2 className="text-2xl font-bold text-dark mb-4">À propos de l'événement</h2>
+                    <h2 className="text-2xl font-bold text-dark mb-4">À propos {event.establishment.phone} de l'événement</h2>
                     <p className="text-gray leading-relaxed">{event.description}</p>
                   </div>
                 )}
@@ -177,7 +176,9 @@ export default async function EventDetailPage({
                     className="flex-1"
                     disabled={event.isComplete}
                   >
-                    {event.isComplete ? 'Complet' : 'Réserver maintenant'}
+                    <a href={`tel:${event.phone}`}>
+                      {event.isComplete ? 'Complet' : 'Réserver maintenant'}
+                    </a>
                   </Button>
                   <ShareButton eventId={id} variant="outline" size="lg" />
                 </div>
