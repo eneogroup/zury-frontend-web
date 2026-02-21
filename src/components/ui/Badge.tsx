@@ -9,10 +9,10 @@ interface BadgeProps {
 
 export default function Badge({ children, variant = 'restaurant', className }: BadgeProps) {
   const variants = {
-    restaurant: 'bg-gradient-to-r from-primary to-primary/80 text-white shadow-md',
-    bar: 'bg-gradient-to-r from-gold to-gold/80 text-dark shadow-md',
-    hotel: 'bg-gradient-to-r from-accent to-accent/80 text-white shadow-md',
-    lounge: 'bg-gradient-to-r from-dark to-dark/80 text-white shadow-md',
+    restaurant: 'bg-gradient-to-r from-primary to-dark text-white shadow-md',
+    bar: 'bg-gradient-to-r from-gold to-light text-accent shadow-md',
+    hotel: 'bg-gradient-to-r from-dark to-dark/50 text-white shadow-md',
+    lounge: 'bg-gradient-to-r from-gold to-light text-accent shadow-md',
     open: 'bg-gradient-to-r from-accent to-accent/80 text-white shadow-md',
     closed: 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md',
     premium: 'bg-gradient-to-r from-gold to-gold/80 text-dark shadow-md',

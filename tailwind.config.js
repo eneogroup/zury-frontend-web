@@ -8,9 +8,9 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        dark: '#2C1810',        // Brun chocolat profond (terre africaine)
-        primary: '#E63946',     // Rouge tomate vif (appétissant)
-        accent: '#06A77D',      // Vert émeraude (fraîcheur)
+        dark: '#090909',        // Brun chocolat profond (terre africaine)
+        primary: '#E23007',     // Rouge tomate vif (appétissant)
+        accent: '#F63508',      // Vert émeraude (fraîcheur)
         gold: '#F4A261',        // Orange terracotta (chaleur)
         light: '#FFF8F3',       // Crème vanille
         gray: {

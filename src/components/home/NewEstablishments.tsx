@@ -31,7 +31,7 @@ export default async function NewEstablishmentsSection() {
         <div className="flex items-center justify-between mb-12">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <Sparkles className="w-8 h-8 text-primary" />
+              <Sparkles className="w-8 h-8 text-primary/90" />
               <h2 className="text-4xl font-bold text-dark">
                 Nouveaux établissements
               </h2>
