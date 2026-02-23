@@ -1,0 +1,78 @@
+import { useSearchParams, useNavigate, Link } from 'react-router-dom'
+import DI from '../../../di/ioc'
+import EventCard from '../shared/ui/EventCard'
+import EventCardSkeleton from '../shared/ui/EventCardSkeleton'
+import EmptyState from '../shared/ui/EmptyState'
+import Pagination from '../shared/ui/Pagination'
+import type { IEventsViewModel } from '../../../service/interface/events.viewmodel.interface'
+
+const PERIOD_FILTERS = [
+  { id: '', label: 'Tous' },
+  { id: 'today', label: "Aujourd'hui" },
+  { id: 'weekend', label: 'Ce weekend' },
+]
+
+export const EventsPage = () => {
+  const { events, status, totalCount, totalPages } = DI.resolve<IEventsViewModel>('eventsViewModel')
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
+
+  const period = searchParams.get('period') || ''
+  const currentPage = parseInt(searchParams.get('page') || '1')
+  const pageSize = 12
+  const paginatedEvents = events.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+  const computedTotalPages = Math.ceil(events.length / pageSize) || totalPages
+
+  const setPeriod = (p: string) => {
+    const params = new URLSearchParams()
+    if (p) params.set('period', p)
+    navigate(`?${params.toString()}`)
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="bg-white border-b border-gray-100">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-10">
+          <p className="text-xs uppercase tracking-widest font-semibold text-gray-400 mb-4">
+            Brazzaville & Pointe-Noire
+          </p>
+          <h1 className="font-display text-4xl md:text-5xl font-bold text-dark leading-tight mb-2">
+            Événements à{' '}
+            <span className="text-primary italic">Brazzaville</span>
+          </h1>
+          <span className="accent-bar mt-3" />
+          <p className="text-gray-500 mt-4">Découvrez les meilleurs événements de la ville</p>
+        </div>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex flex-wrap gap-2 mb-8">
+          {PERIOD_FILTERS.map((f) => (
+            <button key={f.id} onClick={() => setPeriod(f.id)}
+              className={`px-5 py-2.5 rounded-full font-medium transition-all ${
+                period === f.id ? 'bg-primary text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:border-primary hover:text-primary'
+              }`}>
+              {f.label}
+            </button>
+          ))}
+        </div>
+
+        {status === 'loading' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => <EventCardSkeleton key={i} />)}
+          </div>
+        ) : paginatedEvents.length === 0 ? (
+          <EmptyState title="Aucun événement trouvé" message="Il n'y a pas d'événements prévus pour cette période." />
+        ) : (
+          <>
+            <p className="text-sm text-gray-500 mb-4">{events.length} événement{events.length > 1 ? 's' : ''}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {paginatedEvents.map((e, i) => <EventCard key={e.id} event={e} index={i} />)}
+            </div>
+            <Pagination currentPage={currentPage} totalPages={computedTotalPages} totalCount={events.length} pageSize={pageSize} />
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
