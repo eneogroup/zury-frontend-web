@@ -18,6 +18,7 @@ export const explorerViewModel = (): IExplorerViewModel => {
   const categorie = searchParams.get('categorie') || ''
   const neighborhood = searchParams.get('neighborhood') || ''
   const minRating = searchParams.get('minRating') || ''
+  const ordering = searchParams.get('ordering') || ''
   const page = parseInt(searchParams.get('page') || '1')
 
   useEffect(() => {
@@ -26,10 +27,11 @@ export const explorerViewModel = (): IExplorerViewModel => {
     if (categorie && categorie !== 'all') params.categorie = categorie
     if (neighborhood) params.quartier = neighborhood
     if (minRating) params.note_min = parseFloat(minRating)
+    if (ordering) params.ordering = ordering
     getAll(params)
     getCategories()
     getQuartiers()
-  }, [q, categorie, neighborhood, minRating, page])
+  }, [q, categorie, neighborhood, minRating, ordering, page])
 
   return { establishments, categories, quartiers, status, totalCount, totalPages }
 }

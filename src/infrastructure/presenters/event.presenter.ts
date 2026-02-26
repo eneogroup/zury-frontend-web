@@ -5,9 +5,11 @@ export const eventPresenter = () => {
   const {
     events,
     upcomingEvents,
+    weekendEvents,
     currentEvent,
     status,
     upcomingStatus,
+    weekendStatus,
     detailStatus,
     totalCount,
     totalPages,
@@ -16,9 +18,11 @@ export const eventPresenter = () => {
   return {
     events,
     upcomingEvents,
+    weekendEvents,
     currentEvent,
     status,
     upcomingStatus,
+    weekendStatus,
     detailStatus,
     totalCount,
     totalPages,

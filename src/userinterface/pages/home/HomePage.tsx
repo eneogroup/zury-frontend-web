@@ -6,6 +6,7 @@ import DI from '../../../di/ioc'
 import EstablishmentCard from '../shared/ui/EstablishmentCard'
 import EventCard from '../shared/ui/EventCard'
 import EstablishmentCardSkeleton from '../shared/ui/EstablishmentCardSkeleton'
+import EventCardSkeleton from '../shared/ui/EventCardSkeleton'
 import Button from '../shared/ui/Button'
 import type { IHomeViewModel } from '../../../service/interface/home.viewmodel.interface'
 
@@ -262,7 +263,7 @@ function JoinZuryCTA() {
 
 // ── HomePage ──────────────────────────────────────────────────────────────────
 export const HomePage = () => {
-  const { featuredEstablishments, recentEstablishments, upcomingEvents, stats, featuredStatus, upcomingStatus } =
+  const { featuredEstablishments, recentEstablishments, upcomingEvents, weekendEvents, stats, featuredStatus, upcomingStatus, weekendStatus } =
     DI.resolve<IHomeViewModel>('homeViewModel')
 
   return (
@@ -293,10 +294,39 @@ export const HomePage = () => {
               <Link to="/evenements" className="text-white hover:text-white/80 font-medium transition-colors">Voir tout →</Link>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {upcomingEvents.slice(0, 8).map((e, i) => <EventCard key={e.id} event={e} index={i} />)}
+              {upcomingStatus === 'loading'
+                ? [...Array(4)].map((_, i) => <EventCardSkeleton key={i} />)
+                : upcomingEvents.slice(0, 8).map((e, i) => <EventCard key={e.id} event={e} index={i} />)
+              }
             </div>
           </div>
         </section>
+
+        {/* Weekend events section */}
+        {(weekendStatus === 'loading' || weekendEvents.length > 0) && (
+          <section className="py-12 bg-dark">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-3xl font-bold text-white">Ce weekend</h2>
+                  <p className="text-white/60 text-sm mt-1">Événements spéciaux pour votre weekend</p>
+                </div>
+                <Link
+                  to="/evenements?period=weekend"
+                  className="flex items-center gap-1.5 text-gold hover:text-gold/80 font-medium transition-colors text-sm"
+                >
+                  Voir tout →
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {weekendStatus === 'loading'
+                  ? [...Array(4)].map((_, i) => <EventCardSkeleton key={i} />)
+                  : weekendEvents.slice(0, 8).map((e, i) => <EventCard key={e.id} event={e} index={i} />)
+                }
+              </div>
+            </div>
+          </section>
+        )}
 
         {recentEstablishments.length > 0 && (
           <section className="py-20 bg-white">
@@ -306,7 +336,7 @@ export const HomePage = () => {
                   <h2 className="text-4xl font-bold text-dark">Nouveaux établissements</h2>
                   <p className="text-lg text-gray-500">Découvrez les dernières adresses ajoutées à ZURY</p>
                 </div>
-                <Link to="/explorer?sort=recent" className="hidden md:flex items-center gap-2 text-primary hover:text-primary/80 font-semibold transition-colors">
+                <Link to="/explorer?ordering=-created_at" className="hidden md:flex items-center gap-2 text-primary hover:text-primary/80 font-semibold transition-colors">
                   Voir tous les nouveaux <span>→</span>
                 </Link>
               </div>

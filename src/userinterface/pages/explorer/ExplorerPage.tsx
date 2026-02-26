@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
-import { Search, SlidersHorizontal, X, Star, ChevronDown } from 'lucide-react'
+import { Search, SlidersHorizontal, X, Star, ChevronDown, LayoutGrid, List, ArrowUpDown, MapPin, ArrowRight, Heart } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import DI from '../../../di/ioc'
 import EstablishmentCard from '../shared/ui/EstablishmentCard'
 import EstablishmentCardSkeleton from '../shared/ui/EstablishmentCardSkeleton'
 import Pagination from '../shared/ui/Pagination'
 import type { IExplorerViewModel } from '../../../service/interface/explorer.viewmodel.interface'
+import { useFavorites } from '../../../service/hooks/useFavorites'
 
 const CATEGORIES = [
   { id: '', label: 'Tous', dot: 'bg-gray-300' },
@@ -23,6 +24,21 @@ const RATINGS = [
   { value: '', label: 'Toutes les notes' },
 ]
 
+const ORDERING_OPTIONS = [
+  { value: '', label: 'Par défaut' },
+  { value: '-note_moyenne', label: 'Meilleure note' },
+  { value: '-nombre_vues', label: 'Plus populaires' },
+  { value: '-created_at', label: 'Plus récents' },
+  { value: 'nom', label: 'Alphabétique (A→Z)' },
+]
+
+const CATEGORY_COLORS: Record<string, string> = {
+  restaurant: 'bg-primary/10 text-primary border-primary/20',
+  bar: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+  hotel: 'bg-blue-50 text-blue-600 border-blue-200',
+  lounge: 'bg-purple-50 text-purple-600 border-purple-200',
+}
+
 export const ExplorerPage = () => {
   const { establishments, quartiers, status, totalCount, totalPages } =
     DI.resolve<IExplorerViewModel>('explorerViewModel')
@@ -31,13 +47,15 @@ export const ExplorerPage = () => {
   const [searchParams] = useSearchParams()
   const [searchInput, setSearchInput] = useState(searchParams.get('q') || '')
   const [showFilters, setShowFilters] = useState(false)
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
   const currentPage = parseInt(searchParams.get('page') || '1')
   const currentCategorie = searchParams.get('categorie') || ''
   const currentNeighborhood = searchParams.get('neighborhood') || ''
   const currentMinRating = searchParams.get('minRating') || ''
+  const currentOrdering = searchParams.get('ordering') || ''
   const currentQ = searchParams.get('q') || ''
-  const hasActiveFilters = !!(currentCategorie || currentNeighborhood || currentMinRating || currentQ)
+  const hasActiveFilters = !!(currentCategorie || currentNeighborhood || currentMinRating || currentQ || currentOrdering)
 
   const updateParams = (updates: Record<string, string>) => {
     const params = new URLSearchParams(searchParams)
@@ -51,19 +69,19 @@ export const ExplorerPage = () => {
     updateParams({ q: searchInput })
   }
 
+  const currentOrderingLabel = ORDERING_OPTIONS.find(o => o.value === currentOrdering)?.label || 'Trier'
+
   return (
     <div className="min-h-screen bg-gray-50">
 
-      {/* ── Hero header — blanc chaud ────────────────────────────────────────── */}
+      {/* Hero header */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-10">
 
-          {/* Fil d'Ariane */}
           <p className="text-xs uppercase tracking-widest font-semibold text-gray-400 mb-4">
             Brazzaville & Pointe-Noire
           </p>
 
-          {/* Titre */}
           <div className="mb-8">
             {currentQ ? (
               <h1 className="font-display text-4xl md:text-5xl font-bold text-dark leading-tight">
@@ -79,7 +97,7 @@ export const ExplorerPage = () => {
             <span className="accent-bar mt-3" />
           </div>
 
-          {/* Barre de recherche */}
+          {/* Search bar */}
           <form onSubmit={handleSearch} className="flex gap-2 mb-8">
             <div className="flex-1 relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
@@ -111,7 +129,7 @@ export const ExplorerPage = () => {
             </button>
           </form>
 
-          {/* Chips catégories */}
+          {/* Category chips */}
           <div className="flex gap-2 flex-wrap">
             {CATEGORIES.map((cat) => {
               const isActive = currentCategorie === cat.id
@@ -138,11 +156,11 @@ export const ExplorerPage = () => {
         </div>
       </div>
 
-      {/* ── Contenu principal ────────────────────────────────────────────────── */}
+      {/* Main content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
 
-          {/* ── Sidebar ─────────────────────────────────────────────────────── */}
+          {/* Sidebar */}
           <aside className={`lg:w-64 flex-shrink-0 ${showFilters ? 'block' : 'hidden lg:block'}`}>
             <AnimatePresence>
               <motion.div
@@ -155,6 +173,24 @@ export const ExplorerPage = () => {
                   <button onClick={() => setShowFilters(false)} className="lg:hidden text-gray-400 hover:text-dark">
                     <X className="w-4 h-4" />
                   </button>
+                </div>
+
+                {/* Sort */}
+                <div className="mb-6">
+                  <p className="text-gray-400 text-xs uppercase tracking-widest mb-3 font-semibold">Trier par</p>
+                  <div className="relative">
+                    <ArrowUpDown className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+                    <select
+                      value={currentOrdering}
+                      onChange={(e) => updateParams({ ordering: e.target.value })}
+                      className="w-full appearance-none bg-gray-50 border border-gray-200 text-dark text-sm rounded-xl pl-9 pr-8 py-2.5 outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 cursor-pointer transition-all"
+                    >
+                      {ORDERING_OPTIONS.map(({ value, label }) => (
+                        <option key={value} value={value}>{label}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  </div>
                 </div>
 
                 {/* Quartier */}
@@ -212,7 +248,7 @@ export const ExplorerPage = () => {
             </AnimatePresence>
           </aside>
 
-          {/* ── Résultats ───────────────────────────────────────────────────── */}
+          {/* Results */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-6">
               <p className="text-sm text-gray-500">
@@ -222,27 +258,60 @@ export const ExplorerPage = () => {
                   <>
                     <span className="font-semibold text-dark">{totalCount}</span>
                     {' '}établissement{totalCount > 1 ? 's' : ''} trouvé{totalCount > 1 ? 's' : ''}
+                    {currentOrdering && (
+                      <span className="ml-2 text-primary font-medium">
+                        · {currentOrderingLabel}
+                      </span>
+                    )}
                   </>
                 )}
               </p>
-              {currentCategorie && (
-                <span className="text-xs text-primary bg-primary/8 border border-primary/20 px-3 py-1 rounded-full font-medium">
-                  {CATEGORIES.find(c => c.id === currentCategorie)?.label}
-                </span>
-              )}
+
+              {/* View mode toggle */}
+              <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-xl p-1">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-primary text-white shadow-sm' : 'text-gray-400 hover:text-dark'}`}
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-primary text-white shadow-sm' : 'text-gray-400 hover:text-dark'}`}
+                >
+                  <List className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
             {status === 'loading' ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                {[...Array(6)].map((_, i) => <EstablishmentCardSkeleton key={i} />)}
-              </div>
+              viewMode === 'grid' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                  {[...Array(6)].map((_, i) => <EstablishmentCardSkeleton key={i} />)}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {[...Array(6)].map((_, i) => (
+                    <div key={i} className="bg-white rounded-xl border border-gray-100 h-24 animate-pulse" />
+                  ))}
+                </div>
+              )
             ) : establishments.length === 0 ? (
               <EmptyResults query={currentQ} onReset={() => navigate('/explorer')} />
-            ) : (
+            ) : viewMode === 'grid' ? (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
                   {establishments.map((e, i) => (
-                    <EstablishmentCard key={e.id} establishment={e} index={i} />
+                    <EstablishmentCard key={e.id} establishment={e} index={i} showOpenStatus />
+                  ))}
+                </div>
+                <Pagination currentPage={currentPage} totalPages={totalPages} totalCount={totalCount} pageSize={12} />
+              </>
+            ) : (
+              <>
+                <div className="space-y-3">
+                  {establishments.map((e, i) => (
+                    <EstablishmentListRow key={e.id} establishment={e} index={i} />
                   ))}
                 </div>
                 <Pagination currentPage={currentPage} totalPages={totalPages} totalCount={totalCount} pageSize={12} />
@@ -252,6 +321,86 @@ export const ExplorerPage = () => {
         </div>
       </div>
     </div>
+  )
+}
+
+// ─── List row component ─────────────────────────────────────────────────────
+const CATEGORY_CONFIG: Record<string, { dot: string; label: string; color: string }> = {
+  restaurant: { dot: 'bg-primary', label: 'Restaurant', color: 'text-primary' },
+  bar:        { dot: 'bg-gold',    label: 'Bar',        color: 'text-yellow-700' },
+  hotel:      { dot: 'bg-blue-500',label: 'Hôtel',      color: 'text-blue-600' },
+  lounge:     { dot: 'bg-purple-500', label: 'Lounge',  color: 'text-purple-600' },
+}
+
+function EstablishmentListRow({ establishment, index }: { establishment: any; index: number }) {
+  const cfg = CATEGORY_CONFIG[establishment.category] ?? CATEGORY_CONFIG.restaurant
+  const { isFavorite, toggleFavorite } = useFavorites()
+  const fav = isFavorite(establishment.id)
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -12 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.35, delay: index * 0.04 }}
+    >
+      <Link to={`/establishments/${establishment.id}`} className="block group">
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 transition-all duration-200 p-4">
+          <div className="flex items-center gap-4">
+            {/* Thumbnail */}
+            <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
+              <img
+                src={establishment.imageUrl || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200&q=80'}
+                alt={establishment.name}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                onError={(e) => {
+                  ;(e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200&q=80'
+                }}
+              />
+            </div>
+
+            {/* Info */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-2 mb-1">
+                <h3 className="font-semibold text-dark group-hover:text-primary transition-colors truncate">
+                  {establishment.name}
+                </h3>
+                <div className="flex items-center gap-0.5 flex-shrink-0">
+                  <Star className="w-3.5 h-3.5 fill-gold text-gold" />
+                  <span className="text-xs font-semibold text-dark">{establishment.rating.toFixed(1)}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 text-xs text-gray-400">
+                <span className={`flex items-center gap-1 font-medium ${cfg.color}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
+                  {cfg.label}
+                </span>
+                <span className="flex items-center gap-1">
+                  <MapPin className="w-3 h-3" />
+                  {establishment.neighborhood}
+                </span>
+                {establishment.isPremium && (
+                  <span className="bg-gold/20 text-yellow-700 px-2 py-0.5 rounded-full font-semibold">Premium</span>
+                )}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onClick={(ev) => { ev.preventDefault(); ev.stopPropagation(); toggleFavorite({ id: establishment.id, type: 'establishment', name: establishment.name, imageUrl: establishment.imageUrl, subtitle: establishment.neighborhood, savedAt: Date.now() }) }}
+                className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${fav ? 'bg-red-500 text-white' : 'bg-gray-50 text-gray-400 hover:text-red-400'}`}
+              >
+                <Heart className={`w-3.5 h-3.5 ${fav ? 'fill-white' : ''}`} />
+              </button>
+              <span className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-50 group-hover:bg-primary group-hover:text-white text-gray-400 transition-all">
+                <ArrowRight className="w-3.5 h-3.5" />
+              </span>
+            </div>
+          </div>
+        </div>
+      </Link>
+    </motion.div>
   )
 }
 
@@ -287,3 +436,4 @@ function EmptyResults({ query, onReset }: { query: string; onReset: () => void }
     </motion.div>
   )
 }
+

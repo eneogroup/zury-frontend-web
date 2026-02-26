@@ -59,9 +59,11 @@ export const getEventById = createAsyncThunk(
 interface EventState {
   events: any[]
   upcomingEvents: any[]
+  weekendEvents: any[]
   currentEvent: any | null
   status: 'idle' | 'loading' | 'success' | 'error'
   upcomingStatus: 'idle' | 'loading' | 'success' | 'error'
+  weekendStatus: 'idle' | 'loading' | 'success' | 'error'
   detailStatus: 'idle' | 'loading' | 'success' | 'error'
   totalCount: number
   totalPages: number
@@ -70,9 +72,11 @@ interface EventState {
 const initialState: EventState = {
   events: [],
   upcomingEvents: [],
+  weekendEvents: [],
   currentEvent: null,
   status: 'idle',
   upcomingStatus: 'idle',
+  weekendStatus: 'idle',
   detailStatus: 'idle',
   totalCount: 0,
   totalPages: 0,
@@ -100,14 +104,19 @@ export const eventSlice = createSlice({
       })
       .addCase(getUpcomingEvents.rejected, (state) => { state.upcomingStatus = 'error' })
 
+      .addCase(getTodayEvents.pending, (state) => { state.status = 'loading' })
       .addCase(getTodayEvents.fulfilled, (state, { payload }) => {
         state.events = payload.events
         state.status = 'success'
       })
+      .addCase(getTodayEvents.rejected, (state) => { state.status = 'error' })
+
+      .addCase(getWeekendEvents.pending, (state) => { state.weekendStatus = 'loading' })
       .addCase(getWeekendEvents.fulfilled, (state, { payload }) => {
-        state.events = payload.events
-        state.status = 'success'
+        state.weekendEvents = payload.events
+        state.weekendStatus = 'success'
       })
+      .addCase(getWeekendEvents.rejected, (state) => { state.weekendStatus = 'error' })
 
       .addCase(getEventById.pending, (state) => { state.detailStatus = 'loading' })
       .addCase(getEventById.fulfilled, (state, { payload }) => {

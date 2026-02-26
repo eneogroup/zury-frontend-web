@@ -8,21 +8,20 @@ export const homeViewModel = (): IHomeViewModel => {
     ReturnType<typeof import('../../../../infrastructure/controller/establishment.controller').establishmentController>
   >('establishmentController')
 
-  const { getUpcoming, getStats } = DI.resolve<
-    ReturnType<typeof import('../../../../infrastructure/controller/event.controller').eventController> &
-    ReturnType<typeof import('../../../../infrastructure/controller/category.controller').categoryController>
-  >('categoryController') as any
+  const { getUpcoming: getUpcomingEvents, getWeekend: getWeekendEvents } =
+    DI.resolve<any>('eventController')
 
-  const { getUpcoming: getUpcomingEvents } = DI.resolve<any>('eventController')
+  const { getStats } = DI.resolve<any>('categoryController')
 
   const { featuredEstablishments, recentEstablishments, featuredStatus } = DI.resolve<any>('establishmentPresenter')
-  const { upcomingEvents, upcomingStatus } = DI.resolve<any>('eventPresenter')
+  const { upcomingEvents, weekendEvents, upcomingStatus, weekendStatus } = DI.resolve<any>('eventPresenter')
   const { stats, statsStatus } = DI.resolve<any>('categoryPresenter')
 
   useEffect(() => {
     getFeatured()
     getRecent()
     getUpcomingEvents()
+    getWeekendEvents()
     getStats()
   }, [])
 
@@ -30,9 +29,11 @@ export const homeViewModel = (): IHomeViewModel => {
     featuredEstablishments,
     recentEstablishments,
     upcomingEvents,
+    weekendEvents,
     stats,
     featuredStatus,
     upcomingStatus,
+    weekendStatus,
     statsStatus,
   }
 }

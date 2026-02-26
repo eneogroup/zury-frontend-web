@@ -1,6 +1,7 @@
-import { MapPin, Clock, ArrowRight } from 'lucide-react'
+import { MapPin, Clock, ArrowRight, Heart, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useFavorites } from '../../../../service/hooks/useFavorites'
 
 interface EventCardProps {
   event: {
@@ -14,6 +15,7 @@ interface EventCardProps {
     availablePlaces: number
     totalPlaces: number
     imageUrl: string
+    isComplete?: boolean
   }
   index?: number
 }
@@ -37,10 +39,29 @@ function parseDateChip(dateStr: string) {
 
 export default function EventCard({ event, index = 0 }: EventCardProps) {
   const { day, month } = parseDateChip(event.date)
-  const capacityPct = event.totalPlaces > 0
-    ? Math.min((event.availablePlaces / event.totalPlaces) * 100, 100)
-    : 100
-  const almostFull = capacityPct < 25
+  const { isFavorite, toggleFavorite } = useFavorites()
+  const fav = isFavorite(event.id)
+
+  const totalPlaces = event.totalPlaces ?? 0
+  const availablePlaces = event.availablePlaces ?? 0
+  const usedPlaces = totalPlaces - availablePlaces
+  const capacityPct = totalPlaces > 0 ? Math.min((usedPlaces / totalPlaces) * 100, 100) : 0
+  const availablePct = totalPlaces > 0 ? Math.min((availablePlaces / totalPlaces) * 100, 100) : 100
+  const almostFull = totalPlaces > 0 && availablePct < 25
+  const isComplete = event.isComplete || (totalPlaces > 0 && availablePlaces === 0)
+
+  const handleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    toggleFavorite({
+      id: event.id,
+      type: 'event',
+      name: event.title,
+      imageUrl: event.imageUrl,
+      subtitle: event.establishment,
+      savedAt: Date.now(),
+    })
+  }
 
   return (
     <motion.div
@@ -74,12 +95,29 @@ export default function EventCard({ event, index = 0 }: EventCardProps) {
               </div>
             </div>
 
-            {/* Category */}
-            <div className="absolute top-3 right-3">
+            {/* Category + Complet badge */}
+            <div className="absolute top-3 right-3 flex flex-col items-end gap-1.5">
               <span className="bg-white/90 backdrop-blur-sm text-dark/70 text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full">
                 {event.category}
               </span>
+              {isComplete && (
+                <span className="bg-red-500/90 text-white text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full backdrop-blur-sm">
+                  Complet
+                </span>
+              )}
             </div>
+
+            {/* Favorite button */}
+            <button
+              onClick={handleFavorite}
+              className={`absolute bottom-3 right-3 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-200 ${
+                fav
+                  ? 'bg-red-500 text-white shadow-lg scale-110'
+                  : 'bg-white/80 text-gray-400 hover:bg-white hover:text-red-400'
+              }`}
+            >
+              <Heart className={`w-4 h-4 ${fav ? 'fill-white' : ''}`} />
+            </button>
           </div>
 
           {/* Content */}
@@ -102,33 +140,44 @@ export default function EventCard({ event, index = 0 }: EventCardProps) {
               </span>
             </div>
 
+            {/* Capacity bar */}
+            {totalPlaces > 0 && (
+              <div className="mb-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="flex items-center gap-1 text-xs text-gray-400">
+                    <Users className="w-3 h-3" />
+                    <span>
+                      {isComplete ? (
+                        <span className="text-red-500 font-semibold">Complet</span>
+                      ) : almostFull ? (
+                        <span className="text-orange-500 font-semibold">Plus que {availablePlaces} place{availablePlaces > 1 ? 's' : ''}</span>
+                      ) : (
+                        <span>{availablePlaces} place{availablePlaces > 1 ? 's' : ''} disponible{availablePlaces > 1 ? 's' : ''}</span>
+                      )}
+                    </span>
+                  </span>
+                  <span className="text-xs text-gray-300">{totalPlaces} total</span>
+                </div>
+                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-700 ${
+                      isComplete ? 'bg-red-400' : almostFull ? 'bg-orange-400' : 'bg-primary'
+                    }`}
+                    style={{ width: `${capacityPct}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Footer */}
             <div className="flex items-center justify-between pt-3 border-t border-gray-50">
-              <div>
-                <span className="font-display text-xl font-semibold text-primary leading-none">
-                  {event.price}
-                </span>
-                {almostFull && (
-                  <span className="ml-2 text-[10px] text-red-500 font-semibold uppercase tracking-wide">
-                    Presque complet
-                  </span>
-                )}
-              </div>
+              <span className="font-display text-xl font-semibold text-primary leading-none">
+                {event.price}
+              </span>
 
-              <div className="flex items-center gap-2">
-                {/* Capacity bar */}
-                {event.totalPlaces > 0 && (
-                  <div className="w-14 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all ${almostFull ? 'bg-red-400' : 'bg-primary'}`}
-                      style={{ width: `${capacityPct}%` }}
-                    />
-                  </div>
-                )}
-                <span className="w-7 h-7 rounded-full flex items-center justify-center bg-gray-50 group-hover:bg-primary group-hover:text-white text-gray-400 transition-all duration-200">
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </span>
-              </div>
+              <span className="w-7 h-7 rounded-full flex items-center justify-center bg-gray-50 group-hover:bg-primary group-hover:text-white text-gray-400 transition-all duration-200">
+                <ArrowRight className="w-3.5 h-3.5" />
+              </span>
             </div>
           </div>
         </div>

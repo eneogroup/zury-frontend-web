@@ -1,11 +1,17 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Star, MapPin, Phone, Clock, Calendar, Video, Info, Navigation, ArrowLeft } from 'lucide-react'
+import axios from 'axios'
 import { cn } from '../../../service/utils/cn'
 import DI from '../../../di/ioc'
 import type { IEstablishmentDetailViewModel } from '../../../service/interface/establishment.viewmodel.interface'
 import EstablishmentCard from '../shared/ui/EstablishmentCard'
+import EventCard from '../shared/ui/EventCard'
+import { useOpenStatus } from '../../../service/hooks/useOpenStatus'
+import { transformEvent } from '../../../service/utils/apiTransformers'
+
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://zury-backend-production.up.railway.app'
 
 type TabType = 'tout' | 'apropos' | 'photos' | 'videos' | 'evenements'
 
@@ -13,6 +19,23 @@ export const EstablishmentDetailPage = () => {
   const { currentEstablishment: est, similarEstablishments, detailStatus } =
     DI.resolve<IEstablishmentDetailViewModel>('establishmentDetailViewModel')
   const [activeTab, setActiveTab] = useState<TabType>('tout')
+  const [estEvents, setEstEvents] = useState<any[]>([])
+  const [estEventsLoading, setEstEventsLoading] = useState(false)
+  const { status: openStatus } = useOpenStatus(est?.id ?? '', !!est?.id)
+
+  useEffect(() => {
+    if (activeTab !== 'evenements' || !est?.id) return
+    setEstEventsLoading(true)
+    axios
+      .get(`${BASE_URL}/api/v1/events/`, { params: { etablissement_id: est.id, page_size: 20 } })
+      .then((res) => {
+        const data = res.data?.data ?? res.data
+        const results = (data.results || []).map(transformEvent)
+        setEstEvents(results)
+      })
+      .catch(() => setEstEvents([]))
+      .finally(() => setEstEventsLoading(false))
+  }, [activeTab, est?.id])
 
   const tabs: { id: TabType; label: string }[] = [
     { id: 'tout', label: 'Tout' },
@@ -111,9 +134,21 @@ export const EstablishmentDetailPage = () => {
                   <div className="flex-1">
                     <h1 className="text-3xl font-bold text-dark mb-1">{est.name}</h1>
                     <p className="text-gray-400 text-sm mb-2">{est.reviewCount?.toLocaleString()} vues</p>
-                    <span className="bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full uppercase">
-                      {est.category}
-                    </span>
+                    <div className="flex items-center flex-wrap gap-2">
+                      <span className="bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full uppercase">
+                        {est.category}
+                      </span>
+                      {openStatus !== 'unknown' && (
+                        <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full ${
+                          openStatus === 'open'
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-red-100 text-red-600'
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${openStatus === 'open' ? 'bg-green-500 animate-pulse' : 'bg-red-400'}`} />
+                          {openStatus === 'open' ? 'Ouvert maintenant' : 'Fermé'}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="space-y-1.5 text-gray-600">
@@ -323,10 +358,33 @@ export const EstablishmentDetailPage = () => {
           )}
 
           {activeTab === 'evenements' && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
-              <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-dark mb-2">Aucun événement</h3>
-              <p className="text-gray-500">Aucun événement prévu pour le moment.</p>
+            <div>
+              <h2 className="text-2xl font-bold text-dark mb-6">Événements à {est.name}</h2>
+              {estEventsLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="bg-white rounded-2xl overflow-hidden border border-gray-100 animate-pulse">
+                      <div className="h-48 bg-gray-200" />
+                      <div className="p-4 space-y-3">
+                        <div className="h-4 bg-gray-200 rounded w-3/4" />
+                        <div className="h-3 bg-gray-200 rounded w-1/2" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : estEvents.length === 0 ? (
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+                  <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-dark mb-2">Aucun événement</h3>
+                  <p className="text-gray-500">Aucun événement prévu pour le moment.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {estEvents.map((ev, i) => (
+                    <EventCard key={ev.id} event={ev} index={i} />
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

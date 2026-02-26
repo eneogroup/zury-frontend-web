@@ -1,6 +1,8 @@
-import { MapPin, Star, ArrowRight } from 'lucide-react'
+import { MapPin, Star, ArrowRight, Heart } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useFavorites } from '../../../../service/hooks/useFavorites'
+import { useOpenStatus } from '../../../../service/hooks/useOpenStatus'
 
 const CATEGORY_CONFIG: Record<string, { dot: string; badge: string; label: string }> = {
   restaurant: { dot: 'bg-primary', badge: 'bg-primary/10 text-primary', label: 'Restaurant' },
@@ -22,10 +24,27 @@ interface EstablishmentCardProps {
     isPremium?: boolean
   }
   index?: number
+  showOpenStatus?: boolean
 }
 
-export default function EstablishmentCard({ establishment, index = 0 }: EstablishmentCardProps) {
+export default function EstablishmentCard({ establishment, index = 0, showOpenStatus = false }: EstablishmentCardProps) {
   const cfg = CATEGORY_CONFIG[establishment.category] ?? CATEGORY_CONFIG.restaurant
+  const { isFavorite, toggleFavorite } = useFavorites()
+  const { status: openStatus } = useOpenStatus(establishment.id, showOpenStatus)
+  const fav = isFavorite(establishment.id)
+
+  const handleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    toggleFavorite({
+      id: establishment.id,
+      type: 'establishment',
+      name: establishment.name,
+      imageUrl: establishment.imageUrl,
+      subtitle: establishment.neighborhood,
+      savedAt: Date.now(),
+    })
+  }
 
   return (
     <motion.div
@@ -47,7 +66,6 @@ export default function EstablishmentCard({ establishment, index = 0 }: Establis
                   'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80'
               }}
             />
-            {/* Subtle vignette */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
             {/* Category badge */}
@@ -58,14 +76,36 @@ export default function EstablishmentCard({ establishment, index = 0 }: Establis
               </span>
             </div>
 
-            {/* Premium */}
-            {establishment.isPremium && (
-              <div className="absolute top-3 right-3">
+            {/* Top-right: Premium + Open status */}
+            <div className="absolute top-3 right-3 flex flex-col items-end gap-1.5">
+              {establishment.isPremium && (
                 <span className="bg-gold/90 text-dark text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full backdrop-blur-sm">
                   Premium
                 </span>
-              </div>
-            )}
+              )}
+              {showOpenStatus && openStatus !== 'unknown' && (
+                <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full backdrop-blur-sm flex items-center gap-1 ${
+                  openStatus === 'open'
+                    ? 'bg-green-500/90 text-white'
+                    : 'bg-red-500/90 text-white'
+                }`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${openStatus === 'open' ? 'bg-white animate-pulse' : 'bg-white/70'}`} />
+                  {openStatus === 'open' ? 'Ouvert' : 'Fermé'}
+                </span>
+              )}
+            </div>
+
+            {/* Favorite button */}
+            <button
+              onClick={handleFavorite}
+              className={`absolute bottom-3 right-3 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-200 ${
+                fav
+                  ? 'bg-red-500 text-white shadow-lg scale-110'
+                  : 'bg-white/80 text-gray-400 hover:bg-white hover:text-red-400'
+              }`}
+            >
+              <Heart className={`w-4 h-4 ${fav ? 'fill-white' : ''}`} />
+            </button>
           </div>
 
           {/* Content */}

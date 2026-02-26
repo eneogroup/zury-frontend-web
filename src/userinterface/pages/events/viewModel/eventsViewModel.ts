@@ -9,16 +9,25 @@ export const eventsViewModel = (): IEventsViewModel => {
   const { getAll, getUpcoming, getToday, getWeekend } = DI.resolve<any>('eventController')
   const { events, status, totalCount, totalPages } = DI.resolve<any>('eventPresenter')
 
-  const period = searchParams.get('period') || 'all'
+  const period = searchParams.get('period') || 'upcoming'
   const page = parseInt(searchParams.get('page') || '1')
 
   useEffect(() => {
     switch (period) {
-      case 'today': getToday(); break
-      case 'weekend': getWeekend(); break
-      default: getUpcoming(); break
+      case 'today':
+        getToday()
+        break
+      case 'weekend':
+        getWeekend()
+        break
+      case 'all':
+        getAll({ page, page_size: 50, a_venir: false })
+        break
+      default: // 'upcoming'
+        getUpcoming()
+        break
     }
   }, [period, page])
 
-  return { events: period === 'all' || period === 'upcoming' ? events : events, status, totalCount, totalPages }
+  return { events, status, totalCount, totalPages }
 }

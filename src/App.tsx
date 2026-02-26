@@ -11,11 +11,14 @@ import { EventDetailPage } from './userinterface/pages/events/EventDetailPage'
 import { CartePage } from './userinterface/pages/carte/CartePage'
 import { EneoAcademyPage } from './userinterface/pages/eneo-academy/EneoAcademyPage'
 import { JoinZuryPage } from './userinterface/pages/rejoindre-zury/JoinZuryPage'
+import { FavoritesPage } from './userinterface/pages/favoris/FavoritesPage'
+import ScrollToTop from './service/utils/ScrollToTop'
 
 function App() {
   return (
     <Provider store={store}>
       <BrowserRouter>
+        <ScrollToTop />
         <div className="flex flex-col min-h-screen">
           <Header />
           <main className="flex-1">
@@ -28,6 +31,7 @@ function App() {
               <Route path="/carte" element={<CartePage />} />
               <Route path="/eneo-academy" element={<EneoAcademyPage />} />
               <Route path="/rejoindre-zury" element={<JoinZuryPage />} />
+              <Route path="/favoris" element={<FavoritesPage />} />
             </Routes>
           </main>
           <Footer />
