@@ -1,39 +1,47 @@
 import { Link } from 'react-router-dom'
-import { Calendar, MapPin, Users, Clock, ArrowLeft, Ticket } from 'lucide-react'
+import { Calendar, MapPin, Users, Clock, ArrowLeft, Ticket, Phone, ExternalLink } from 'lucide-react'
+import { motion } from 'framer-motion'
 import DI from '../../../di/ioc'
 import type { IEventDetailViewModel } from '../../../service/interface/events.viewmodel.interface'
 
 export const EventDetailPage = () => {
-  const { currentEvent: event, detailStatus } = DI.resolve<IEventDetailViewModel>('eventDetailViewModel')
+  const { currentEvent: event, detailStatus } =
+    DI.resolve<IEventDetailViewModel>('eventDetailViewModel')
 
+  /* ── Loading ─────────────────────────────────────────────────────────── */
   if (detailStatus === 'loading') {
     return (
-      <div className="min-h-screen bg-light py-8">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="animate-pulse">
-            <div className="h-80 bg-gray-200 rounded-xl mb-8" />
-            <div className="bg-white rounded-xl p-8 shadow-sm">
-              <div className="h-8 bg-gray-200 rounded w-3/4 mb-4" />
-              <div className="h-4 bg-gray-200 rounded w-1/2 mb-8" />
-              <div className="grid grid-cols-2 gap-6">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="h-20 bg-gray-200 rounded-lg" />
-                ))}
-              </div>
+      <div className="min-h-screen bg-gray-50">
+        <div className="h-72 md:h-96 bg-gray-200 animate-pulse w-full" />
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex flex-col lg:flex-row gap-8">
+            <div className="flex-1 space-y-4">
+              <div className="h-8 bg-gray-200 rounded-xl w-3/4 animate-pulse" />
+              <div className="h-4 bg-gray-200 rounded-xl w-1/2 animate-pulse" />
+              <div className="h-40 bg-gray-200 rounded-2xl animate-pulse mt-6" />
             </div>
+            <div className="lg:w-72 h-64 bg-gray-200 rounded-2xl animate-pulse" />
           </div>
         </div>
       </div>
     )
   }
 
+  /* ── Not found ───────────────────────────────────────────────────────── */
   if (!event) {
     return (
-      <div className="min-h-screen bg-light flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-dark mb-2">Événement introuvable</h2>
-          <p className="text-gray-500 mb-4">Cet événement n'existe pas ou a été supprimé.</p>
-          <Link to="/evenements" className="text-primary hover:underline font-medium">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center px-4">
+          <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-5">
+            <Calendar className="w-7 h-7 text-gray-300" />
+          </div>
+          <h2 className="text-xl font-bold text-dark mb-2">Événement introuvable</h2>
+          <p className="text-gray-400 text-sm mb-5">Cet événement n'existe pas ou a été supprimé.</p>
+          <Link
+            to="/evenements"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
             Retour aux événements
           </Link>
         </div>
@@ -41,131 +49,210 @@ export const EventDetailPage = () => {
     )
   }
 
+  const totalPlaces     = event.totalPlaces ?? 0
+  const availablePlaces = event.availablePlaces ?? 0
+  const usedPct         = totalPlaces > 0 ? Math.min(((totalPlaces - availablePlaces) / totalPlaces) * 100, 100) : 0
+  const almostFull      = totalPlaces > 0 && availablePlaces > 0 && availablePlaces / totalPlaces < 0.25
+  const isComplete      = event.isComplete || (totalPlaces > 0 && availablePlaces === 0)
+
+  /* ── Page ────────────────────────────────────────────────────────────── */
   return (
-    <div className="min-h-screen bg-light py-8">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Link
-          to="/evenements"
-          className="inline-flex items-center gap-2 text-primary hover:text-primary/80 mb-6 font-medium"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Retour aux événements
-        </Link>
+    <div className="min-h-screen bg-gray-50">
 
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-          {/* Image de couverture */}
-          <div className="relative h-80 w-full bg-gray-100">
-            {event.imageUrl ? (
-              <img
-                src={event.imageUrl}
-                alt={event.title}
-                className="w-full h-full object-cover"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-              />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-primary/20 to-dark/20 flex items-center justify-center">
-                <Calendar className="w-24 h-24 text-primary/30" />
-              </div>
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-            <div className="absolute top-4 left-4">
-              <span className="bg-primary text-white text-sm font-semibold px-3 py-1 rounded-full">
-                {event.category}
-              </span>
-            </div>
+      {/* ── Hero image ──────────────────────────────────────────────────── */}
+      <div className="relative h-72 md:h-[420px] w-full bg-gray-900 overflow-hidden">
+        {event.imageUrl ? (
+          <img
+            src={event.imageUrl}
+            alt={event.title}
+            className="w-full h-full object-cover opacity-80"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-dark/80 to-primary/40" />
+        )}
+
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/10" />
+
+        {/* Back button */}
+        <div className="absolute top-5 left-0 w-full">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Link
+              to="/evenements"
+              className="inline-flex items-center gap-1.5 text-white/80 hover:text-white text-sm font-medium transition-colors bg-black/20 backdrop-blur-sm px-3 py-1.5 rounded-full"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Événements
+            </Link>
           </div>
+        </div>
 
-          {/* Contenu */}
-          <div className="p-8">
-            <h1 className="text-4xl font-bold text-dark mb-6">{event.title}</h1>
-
-            {/* Informations principales */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <div className="flex items-start gap-3">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Calendar className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <p className="font-semibold text-dark">Date et heure</p>
-                  <p className="text-gray-600">{event.date}</p>
-                  <p className="text-gray-500 flex items-center gap-1 mt-1">
-                    <Clock className="w-4 h-4" />
-                    {event.time}
-                  </p>
-                </div>
+        {/* Title overlay — bottom of hero */}
+        <div className="absolute bottom-0 left-0 w-full pb-7 pt-16">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-[10px] font-bold uppercase tracking-widest bg-primary text-white px-2.5 py-1 rounded-full">
+                  {event.category}
+                </span>
+                {event.price === 'Gratuit' && (
+                  <span className="text-[10px] font-bold uppercase tracking-widest bg-green-500 text-white px-2.5 py-1 rounded-full">
+                    Gratuit
+                  </span>
+                )}
+                {isComplete && (
+                  <span className="text-[10px] font-bold uppercase tracking-widest bg-red-500 text-white px-2.5 py-1 rounded-full">
+                    Complet
+                  </span>
+                )}
               </div>
+              <h1 className="font-display text-2xl md:text-4xl font-bold text-white leading-tight max-w-2xl">
+                {event.title}
+              </h1>
+            </motion.div>
+          </div>
+        </div>
+      </div>
 
-              <div className="flex items-start gap-3">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <MapPin className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <p className="font-semibold text-dark">Lieu</p>
-                  <p className="text-gray-600">{event.establishment}</p>
-                  {event.establishmentId && (
-                    <Link
-                      to={`/establishments/${event.establishmentId}`}
-                      className="text-primary hover:underline text-sm mt-1 block"
-                    >
-                      Voir l'établissement →
-                    </Link>
-                  )}
-                </div>
-              </div>
+      {/* ── Main content ────────────────────────────────────────────────── */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex flex-col lg:flex-row gap-8">
 
-              <div className="flex items-start gap-3">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Ticket className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <p className="font-semibold text-dark">Tarif</p>
-                  <p className="text-2xl font-bold text-primary">{event.price}</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Users className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <p className="font-semibold text-dark">Places disponibles</p>
-                  <p className="text-gray-600">
-                    {event.availablePlaces} / {event.totalPlaces} places
-                  </p>
-                  {event.totalPlaces > 0 && (
-                    <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-accent h-2 rounded-full transition-all"
-                        style={{ width: `${Math.min((event.availablePlaces / event.totalPlaces) * 100, 100)}%` }}
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
+          {/* ── Left — description & details ──────────────────────────── */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="flex-1 min-w-0"
+          >
+            {/* Meta strip */}
+            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-6 pb-6 border-b border-gray-200">
+              <span className="flex items-center gap-1.5">
+                <Calendar className="w-4 h-4 text-gray-400" />
+                {event.date}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Clock className="w-4 h-4 text-gray-400" />
+                {event.time}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <MapPin className="w-4 h-4 text-gray-400" />
+                {event.establishment}
+              </span>
             </div>
 
             {/* Description */}
-            {event.description && (
-              <div className="mb-8 p-6 bg-light rounded-xl">
-                <h2 className="text-xl font-bold text-dark mb-4">À propos de l'événement</h2>
-                <p className="text-gray-600 leading-relaxed">{event.description}</p>
+            {event.description ? (
+              <div className="mb-6">
+                <h2 className="text-xs font-bold uppercase tracking-widest text-gray-300 mb-3">
+                  À propos
+                </h2>
+                <p className="text-gray-600 leading-relaxed text-[15px]">
+                  {event.description}
+                </p>
+              </div>
+            ) : (
+              <div className="mb-6 py-10 rounded-2xl bg-gray-100 flex items-center justify-center">
+                <p className="text-gray-400 text-sm">Aucune description disponible.</p>
               </div>
             )}
 
-            {/* Bouton d'action */}
-            <div className="flex gap-4">
-              <a
-                href={event.phone ? `tel:${event.phone}` : '#'}
-                className={`flex-1 py-4 rounded-xl font-semibold text-center text-lg transition-all ${
-                  event.isComplete
-                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                    : 'bg-primary text-white hover:bg-primary/90 shadow-lg hover:shadow-primary/30'
-                }`}
+            {/* Establishment link */}
+            {event.establishmentId && (
+              <Link
+                to={`/establishments/${event.establishmentId}`}
+                className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 bg-primary/5 hover:bg-primary/10 px-4 py-2.5 rounded-xl transition-all"
               >
-                {event.isComplete ? 'Complet' : 'Réserver maintenant'}
-              </a>
+                <ExternalLink className="w-3.5 h-3.5" />
+                Voir l'établissement
+              </Link>
+            )}
+          </motion.div>
+
+          {/* ── Right — sticky info card ───────────────────────────────── */}
+          <motion.aside
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.15 }}
+            className="lg:w-72 flex-shrink-0 self-start lg:sticky lg:top-6"
+          >
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+
+              {/* Price */}
+              <div className="px-5 pt-5 pb-4 border-b border-gray-100">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-300 mb-1 flex items-center gap-1.5">
+                  <Ticket className="w-3 h-3" /> Tarif
+                </p>
+                <p className={`text-3xl font-display font-bold ${event.price === 'Gratuit' ? 'text-green-500' : 'text-primary'}`}>
+                  {event.price}
+                </p>
+              </div>
+
+              {/* Date & time */}
+              <div className="px-5 py-4 border-b border-gray-100">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-300 mb-2 flex items-center gap-1.5">
+                  <Calendar className="w-3 h-3" /> Date & heure
+                </p>
+                <p className="text-sm font-semibold text-dark">{event.date}</p>
+                <p className="text-sm text-gray-500 mt-0.5">{event.time}</p>
+              </div>
+
+              {/* Location */}
+              <div className="px-5 py-4 border-b border-gray-100">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-300 mb-2 flex items-center gap-1.5">
+                  <MapPin className="w-3 h-3" /> Lieu
+                </p>
+                <p className="text-sm font-semibold text-dark leading-snug">{event.establishment}</p>
+              </div>
+
+              {/* Capacity */}
+              {totalPlaces > 0 && (
+                <div className="px-5 py-4 border-b border-gray-100">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-300 mb-2 flex items-center gap-1.5">
+                    <Users className="w-3 h-3" /> Places
+                  </p>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className={`text-sm font-semibold ${isComplete ? 'text-red-500' : almostFull ? 'text-orange-500' : 'text-dark'}`}>
+                      {isComplete
+                        ? 'Complet'
+                        : almostFull
+                          ? `${availablePlaces} place${availablePlaces > 1 ? 's' : ''} restante${availablePlaces > 1 ? 's' : ''}`
+                          : `${availablePlaces} / ${totalPlaces} disponibles`}
+                    </p>
+                  </div>
+                  <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-700 ${
+                        isComplete ? 'bg-red-400' : almostFull ? 'bg-orange-400' : 'bg-primary'
+                      }`}
+                      style={{ width: `${usedPct}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* CTA */}
+              <div className="p-5">
+                <a
+                  href={event.phone ? `tel:${event.phone}` : '#'}
+                  className={`flex items-center justify-center gap-2 w-full py-3 rounded-xl font-semibold text-sm transition-all ${
+                    isComplete
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-primary text-white hover:bg-primary/90 shadow-md hover:shadow-primary/20'
+                  }`}
+                >
+                  {!isComplete && <Phone className="w-4 h-4" />}
+                  {isComplete ? 'Événement complet' : 'Réserver maintenant'}
+                </a>
+              </div>
             </div>
-          </div>
+          </motion.aside>
+
         </div>
       </div>
     </div>

@@ -9,7 +9,7 @@ export const eventsViewModel = (): IEventsViewModel => {
   const { getAll, getUpcoming, getToday, getWeekend } = DI.resolve<any>('eventController')
   const { events, status, totalCount, totalPages } = DI.resolve<any>('eventPresenter')
 
-  const period = searchParams.get('period') || 'upcoming'
+  const period = searchParams.get('period') || 'all'
   const page = parseInt(searchParams.get('page') || '1')
 
   useEffect(() => {
