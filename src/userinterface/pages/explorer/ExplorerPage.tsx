@@ -53,6 +53,7 @@ const QUICK_FILTERS = [
     hoverClass:
       "hover:border-orange-300 hover:text-orange-700 hover:bg-orange-50",
   },
+
   {
     id: "luxe",
     label: "Luxe",

@@ -12,7 +12,7 @@ export class StatsGateway extends SingletonMixin() {
 
   async getGlobalStats() {
     try {
-      const response = await axios.get(`${BASE_URL}/api/v1/stats/`)
+      const response = await axios.get(`${BASE_URL}/api/v1/tracking/stats/`)
       return { data: await this.handleResponse(response), error: null }
     } catch (error) {
       return { error, data: null }

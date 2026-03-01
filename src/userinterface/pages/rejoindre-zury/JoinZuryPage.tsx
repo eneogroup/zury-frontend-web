@@ -1,6 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import { motion } from 'framer-motion'
 import { ArrowRight, Eye, TrendingUp, Calendar, BarChart3, Star, Users, FileText, CheckCircle, Rocket, X } from 'lucide-react'
+import { CountUp } from '../shared/ui/CountUp'
+import type { RootState, AppDispatch } from '../../../store/store'
+import { getGlobalStats } from '../../../domain/usecase/category.usecase'
 
 const benefits = [
   { icon: Eye, title: 'Visibilité maximale', description: "Touchez des milliers d'utilisateurs qui recherchent activement des établissements comme le vôtre.", color: 'text-primary', bg: 'bg-primary/10' },
@@ -16,13 +20,6 @@ const steps = [
   { icon: CheckCircle, title: 'Validation', description: 'Notre équipe vérifie et valide votre inscription sous 24-48h.', number: '02' },
   { icon: Rocket, title: 'Activation', description: "Votre profil est publié et visible par des milliers d'utilisateurs.", number: '03' },
   { icon: TrendingUp, title: 'Croissance', description: 'Suivez vos statistiques et attirez de nouveaux clients chaque jour.', number: '04' },
-]
-
-const stats = [
-  { number: '50+', label: 'Établissements partenaires' },
-  { number: '20+', label: 'Quartiers couverts' },
-  { number: '10+', label: 'Événements par mois' },
-  { number: '5000+', label: 'Vues mensuelles' },
 ]
 
 const containerVariants = {
@@ -46,6 +43,18 @@ interface RegistrationForm {
 const INITIAL_FORM: RegistrationForm = { name: '', category: '', address: '', neighborhood: '', phone: '', email: '' }
 
 export const JoinZuryPage = () => {
+  const dispatch = useDispatch<AppDispatch>()
+  const apiStats = useSelector((state: RootState) => state.category.stats)
+
+  useEffect(() => { if (!apiStats) dispatch(getGlobalStats()) }, [])
+
+  const statsItems = [
+    { value: apiStats?.total_etablissements ?? 0, label: 'Établissements partenaires' },
+    { value: apiStats?.total_quartiers ?? 0,      label: 'Quartiers couverts' },
+    { value: apiStats?.total_events ?? 0,         label: 'Événements par mois' },
+    { value: apiStats?.total_vues ?? 0,           label: 'Vues mensuelles' },
+  ]
+
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [form, setForm] = useState<RegistrationForm>(INITIAL_FORM)
   const [submitted, setSubmitted] = useState(false)
@@ -127,10 +136,12 @@ export const JoinZuryPage = () => {
       <section className="py-16 bg-gradient-to-r from-primary to-primary/90">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((s, i) => (
+            {statsItems.map((s, i) => (
               <motion.div key={i} className="text-center" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.1 }}>
-                <div className="text-4xl md:text-5xl font-bold text-white mb-2">{s.number}</div>
+                <div className="text-4xl md:text-5xl font-bold text-white mb-2">
+                  <CountUp value={s.value} suffix="+" duration={1600} />
+                </div>
                 <div className="text-white/80 font-medium">{s.label}</div>
               </motion.div>
             ))}

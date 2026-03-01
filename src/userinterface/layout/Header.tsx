@@ -56,13 +56,8 @@ export default function Header() {
         <div className="flex items-center justify-between h-16 md:h-18">
 
           {/* Logo */}
-          <Link to="/" className="flex-shrink-0 group">
-            <div className="flex items-center gap-0.5">
-              <span className="font-display text-2xl font-bold tracking-tight text-white">
-                ZURY
-              </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-primary mb-0.5 group-hover:bg-gold transition-colors duration-300" />
-            </div>
+          <Link to="/" className="flex-shrink-0">
+            <img src="/logo.png" alt="ZURY" className="h-12 w-12 rounded-xl object-contain" />
           </Link>
 
           {/* Desktop nav */}

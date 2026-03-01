@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Search, MapPin, Calendar, ChevronLeft, ChevronRight, TrendingUp, Users, BarChart3, Rocket, ArrowRight, UtensilsCrossed, Wine, Hotel, Cake } from 'lucide-react'
+import { CountUp } from '../shared/ui/CountUp'
 import DI from '../../../di/ioc'
 import EstablishmentCard from '../shared/ui/EstablishmentCard'
 import EventCard from '../shared/ui/EventCard'
@@ -118,15 +119,21 @@ function Hero({ stats }: { stats: any }) {
         {stats && (
           <div className="mt-8 flex flex-wrap items-center justify-center gap-8 text-white">
             <div className="text-center">
-              <div className="text-3xl font-bold">{stats.etablissements?.total || 50}+</div>
+              <div className="text-3xl font-bold">
+                <CountUp value={stats.total_etablissements ?? 0} suffix="+" />
+              </div>
               <div className="text-sm text-white/80">Établissements</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold">{stats.events?.total_a_venir || 10}+</div>
+              <div className="text-3xl font-bold">
+                <CountUp value={stats.total_events ?? 0} suffix="+" />
+              </div>
               <div className="text-sm text-white/80">Événements à venir</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold">50+</div>
+              <div className="text-3xl font-bold">
+                <CountUp value={stats.vues_aujourd_hui ?? 0} suffix="+" />
+              </div>
               <div className="text-sm text-white/80">Recherches journalières</div>
             </div>
           </div>
