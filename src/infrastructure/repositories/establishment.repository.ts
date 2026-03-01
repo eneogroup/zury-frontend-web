@@ -14,6 +14,22 @@ export const establishmentRepository = {
     }
   },
 
+  search: async (q: string, lat?: number, lng?: number) => {
+    const { error, data } = await new EstablishmentGateway().search(q, lat, lng)
+    if (error || !data) return { error, establishments: [], totalCount: 0, totalPages: 0 }
+    // Response shape: { total, resultats: { etablissements: { count, data[] }, events: { count, data[] } } }
+    const etab = data?.resultats?.etablissements
+    const rawList: any[] = etab?.data ?? (Array.isArray(data) ? data : (data.results || []))
+    const results = rawList.map(transformEstablishment)
+    const count = etab?.count ?? data.total ?? results.length
+    return {
+      error: null,
+      establishments: results,
+      totalCount: count,
+      totalPages: 1,
+    }
+  },
+
   getFeatured: async () => {
     const { error, data } = await new EstablishmentGateway().getFeatured()
     if (error || !data) return { error, establishments: [] }

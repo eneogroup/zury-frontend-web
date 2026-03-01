@@ -47,6 +47,17 @@ export const getEstablishmentById = createAsyncThunk(
   }
 )
 
+export const searchEstablishments = createAsyncThunk(
+  'establishment/search',
+  async (params: { q: string; lat?: number; lng?: number }, { rejectWithValue }) => {
+    try {
+      return await establishmentRepository.search(params.q, params.lat, params.lng)
+    } catch (error) {
+      return rejectWithValue(error)
+    }
+  }
+)
+
 export const getSimilarEstablishments = createAsyncThunk(
   'establishment/getSimilar',
   async (id: string, { rejectWithValue }) => {
@@ -107,6 +118,15 @@ export const establishmentSlice = createSlice({
         state.status = 'success'
       })
       .addCase(getAllEstablishments.rejected, (state) => { state.status = 'error' })
+
+      .addCase(searchEstablishments.pending, (state) => { state.status = 'loading' })
+      .addCase(searchEstablishments.fulfilled, (state, { payload }) => {
+        state.establishments = payload.establishments
+        state.totalCount = payload.totalCount
+        state.totalPages = payload.totalPages
+        state.status = 'success'
+      })
+      .addCase(searchEstablishments.rejected, (state) => { state.status = 'error' })
 
       .addCase(getFeaturedEstablishments.pending, (state) => { state.featuredStatus = 'loading' })
       .addCase(getFeaturedEstablishments.fulfilled, (state, { payload }) => {

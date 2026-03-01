@@ -65,6 +65,18 @@ export class EstablishmentGateway extends SingletonMixin() {
     }
   }
 
+  async search(q: string, lat?: number, lng?: number) {
+    try {
+      const params: any = { q }
+      if (lat !== undefined) params.latitude = lat
+      if (lng !== undefined) params.longitude = lng
+      const response = await axios.get(`${BASE_URL}/api/v1/search/`, { params })
+      return { data: await this.handleResponse(response), error: null }
+    } catch (error) {
+      return { error, data: null }
+    }
+  }
+
   async getOpenStatus(id: string) {
     try {
       const response = await axios.get(`${BASE_URL}/api/v1/etablissements/${id}/statut-ouverture/`)
