@@ -1,17 +1,19 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { Search, MapPin, Calendar, ChevronLeft, ChevronRight, TrendingUp, Users, BarChart3, Rocket, ArrowRight, UtensilsCrossed, Wine, Hotel, Cake } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import {
+  Search, MapPin, ArrowRight, TrendingUp, Users, BarChart3, Rocket,
+  UtensilsCrossed, Wine, Hotel, Cake, ChevronRight, Clock, Calendar,
+} from 'lucide-react'
 import { CountUp } from '../shared/ui/CountUp'
 import DI from '../../../di/ioc'
 import EstablishmentCard from '../shared/ui/EstablishmentCard'
 import EventCard from '../shared/ui/EventCard'
 import EstablishmentCardSkeleton from '../shared/ui/EstablishmentCardSkeleton'
 import EventCardSkeleton from '../shared/ui/EventCardSkeleton'
-import Button from '../shared/ui/Button'
 import type { IHomeViewModel } from '../../../service/interface/home.viewmodel.interface'
 
-// ── Hero ──────────────────────────────────────────────────────────────────────
+/* ── Hero images ─────────────────────────────────────────────────────────── */
 const heroImages = [
   'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070',
   'https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=2074',
@@ -20,15 +22,15 @@ const heroImages = [
   'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=2074',
 ]
 
+/* ── Hero ─────────────────────────────────────────────────────────────────── */
 function Hero({ stats }: { stats: any }) {
   const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState('')
-  const [category, setCategory] = useState('all')
   const [currentSlide, setCurrentSlide] = useState(0)
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentSlide((p) => (p + 1) % heroImages.length), 5000)
-    return () => clearInterval(timer)
+    const t = setInterval(() => setCurrentSlide((p) => (p + 1) % heroImages.length), 6000)
+    return () => clearInterval(t)
   }, [])
 
   const handleSearch = (e: React.FormEvent) => {
@@ -36,231 +38,273 @@ function Hero({ stats }: { stats: any }) {
     navigate(searchQuery.trim() ? `/explorer?q=${encodeURIComponent(searchQuery)}` : '/explorer')
   }
 
-  const categories = [
-    { id: 'all', label: 'Tous les établissements', icon: <MapPin className="w-5 h-5" /> },
-    { id: 'restaurant', label: '🍽️ Restaurants' },
-    { id: 'bar', label: '🍹 Bars' },
-    { id: 'hotel', label: '🏨 Hôtels' },
-    { id: 'event', label: '🎉 Événements' },
-  ]
-
   return (
-    <div className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden">
+    <div className="relative min-h-[100dvh] flex flex-col justify-end overflow-hidden">
+
+      {/* ── Background slides ── */}
       <div className="absolute inset-0">
-        {heroImages.map((image, index) => (
-          <div key={index} className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}>
-            <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url('${image}')` }} />
-          </div>
-        ))}
-        <div className="absolute inset-0 bg-gradient-to-r from-dark/80 via-dark/60 to-dark/40" />
+        <AnimatePresence>
+          {heroImages.map((img, i) =>
+            i === currentSlide ? (
+              <motion.div key={i} className="absolute inset-0"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                transition={{ duration: 1.4 }}>
+                <div className="absolute inset-0 bg-cover bg-center scale-105"
+                  style={{ backgroundImage: `url('${img}')` }} />
+              </motion.div>
+            ) : null
+          )}
+        </AnimatePresence>
+        {/* left column darkened for legibility, right softer */}
+        <div className="absolute inset-0 bg-gradient-to-r from-dark/90 via-dark/65 to-dark/25" />
+        <div className="absolute inset-0 bg-gradient-to-t from-dark/80 via-transparent to-dark/30" />
       </div>
 
-      <button onClick={() => setCurrentSlide((p) => (p - 1 + heroImages.length) % heroImages.length)}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white p-3 rounded-full transition-all">
-        <ChevronLeft className="w-6 h-6" />
-      </button>
-      <button onClick={() => setCurrentSlide((p) => (p + 1) % heroImages.length)}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white p-3 rounded-full transition-all">
-        <ChevronRight className="w-6 h-6" />
-      </button>
-
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex gap-2">
+      {/* ── Vertical dot nav (right) ── */}
+      <div className="absolute top-1/2 -translate-y-1/2 right-6 z-20 flex flex-col gap-2.5">
         {heroImages.map((_, i) => (
           <button key={i} onClick={() => setCurrentSlide(i)}
-            className={`h-2 rounded-full transition-all ${i === currentSlide ? 'w-8 bg-white' : 'w-2 bg-white/50 hover:bg-white/75'}`} />
+            className={`rounded-full transition-all duration-400 ${
+              i === currentSlide ? 'h-8 w-1 bg-primary' : 'h-2 w-1 bg-white/30 hover:bg-white/60'
+            }`} />
         ))}
       </div>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="text-center mb-8">
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">Où voulez-vous sortir ?</h1>
-          <p className="text-xl text-white/90">Découvrez les meilleurs restaurants, bars et événements de Brazzaville</p>
-        </div>
+      {/* ── Content ── */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-16 pt-36 lg:pb-24">
 
-        <div className="flex items-center gap-4 mb-6 overflow-x-auto pb-2">
-          {categories.map((cat) => (
-            <button key={cat.id} onClick={() => setCategory(cat.id)}
-              className={`flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all whitespace-nowrap ${
-                category === cat.id ? 'bg-white text-dark shadow-lg' : 'bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm'
-              }`}>
-              {cat.icon}{cat.label}
+        {/* Eyebrow */}
+        <motion.p
+          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="text-[10px] uppercase tracking-[0.25em] font-bold text-primary mb-5">
+          Brazzaville &amp; Pointe-Noire
+        </motion.p>
+
+        {/* Title */}
+        <motion.h1
+          initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          className="font-display text-[clamp(3rem,8vw,6rem)] font-bold text-white leading-[0.92] tracking-tight mb-7 max-w-2xl">
+          Où voulez‑vous<br />
+          <span className="text-transparent bg-clip-text bg-ember-gradient italic">sortir&nbsp;?</span>
+        </motion.h1>
+
+        {/* Sub */}
+        <motion.p
+          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.35 }}
+          className="text-white/65 text-base md:text-lg mb-9 max-w-md leading-relaxed">
+          Les meilleurs restaurants, bars, hôtels et événements de Brazzaville — à portée de main.
+        </motion.p>
+
+        {/* Search */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.45 }}>
+          <form onSubmit={handleSearch}
+            className="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-2 max-w-lg">
+            <Search className="w-4 h-4 text-white/50 ml-2 flex-shrink-0" />
+            <input
+              type="text" placeholder="Restaurant, bar, quartier…"
+              value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-1 bg-transparent text-white placeholder:text-white/35 outline-none text-sm py-2" />
+            <button type="submit"
+              className="bg-primary hover:bg-accent text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all flex-shrink-0 shadow-ember">
+              Rechercher
             </button>
-          ))}
-        </div>
+          </form>
 
-        <form onSubmit={handleSearch} className="bg-white rounded-2xl shadow-2xl p-2">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-2">
-            <div className="md:col-span-5 flex items-center gap-3 px-4 py-3 border-r border-gray-200">
-              <Search className="w-5 h-5 text-gray-400" />
-              <input type="text" placeholder="Rechercher un restaurant, bar, hôtel..."
-                value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 outline-none text-dark placeholder:text-gray-400" />
-            </div>
-            <div className="md:col-span-3 flex items-center gap-3 px-4 py-3 border-r border-gray-200">
-              <MapPin className="w-5 h-5 text-gray-400" />
-              <select className="flex-1 outline-none text-dark bg-transparent cursor-pointer">
-                <option value="">Tous les quartiers</option>
-                <option value="centre-ville">Centre-ville</option>
-                <option value="poto-poto">Poto-Poto</option>
-                <option value="bacongo">Bacongo</option>
-                <option value="moungali">Moungali</option>
-              </select>
-            </div>
-            <div className="md:col-span-2 flex items-center gap-3 px-4 py-3">
-              <Calendar className="w-5 h-5 text-gray-400" />
-              <span className="text-dark">Aujourd'hui</span>
-            </div>
-            <div className="md:col-span-2">
-              <Button type="submit" variant="primary" className="w-full h-full text-lg">Rechercher</Button>
-            </div>
+          {/* Quick chips */}
+          <div className="flex flex-wrap gap-2 mt-4">
+            {[
+              { label: '🍽️ Restaurants', q: 'restaurant' },
+              { label: '🍹 Bars', q: 'bar' },
+              { label: '🏨 Hôtels', q: 'hotel' },
+              { label: '🎉 Événements', href: '/evenements' },
+            ].map((chip) => (
+              <button key={chip.label}
+                onClick={() => navigate(chip.href ?? `/explorer?categorie=${chip.q}`)}
+                className="text-xs text-white/55 hover:text-white border border-white/15 hover:border-white/40 px-3 py-1.5 rounded-full transition-all backdrop-blur-sm hover:bg-white/5">
+                {chip.label}
+              </button>
+            ))}
           </div>
-        </form>
+        </motion.div>
 
+        {/* Stats */}
         {stats && (
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-8 text-white">
-            <div className="text-center">
-              <div className="text-3xl font-bold">
-                <CountUp value={stats.total_etablissements ?? 0} suffix="+" />
+          <motion.div
+            className="flex flex-wrap gap-8 mt-12 pt-8 border-t border-white/10"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.65 }}>
+            {[
+              { value: stats.total_etablissements ?? 0, label: 'Établissements' },
+              { value: stats.total_events ?? 0,         label: 'Événements' },
+              { value: stats.vues_aujourd_hui ?? 0,     label: "Vues aujourd'hui" },
+            ].map((s, i) => (
+              <div key={i}>
+                <div className="font-display text-3xl md:text-4xl font-bold text-white">
+                  <CountUp value={s.value} suffix="+" duration={1800} />
+                </div>
+                <div className="text-[10px] uppercase tracking-wider text-white/40 mt-0.5">{s.label}</div>
               </div>
-              <div className="text-sm text-white/80">Établissements</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold">
-                <CountUp value={stats.total_events ?? 0} suffix="+" />
-              </div>
-              <div className="text-sm text-white/80">Événements à venir</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold">
-                <CountUp value={stats.vues_aujourd_hui ?? 0} suffix="+" />
-              </div>
-              <div className="text-sm text-white/80">Recherches journalières</div>
-            </div>
-          </div>
+            ))}
+          </motion.div>
         )}
       </div>
     </div>
   )
 }
 
-// ── Categories ────────────────────────────────────────────────────────────────
+/* ── Date helper ─────────────────────────────────────────────────────────── */
+const MONTHS: Record<string, string> = {
+  janvier:'JAN',février:'FÉV',mars:'MAR',avril:'AVR',
+  mai:'MAI',juin:'JUN',juillet:'JUL',août:'AOÛ',
+  septembre:'SEP',octobre:'OCT',novembre:'NOV',décembre:'DÉC',
+}
+function parseDateChip(d: string) {
+  const p = d?.split(' ') ?? []
+  if (p.length >= 3) return { day: p[1] ?? '—', month: MONTHS[p[2]?.toLowerCase()] ?? p[2]?.slice(0,3).toUpperCase() ?? '—' }
+  return { day: d?.slice(0,2) ?? '—', month: '' }
+}
+
+const EVENT_FALLBACK = 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80'
+
+/* ── Section header helper ────────────────────────────────────────────────── */
+function SectionHeader({
+  eyebrow, title, linkTo, linkLabel, dark = false, ember = false,
+}: {
+  eyebrow: string; title: string; linkTo?: string; linkLabel?: string; dark?: boolean; ember?: boolean
+}) {
+  const eyebrowCls = ember ? 'text-white/60' : dark ? 'text-primary/80' : 'text-gray-400'
+  const titleCls   = ember || dark ? 'text-white' : 'text-dark'
+  const linkCls    = ember
+    ? 'text-white/60 hover:text-white'
+    : dark ? 'text-white/50 hover:text-white' : 'text-primary hover:text-primary/70'
+
+  return (
+    <div className="flex items-end justify-between mb-8">
+      <div>
+        <p className={`text-[10px] uppercase tracking-[0.2em] font-bold mb-2 ${eyebrowCls}`}>{eyebrow}</p>
+        <h2 className={`font-display text-3xl font-bold ${titleCls}`}>{title}</h2>
+        <span className={`accent-bar mt-2 ${ember ? 'bg-white' : ''}`} />
+      </div>
+      {linkTo && linkLabel && (
+        <Link to={linkTo}
+          className={`hidden sm:flex items-center gap-1.5 text-sm font-medium transition-colors ${linkCls}`}>
+          {linkLabel} <ChevronRight className="w-4 h-4" />
+        </Link>
+      )}
+    </div>
+  )
+}
+
+/* ── Categories ───────────────────────────────────────────────────────────── */
 const categoriesList = [
-  { name: 'Hôtel', icon: Hotel, slug: 'hotel', gradient: 'from-accent to-accent/10', image: 'https://media-cdn.tripadvisor.com/media/photo-s/2e/3b/29/4b/caption.jpg' },
-  { name: 'Restaurant', icon: UtensilsCrossed, slug: 'restaurant', gradient: 'from-primary to-primary/10', image: 'https://www.olympic-palace-hotel.net/assets/img/oph_oriental1.jpg' },
-  { name: 'Bar/Lounge', icon: Wine, slug: 'bar', gradient: 'from-gold to-gold/10', image: 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1b/07/b2/3b/vue-d-ensemble-du-pichichi.jpg?w=1200&h=-1&s=1' },
-  { name: 'Patisserie', icon: Cake, slug: 'lounge', gradient: 'from-dark to-dark/10', image: 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0f/1c/3d/82/photo0jpg.jpg?w=900&h=500&s=1' },
+  { name: 'Hôtels',       icon: Hotel,          slug: 'hotel',      image: 'https://media-cdn.tripadvisor.com/media/photo-s/2e/3b/29/4b/caption.jpg' },
+  { name: 'Restaurants',  icon: UtensilsCrossed, slug: 'restaurant', image: 'https://www.olympic-palace-hotel.net/assets/img/oph_oriental1.jpg' },
+  { name: 'Bars & Lounge',icon: Wine,            slug: 'bar',        image: 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1b/07/b2/3b/vue-d-ensemble-du-pichichi.jpg?w=1200&h=-1&s=1' },
+  { name: 'Pâtisseries',  icon: Cake,            slug: 'lounge',     image: 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0f/1c/3d/82/photo0jpg.jpg?w=900&h=500&s=1' },
 ]
 
 function Categories() {
   return (
-    <section className="py-16 mt-20 bg-primary">
+    <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
-          className="text-3xl font-bold text-white mb-10">Catégories</motion.h2>
-        <motion.div variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } }}
-          initial="hidden" whileInView="show" viewport={{ once: true }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-          {categoriesList.map((category) => {
-            const Icon = category.icon
+        <SectionHeader eyebrow="Explorer par" title="Catégories" linkTo="/explorer" linkLabel="Tout explorer" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {categoriesList.map((cat, i) => {
+            const Icon = cat.icon
             return (
-              <motion.div key={category.slug} variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-                whileHover={{ scale: 1.05, transition: { duration: 0.2 } }} whileTap={{ scale: 0.95 }}>
-                <Link to="/explorer" className="group block">
-                  <div className="relative rounded-2xl p-8 md:p-10 text-center overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 h-48">
-                    <div className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-500" style={{ backgroundImage: `url(${category.image})` }} />
-                    <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient} group-hover:opacity-90 transition-opacity duration-300`} />
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
-                    <div className="relative z-10 flex flex-col items-center justify-center h-full text-white">
-                      <Icon className="w-14 h-14 md:w-16 md:h-16 mb-4 group-hover:scale-110 transition-transform duration-300 drop-shadow-lg" />
-                      <h3 className="text-lg md:text-xl font-bold drop-shadow-md">{category.name}</h3>
+              <motion.div key={cat.slug}
+                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.08 }}>
+                <Link to={`/explorer?categorie=${cat.slug}`} className="group block">
+                  <div className="relative rounded-2xl overflow-hidden h-44 md:h-56">
+                    <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                      style={{ backgroundImage: `url(${cat.image})` }} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                    <div className="absolute inset-0 flex flex-col justify-end p-4">
+                      <Icon className="w-5 h-5 text-white/70 mb-1.5" />
+                      <h3 className="text-white font-bold text-base leading-tight">{cat.name}</h3>
                     </div>
-                    <div className="absolute -top-6 -right-6 w-24 h-24 bg-white/10 rounded-full group-hover:scale-150 transition-transform duration-500" />
-                    <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-white/10 rounded-full group-hover:scale-150 transition-transform duration-500" />
+                    <div className="absolute top-3 right-3 w-7 h-7 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 -translate-y-1 group-hover:translate-y-0">
+                      <ArrowRight className="w-3.5 h-3.5 text-white" />
+                    </div>
                   </div>
                 </Link>
               </motion.div>
             )
           })}
-        </motion.div>
+        </div>
       </div>
     </section>
   )
 }
 
-// ── JoinCTA ───────────────────────────────────────────────────────────────────
+/* ── JoinZuryCTA ──────────────────────────────────────────────────────────── */
 const benefits = [
-  { icon: Users, text: "Des milliers d'utilisateurs" },
-  { icon: TrendingUp, text: 'Augmentez votre visibilité' },
-  { icon: BarChart3, text: 'Statistiques en temps réel' },
-  { icon: Rocket, text: 'Inscription gratuite' },
+  { icon: Users,    text: "Milliers d'utilisateurs" },
+  { icon: TrendingUp, text: 'Visibilité accrue' },
+  { icon: BarChart3,  text: 'Stats en temps réel' },
+  { icon: Rocket,     text: 'Inscription gratuite' },
 ]
 
 function JoinZuryCTA() {
   return (
-    <section className="py-20 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/95 to-primary/80" />
-      <motion.div className="absolute top-0 left-0 w-96 h-96 bg-white/5 rounded-full blur-3xl"
-        animate={{ scale: [1, 1.2, 1], x: [0, 50, 0], y: [0, 30, 0] }}
-        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }} />
-      <motion.div className="absolute bottom-0 right-0 w-96 h-96 bg-accent/10 rounded-full blur-3xl"
-        animate={{ scale: [1, 1.3, 1], x: [0, -50, 0], y: [0, -30, 0] }}
-        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }} />
+    <section className="py-24 bg-dark relative overflow-hidden">
+      {/* Decorative blobs */}
+      <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-gold/10 blur-3xl pointer-events-none" />
+      {/* Subtle grid */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        style={{ backgroundImage: 'linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)', backgroundSize: '64px 64px' }} />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <motion.div initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
-            <motion.h2 className="text-4xl md:text-5xl font-bold text-white mb-6"
-              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.3 }}>
-              Vous êtes propriétaire d'un établissement ?
-            </motion.h2>
-            <motion.p className="text-xl text-white/90 mb-8"
-              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.4 }}>
-              Rejoignez ZURY et développez votre visibilité auprès de milliers de clients potentiels !
-            </motion.p>
-            <motion.div className="grid grid-cols-2 gap-4 mb-8"
-              initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.5 }}>
-              {benefits.map((benefit, i) => (
-                <motion.div key={i} className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-xl p-4"
-                  whileHover={{ scale: 1.05, backgroundColor: 'rgba(255,255,255,0.15)' }} transition={{ duration: 0.3 }}>
-                  <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
-                    <benefit.icon className="w-5 h-5 text-white" />
-                  </div>
-                  <span className="text-white font-medium text-sm">{benefit.text}</span>
-                </motion.div>
-              ))}
-            </motion.div>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/rejoindre-zury" className="flex-1">
-                <Button variant="primary" size="lg" className="w-full bg-white text-primary hover:bg-white/90 shadow-2xl">
-                  Rejoindre ZURY <ArrowRight className="w-5 h-5 ml-2 inline" />
-                </Button>
-              </Link>
-              <Link to="/rejoindre-zury" className="flex-1">
-                <Button variant="outline" size="lg" className="w-full border-2 border-white text-white hover:bg-white hover:text-primary">
-                  En savoir plus
-                </Button>
-              </Link>
-            </div>
+        <div className="max-w-3xl mx-auto text-center">
+          <motion.p
+            className="text-[10px] uppercase tracking-[0.25em] font-bold text-primary mb-5"
+            initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
+            Propriétaires d'établissements
+          </motion.p>
+          <motion.h2
+            className="font-display text-4xl md:text-6xl font-bold text-white leading-tight mb-5"
+            initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }} transition={{ delay: 0.1 }}>
+            Rejoignez{' '}
+            <span className="text-transparent bg-clip-text bg-ember-gradient italic">ZURY</span>
+          </motion.h2>
+          <motion.p
+            className="text-white/50 text-lg mb-10 max-w-xl mx-auto leading-relaxed"
+            initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }} transition={{ delay: 0.2 }}>
+            Augmentez votre visibilité auprès de milliers de clients à Brazzaville et Pointe-Noire.
+          </motion.p>
+          <motion.div
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+            initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }} transition={{ delay: 0.3 }}>
+            <Link to="/rejoindre-zury"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-white rounded-2xl font-semibold hover:bg-accent transition-all shadow-ember">
+              Inscrire mon établissement <ArrowRight className="w-5 h-5" />
+            </Link>
+            <Link to="/rejoindre-zury"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-white/15 text-white/70 rounded-2xl font-semibold hover:bg-white/5 hover:text-white transition-all">
+              En savoir plus
+            </Link>
           </motion.div>
 
-          <motion.div className="relative hidden lg:block" initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
-            <div className="relative h-80">
-              {[
-                { icon: Users, value: '1200+', label: 'Utilisateurs actifs', pos: 'top-0 right-0', color: 'primary' },
-                { icon: TrendingUp, value: '+250%', label: 'Visibilité moyenne', pos: 'top-32 left-0', color: 'accent' },
-                { icon: BarChart3, value: '5000+', label: 'Vues par mois', pos: 'bottom-0 right-12', color: 'gold' },
-              ].map(({ icon: Icon, value, label, pos, color }, i) => (
-                <motion.div key={i} className={`absolute ${pos} bg-white rounded-2xl p-6 shadow-2xl w-56`}
-                  initial={{ opacity: 0, y: i % 2 === 0 ? -20 : 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: 0.4 + i * 0.2 }} whileHover={{ y: -5 }}>
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 bg-${color}/10 rounded-xl flex items-center justify-center`}>
-                      <Icon className={`w-6 h-6 text-${color}`} />
-                    </div>
-                    <div><p className="text-2xl font-bold text-dark">{value}</p><p className="text-sm text-gray-500">{label}</p></div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+          <motion.div
+            className="flex flex-wrap items-center justify-center gap-6 mt-12 pt-10 border-t border-white/8"
+            initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}
+            viewport={{ once: true }} transition={{ delay: 0.4 }}>
+            {benefits.map((b, i) => (
+              <div key={i} className="flex items-center gap-2 text-white/40 text-sm">
+                <b.icon className="w-4 h-4 text-primary/60" />
+                {b.text}
+              </div>
+            ))}
           </motion.div>
         </div>
       </div>
@@ -268,64 +312,181 @@ function JoinZuryCTA() {
   )
 }
 
-// ── HomePage ──────────────────────────────────────────────────────────────────
+/* ── HomePage ─────────────────────────────────────────────────────────────── */
 export const HomePage = () => {
-  const { featuredEstablishments, recentEstablishments, upcomingEvents, weekendEvents, stats, featuredStatus, upcomingStatus, weekendStatus } =
-    DI.resolve<IHomeViewModel>('homeViewModel')
+  const {
+    featuredEstablishments, recentEstablishments,
+    upcomingEvents, weekendEvents, stats,
+    featuredStatus, upcomingStatus, weekendStatus,
+  } = DI.resolve<IHomeViewModel>('homeViewModel')
 
   return (
     <>
       <Hero stats={stats} />
+
       <div className="bg-light">
         <Categories />
 
-        <section className="py-12">
+        {/* ── Établissements coup de cœur ── */}
+        <section className="py-16 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-dark mb-8">Restaurants coup de cœur du moment</h2>
+            <SectionHeader
+              eyebrow="Nos coups de cœur"
+              title="Restaurants du moment"
+              linkTo="/explorer?categorie=restaurant"
+              linkLabel="Voir tous"
+            />
             {featuredStatus === 'loading' ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {[...Array(4)].map((_, i) => <EstablishmentCardSkeleton key={i} />)}
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {featuredEstablishments.slice(0, 8).map((e, i) => <EstablishmentCard key={e.id} establishment={e} index={i} />)}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                {featuredEstablishments.slice(0, 8).map((e, i) => (
+                  <EstablishmentCard key={e.id} establishment={e} index={i} />
+                ))}
               </div>
             )}
           </div>
         </section>
 
-        <section className="py-12 bg-primary/90">
+        {/* ── Événements à venir ── */}
+        <section className="py-16 bg-ember">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-3xl font-bold text-white">Événements à venir</h2>
-              <Link to="/evenements" className="text-white hover:text-white/80 font-medium transition-colors">Voir tout →</Link>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {upcomingStatus === 'loading'
-                ? [...Array(4)].map((_, i) => <EventCardSkeleton key={i} />)
-                : upcomingEvents.slice(0, 8).map((e, i) => <EventCard key={e.id} event={e} index={i} />)
-              }
-            </div>
+            <SectionHeader
+              eyebrow="Ne ratez rien"
+              title="Événements à venir"
+              linkTo="/evenements"
+              linkLabel="Voir tout"
+              ember
+            />
+
+            {upcomingStatus === 'loading' ? (
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+                <div className="lg:col-span-2 h-96 rounded-2xl bg-black/10 animate-pulse" />
+                <div className="lg:col-span-3 flex flex-col gap-3">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="h-20 rounded-2xl bg-black/10 animate-pulse" />
+                  ))}
+                </div>
+              </div>
+            ) : upcomingEvents.length === 0 ? null : (
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+
+                {/* ── Featured event (big card) ── */}
+                {(() => {
+                  const ev = upcomingEvents[0]
+                  const { day, month } = parseDateChip(ev.date)
+                  return (
+                    <Link to={`/evenements/${ev.id}`}
+                      className="lg:col-span-2 group block relative min-h-[380px] rounded-2xl overflow-hidden">
+                      <img
+                        src={ev.imageUrl || EVENT_FALLBACK} alt={ev.title}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        onError={(e) => { (e.target as HTMLImageElement).src = EVENT_FALLBACK }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
+
+                      {/* Date chip */}
+                      <div className="absolute top-4 left-4 bg-dark rounded-xl px-3 py-2 text-center min-w-[44px]">
+                        <div className="text-white/60 text-[8px] font-bold uppercase tracking-wider">{month}</div>
+                        <div className="text-white font-display text-2xl font-bold leading-none">{day}</div>
+                      </div>
+
+                      {/* Category */}
+                      <div className="absolute top-4 right-4">
+                        <span className="bg-white/10 backdrop-blur-sm text-white text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full">
+                          {ev.category}
+                        </span>
+                      </div>
+
+                      {/* Bottom content */}
+                      <div className="absolute bottom-0 left-0 right-0 p-5">
+                        <h3 className="font-display text-2xl font-bold text-white mb-2 leading-snug line-clamp-2">
+                          {ev.title}
+                        </h3>
+                        <div className="flex items-center gap-3 text-white/50 text-xs mb-4">
+                          <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{ev.time}</span>
+                          <span className="flex items-center gap-1 truncate"><MapPin className="w-3 h-3 flex-shrink-0" />{ev.establishment}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="font-display text-xl font-bold text-white">{ev.price}</span>
+                          <span className="w-9 h-9 rounded-full bg-dark group-hover:bg-dark/80 flex items-center justify-center transition-colors">
+                            <ArrowRight className="w-4 h-4 text-white" />
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  )
+                })()}
+
+                {/* ── Remaining events (compact rows) ── */}
+                <div className="lg:col-span-3 flex flex-col gap-3">
+                  {upcomingEvents.slice(1, 5).map((ev) => {
+                    const { day, month } = parseDateChip(ev.date)
+                    return (
+                      <Link key={ev.id} to={`/evenements/${ev.id}`}
+                        className="group flex items-center gap-4 bg-black/10 hover:bg-black/20 border border-black/10 hover:border-black/25 rounded-2xl p-4 transition-all duration-200">
+
+                        {/* Date block */}
+                        <div className="bg-dark rounded-xl px-2.5 py-2 text-center flex-shrink-0 w-11">
+                          <div className="text-white/70 text-[8px] font-bold uppercase">{month}</div>
+                          <div className="text-white font-display text-lg font-bold leading-none">{day}</div>
+                        </div>
+
+                        {/* Thumb */}
+                        <div className="relative w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-white/10">
+                          <img src={ev.imageUrl || EVENT_FALLBACK} alt={ev.title}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                            onError={(e) => { (e.target as HTMLImageElement).src = EVENT_FALLBACK }} />
+                        </div>
+
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-white font-semibold text-sm leading-snug line-clamp-1 mb-0.5">
+                            {ev.title}
+                          </h4>
+                          <p className="text-white/35 text-xs truncate flex items-center gap-1">
+                            <MapPin className="w-3 h-3 flex-shrink-0" />{ev.establishment}
+                          </p>
+                        </div>
+
+                        {/* Price + arrow */}
+                        <div className="flex items-center gap-3 flex-shrink-0">
+                          <span className="font-display text-sm font-bold text-white">{ev.price}</span>
+                          <span className="w-7 h-7 rounded-full bg-black/15 group-hover:bg-dark flex items-center justify-center transition-colors">
+                            <ArrowRight className="w-3.5 h-3.5 text-white" />
+                          </span>
+                        </div>
+                      </Link>
+                    )
+                  })}
+
+                  {/* "Voir tous" link row */}
+                  <Link to="/evenements"
+                    className="flex items-center justify-center gap-2 border border-dashed border-white/30 hover:border-white/60 rounded-2xl py-4 text-white/50 hover:text-white text-sm font-medium transition-all duration-200 group">
+                    <Calendar className="w-4 h-4" />
+                    Voir tous les événements
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </div>
+
+              </div>
+            )}
           </div>
         </section>
 
-        {/* Weekend events section */}
+        {/* ── Ce weekend ── */}
         {(weekendStatus === 'loading' || weekendEvents.length > 0) && (
-          <section className="py-12 bg-dark">
+          <section className="py-16 bg-primary/5">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h2 className="text-3xl font-bold text-white">Ce weekend</h2>
-                  <p className="text-white/60 text-sm mt-1">Événements spéciaux pour votre weekend</p>
-                </div>
-                <Link
-                  to="/evenements?period=weekend"
-                  className="flex items-center gap-1.5 text-gold hover:text-gold/80 font-medium transition-colors text-sm"
-                >
-                  Voir tout →
-                </Link>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              <SectionHeader
+                eyebrow="Sortez ce weekend"
+                title="Ce weekend"
+                linkTo="/evenements?period=weekend"
+                linkLabel="Voir tout"
+              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {weekendStatus === 'loading'
                   ? [...Array(4)].map((_, i) => <EventCardSkeleton key={i} />)
                   : weekendEvents.slice(0, 8).map((e, i) => <EventCard key={e.id} event={e} index={i} />)
@@ -335,20 +496,20 @@ export const HomePage = () => {
           </section>
         )}
 
+        {/* ── Nouveaux établissements ── */}
         {recentEstablishments.length > 0 && (
-          <section className="py-20 bg-white">
+          <section className="py-16 bg-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex items-center justify-between mb-12">
-                <div>
-                  <h2 className="text-4xl font-bold text-dark">Nouveaux établissements</h2>
-                  <p className="text-lg text-gray-500">Découvrez les dernières adresses ajoutées à ZURY</p>
-                </div>
-                <Link to="/explorer?ordering=-created_at" className="hidden md:flex items-center gap-2 text-primary hover:text-primary/80 font-semibold transition-colors">
-                  Voir tous les nouveaux <span>→</span>
-                </Link>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {recentEstablishments.map((e, i) => <EstablishmentCard key={e.id} establishment={e} index={i} />)}
+              <SectionHeader
+                eyebrow="Dernières adresses"
+                title="Nouveaux établissements"
+                linkTo="/explorer?ordering=-created_at"
+                linkLabel="Voir tous"
+              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                {recentEstablishments.map((e, i) => (
+                  <EstablishmentCard key={e.id} establishment={e} index={i} />
+                ))}
               </div>
             </div>
           </section>
