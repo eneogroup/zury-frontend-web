@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { MapPin, Search, Navigation, Star } from 'lucide-react'
+import { MapPin, Search, Navigation, Star, X } from 'lucide-react'
 import DI from '../../../di/ioc'
 
 // Fix Leaflet default marker icons (Vite/webpack asset issue)
@@ -135,6 +135,34 @@ export const CartePage = () => {
 
         {/* List panel */}
         <div className="w-72 bg-white border-r border-gray-100 flex-col overflow-hidden hidden md:flex flex-shrink-0">
+
+          {/* Search bar */}
+          <div className="px-3 py-2.5 border-b border-gray-100 flex-shrink-0">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQ}
+                onChange={(e) => setSearchQ(e.target.value)}
+                placeholder="Nom du restaurant, quartier…"
+                className="w-full bg-gray-50 border border-gray-200 text-dark placeholder-gray-400 rounded-xl py-2 pl-9 pr-9 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              />
+              {searchQ && (
+                <button
+                  onClick={() => setSearchQ('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-gray-200 transition-colors"
+                >
+                  <X className="w-3.5 h-3.5 text-gray-400" />
+                </button>
+              )}
+            </div>
+            {searchQ && (
+              <p className="text-[11px] text-gray-400 mt-1.5 pl-1">
+                {filtered.length} résultat{filtered.length > 1 ? 's' : ''} pour «&nbsp;{searchQ}&nbsp;»
+              </p>
+            )}
+          </div>
+
           <div className="flex-1 overflow-y-auto">
             {status === 'loading' ? (
               <div className="p-4 space-y-3">

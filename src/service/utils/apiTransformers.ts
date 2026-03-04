@@ -63,6 +63,7 @@ export function transformEvent(event: any) {
     telephone: event.telephone,
     establishment: event.etablissement_nom || event.etablissement?.nom || '',
     establishmentId: event.etablissement_id || event.etablissement?.id,
+    establishmentPhone: event.etablissement?.telephone || '',
     price: event.est_gratuit ? 'Gratuit' : `${parseInt(event.prix || '0')} FCFA`,
     availablePlaces: event.places_disponibles || 0,
     totalPlaces: event.nb_places_total || 0,

@@ -1,12 +1,14 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Calendar, MapPin, Users, Clock, ArrowLeft, Ticket, Phone, ExternalLink } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { Calendar, MapPin, Users, Clock, ArrowLeft, Ticket, Phone, ExternalLink, X } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import DI from '../../../di/ioc'
 import type { IEventDetailViewModel } from '../../../service/interface/events.viewmodel.interface'
 
 export const EventDetailPage = () => {
   const { currentEvent: event, detailStatus } =
     DI.resolve<IEventDetailViewModel>('eventDetailViewModel')
+  const [flyerOpen, setFlyerOpen] = useState(false)
 
   /* ── Loading ─────────────────────────────────────────────────────────── */
   if (detailStatus === 'loading') {
@@ -179,8 +181,23 @@ export const EventDetailPage = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.15 }}
-            className="lg:w-72 flex-shrink-0 self-start lg:sticky lg:top-6"
+            className="lg:w-72 flex-shrink-0 self-start lg:sticky lg:top-6 space-y-4"
           >
+            {/* Flyer card */}
+            {event.imageUrl && (
+              <div
+                className="rounded-2xl overflow-hidden border border-gray-100 shadow-sm cursor-zoom-in"
+                onClick={() => setFlyerOpen(true)}
+              >
+                <img
+                  src={event.imageUrl}
+                  alt={`Flyer — ${event.title}`}
+                  className="w-full object-cover hover:scale-105 transition-transform duration-300"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                />
+              </div>
+            )}
+
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
 
               {/* Price */}
@@ -239,14 +256,14 @@ export const EventDetailPage = () => {
               {/* CTA */}
               <div className="p-5">
                 <a
-                  href={event.phone ? `tel:${event.phone}` : '#'}
+                  href={!isComplete && event.establishmentPhone ? `tel:${event.establishmentPhone}` : undefined}
                   className={`flex items-center justify-center gap-2 w-full py-3 rounded-xl font-semibold text-sm transition-all ${
-                    isComplete
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    isComplete || !event.establishmentPhone
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed pointer-events-none'
                       : 'bg-primary text-white hover:bg-primary/90 shadow-md hover:shadow-primary/20'
                   }`}
                 >
-                  {!isComplete && <Phone className="w-4 h-4" />}
+                  {!isComplete && event.establishmentPhone && <Phone className="w-4 h-4" />}
                   {isComplete ? 'Événement complet' : 'Réserver maintenant'}
                 </a>
               </div>
@@ -255,6 +272,34 @@ export const EventDetailPage = () => {
 
         </div>
       </div>
+
+      {/* ── Flyer lightbox ── */}
+      <AnimatePresence>
+        {flyerOpen && event.imageUrl && (
+          <motion.div
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setFlyerOpen(false)}
+          >
+            <button
+              className="absolute top-4 right-4 p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+              onClick={() => setFlyerOpen(false)}
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <motion.img
+              src={event.imageUrl}
+              alt={event.title}
+              className="max-w-[88vw] max-h-[88vh] object-contain rounded-xl shadow-2xl"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              onClick={(e) => e.stopPropagation()}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
