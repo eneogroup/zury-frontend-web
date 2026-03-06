@@ -25,9 +25,10 @@ interface EstablishmentCardProps {
   }
   index?: number
   showOpenStatus?: boolean
+  source?: string
 }
 
-export default function EstablishmentCard({ establishment, index = 0, showOpenStatus = false }: EstablishmentCardProps) {
+export default function EstablishmentCard({ establishment, index = 0, showOpenStatus = false, source = 'direct' }: EstablishmentCardProps) {
   const cfg = CATEGORY_CONFIG[establishment.category] ?? CATEGORY_CONFIG.restaurant
   const { isFavorite, toggleFavorite } = useFavorites()
   const { status: openStatus } = useOpenStatus(establishment.id, showOpenStatus)
@@ -52,7 +53,7 @@ export default function EstablishmentCard({ establishment, index = 0, showOpenSt
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, delay: index * 0.06, ease: [0.16, 1, 0.3, 1] }}
     >
-      <Link to={`/establishments/${establishment.id}`} className="block group">
+      <Link to={`/establishments/${establishment.id}`} state={{ trackingSource: source }} className="block group">
         <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-1">
 
           {/* Image */}

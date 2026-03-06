@@ -521,6 +521,7 @@ export const ExplorerPage = () => {
                       establishment={e}
                       index={i}
                       showOpenStatus
+                      source="explorer"
                     />
                   ))}
                 </div>
@@ -586,7 +587,7 @@ function EstablishmentListRow({
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.35, delay: index * 0.04 }}
     >
-      <Link to={`/establishments/${establishment.id}`} className="block group">
+      <Link to={`/establishments/${establishment.id}`} state={{ trackingSource: 'explorer' }} className="block group">
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 transition-all duration-200 p-4">
           <div className="flex items-center gap-4">
             {/* Thumbnail */}

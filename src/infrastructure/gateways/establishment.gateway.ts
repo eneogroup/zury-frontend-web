@@ -85,4 +85,17 @@ export class EstablishmentGateway extends SingletonMixin() {
       return { error, data: null }
     }
   }
+
+  async trackView(payload: {
+    etablissement: string
+    device_id: string
+    duree_consultation: number
+    source: string
+  }) {
+    try {
+      await axios.post(`${BASE_URL}/api/v1/tracking/vue-etablissement/`, payload)
+    } catch {
+      // Silently fail — tracking should never block the UI
+    }
+  }
 }
