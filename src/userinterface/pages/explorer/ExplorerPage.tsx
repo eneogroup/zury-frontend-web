@@ -28,12 +28,15 @@ import Pagination from "../shared/ui/Pagination";
 import type { IExplorerViewModel } from "../../../service/interface/explorer.viewmodel.interface";
 import { useFavorites } from "../../../service/hooks/useFavorites";
 
-const CATEGORIES = [
-  { id: "", label: "Tous", dot: "bg-gray-300" },
-  { id: "restaurant", label: "Restaurants", dot: "bg-primary" },
-  { id: "bar", label: "Bars", dot: "bg-gold" },
-  { id: "hotel", label: "Hôtels", dot: "bg-blue-400" },
-  { id: "lounge", label: "Lounges", dot: "bg-purple-400" },
+const CATEGORY_DOT_COLORS = [
+  "bg-primary",
+  "bg-gold",
+  "bg-blue-400",
+  "bg-purple-400",
+  "bg-green-400",
+  "bg-red-400",
+  "bg-pink-400",
+  "bg-orange-400",
 ];
 
 const QUICK_FILTERS = [
@@ -45,23 +48,23 @@ const QUICK_FILTERS = [
     hoverClass: "hover:border-green-300 hover:text-green-700 hover:bg-green-50",
   },
 
-  {
-    id: "pas cher",
-    label: "Pas cher",
-    Icon: Tag,
-    activeClass: "bg-orange-500 text-white border-orange-500",
-    hoverClass:
-      "hover:border-orange-300 hover:text-orange-700 hover:bg-orange-50",
-  },
+  // {
+  //   id: "pas cher",
+  //   label: "Pas cher",
+  //   Icon: Tag,
+  //   activeClass: "bg-orange-500 text-white border-orange-500",
+  //   hoverClass:
+  //     "hover:border-orange-300 hover:text-orange-700 hover:bg-orange-50",
+  // },
 
-  {
-    id: "luxe",
-    label: "Luxe",
-    Icon: Award,
-    activeClass: "bg-purple-500 text-white border-purple-500",
-    hoverClass:
-      "hover:border-purple-300 hover:text-purple-700 hover:bg-purple-50",
-  },
+  // {
+  //   id: "luxe",
+  //   label: "Luxe",
+  //   Icon: Award,
+  //   activeClass: "bg-purple-500 text-white border-purple-500",
+  //   hoverClass:
+  //     "hover:border-purple-300 hover:text-purple-700 hover:bg-purple-50",
+  // },
   {
     id: "proche",
     label: "Proche de moi",
@@ -94,7 +97,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export const ExplorerPage = () => {
-  const { establishments, quartiers, status, totalCount, totalPages } =
+  const { establishments, categories, quartiers, status, totalCount, totalPages } =
     DI.resolve<IExplorerViewModel>("explorerViewModel");
 
   const navigate = useNavigate();
@@ -264,12 +267,13 @@ export const ExplorerPage = () => {
 
           {/* Category chips */}
           <div className="flex gap-2 flex-wrap mb-3">
-            {CATEGORIES.map((cat) => {
-              const isActive = currentCategorie === cat.id;
+            {[{ value: "", label: "Tous" }, ...categories].map((cat, i) => {
+              const isActive = currentCategorie === cat.value;
+              const dot = cat.value === "" ? "bg-gray-300" : CATEGORY_DOT_COLORS[(i - 1) % CATEGORY_DOT_COLORS.length];
               return (
                 <button
-                  key={cat.id}
-                  onClick={() => updateParams({ categorie: cat.id })}
+                  key={cat.value}
+                  onClick={() => updateParams({ categorie: cat.value })}
                   className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200 ${
                     isActive
                       ? "bg-primary text-white border-primary shadow-md"
@@ -277,7 +281,7 @@ export const ExplorerPage = () => {
                   }`}
                 >
                   <span
-                    className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-white/60" : cat.dot}`}
+                    className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-white/60" : dot}`}
                   />
                   {cat.label}
                 </button>
