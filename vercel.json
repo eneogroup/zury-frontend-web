@@ -1,5 +1,8 @@
 {
   "regions": ["cdg1"],
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/" }
+  ],
   "headers": [
     {
       "source": "/(.*)",
