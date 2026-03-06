@@ -164,7 +164,7 @@ export const EstablishmentDetailPage = () => {
                   </div>
                   <div className="flex-1">
                     <h1 className="text-3xl font-bold text-dark mb-1">{est.name}</h1>
-                    <p className="text-gray-400 text-sm mb-2">{est.reviewCount?.toLocaleString()} vues</p>
+                    <p className="text-gray-400 text-sm mb-2">{est.viewCount?.toLocaleString()} vues</p>
                     <div className="flex items-center flex-wrap gap-2">
                       <span className="bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full uppercase">
                         {est.category}
