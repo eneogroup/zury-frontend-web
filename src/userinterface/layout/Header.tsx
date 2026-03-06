@@ -57,7 +57,7 @@ export default function Header() {
 
           {/* Logo */}
           <Link to="/" className="flex-shrink-0">
-            <img src="/logo.png" alt="ZURY" className="h-12 w-12 rounded-xl object-contain" />
+            <img src="/logo.png" alt="ZURY" className="h-16 w-16 rounded-xl object-contain" />
           </Link>
 
           {/* Desktop nav */}

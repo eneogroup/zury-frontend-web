@@ -141,7 +141,7 @@ function Hero({ stats }: { stats: any }) {
             {[
               { value: stats.total_etablissements ?? 0, label: 'Établissements' },
               { value: stats.total_events ?? 0,         label: 'Événements' },
-              { value: stats.vues_aujourd_hui ?? 0,     label: "Vues aujourd'hui" },
+              { value: stats.total_vues ?? 0,           label: 'Vues sur la plateforme' },
             ].map((s, i) => (
               <div key={i}>
                 <div className="font-display text-3xl md:text-4xl font-bold text-white">

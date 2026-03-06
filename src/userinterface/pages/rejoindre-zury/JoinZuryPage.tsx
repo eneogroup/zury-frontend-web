@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowRight, Eye, TrendingUp, Calendar, BarChart3, Star, Users,
   FileText, CheckCircle, Rocket, X, Building2, MapPin, Phone, Mail,
-  Globe, Image, Plus, Trash2, User, MessageSquare, ChevronDown,
+  Globe, Image, Plus, Trash2, User, MessageSquare, ChevronDown, Loader2,
 } from 'lucide-react'
 import { CountUp } from '../shared/ui/CountUp'
 import type { RootState, AppDispatch } from '../../../store/store'
@@ -87,7 +87,34 @@ function RegistrationModal({ onClose, categories, quartiers }: {
   const [photos, setPhotos] = useState<File[]>([])
   const [previews, setPreviews] = useState<string[]>([])
   const [submitted, setSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [geoLoading, setGeoLoading] = useState(true)
+  const [geoDenied, setGeoDenied] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setGeoLoading(false)
+      setGeoDenied(true)
+      return
+    }
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        setForm(f => ({
+          ...f,
+          lat: pos.coords.latitude.toFixed(6),
+          lng: pos.coords.longitude.toFixed(6),
+        }))
+        setGeoLoading(false)
+      },
+      () => {
+        setGeoLoading(false)
+        setGeoDenied(true)
+      },
+      { enableHighAccuracy: true, timeout: 10000 },
+    )
+  }, [])
 
   const set = (k: keyof RegForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
     setForm(f => ({ ...f, [k]: e.target.value }))
@@ -108,9 +135,41 @@ function RegistrationModal({ onClose, categories, quartiers }: {
     setPreviews(p => p.filter((_, j) => j !== i))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSubmitted(true)
+    setSubmitting(true)
+    setSubmitError(null)
+
+    const body = new FormData()
+    body.append('nom', form.name)
+    body.append('description', form.description)
+    body.append('categorie', form.category)
+    body.append('quartier', form.neighborhood)
+    body.append('adresse', form.address)
+    if (form.lat)       body.append('latitude', form.lat)
+    if (form.lng)       body.append('longitude', form.lng)
+    if (form.phone)     body.append('telephone', form.phone)
+    if (form.emailEtab) body.append('email', form.emailEtab)
+    if (form.website)   body.append('site_web', form.website)
+    if (form.facebook)  body.append('facebook', form.facebook)
+    if (form.instagram) body.append('instagram', form.instagram)
+    if (form.contactName) body.append('nom_soumetteur', form.contactName)
+    body.append('email_soumetteur', form.contactEmail)
+    if (form.comment)    body.append('commentaire_soumetteur', form.comment)
+    photos.forEach(photo => body.append('images', photo))
+
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/v1/etablissements/soumettre/`,
+        { method: 'POST', body },
+      )
+      if (!res.ok) throw new Error(`Erreur ${res.status}`)
+      setSubmitted(true)
+    } catch {
+      setSubmitError("Une erreur est survenue. Veuillez réessayer.")
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   if (submitted) {
@@ -156,8 +215,8 @@ function RegistrationModal({ onClose, categories, quartiers }: {
             <select required value={form.category} onChange={set('category')} className={selectCls}>
               <option value="">Sélectionnez</option>
               {categories.length > 0
-                ? categories.map((c: any) => <option key={c.id ?? c.slug} value={c.slug ?? c.id}>{c.nom ?? c.name ?? c.label}</option>)
-                : ['Restaurant', 'Bar', 'Hôtel', 'Lounge', 'Pâtisserie'].map(c => <option key={c} value={c.toLowerCase()}>{c}</option>)
+                ? categories.map((c: any) => <option key={c.value} value={c.value}>{c.label}</option>)
+                : <option disabled value="">Chargement…</option>
               }
             </select>
             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 pointer-events-none" />
@@ -169,8 +228,8 @@ function RegistrationModal({ onClose, categories, quartiers }: {
               <option value="">Sélectionnez</option>
               {quartiers.length > 0
                 ? quartiers.map((q: any) => (
-                    <option key={q.value ?? q.id} value={q.value ?? q.id}>
-                      {q.label ?? q.nom ?? q.name}
+                    <option key={q.value} value={q.value}>
+                      {q.label}
                     </option>
                   ))
                 : <option disabled value="">Chargement…</option>
@@ -187,13 +246,42 @@ function RegistrationModal({ onClose, categories, quartiers }: {
       </Field>
 
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Latitude (optionnel)">
-          <input type="text" placeholder="-4.2634" value={form.lat} onChange={set('lat')} className={inputCls} />
+        <Field label="Latitude">
+          <div className="relative">
+            {geoLoading
+              ? <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 animate-spin" />
+              : <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" />
+            }
+            <input
+              type="text"
+              readOnly
+              placeholder={geoLoading ? 'Localisation…' : geoDenied ? 'Accès refusé' : ''}
+              value={form.lat}
+              className={`${inputCls} pl-9 bg-gray-50 cursor-not-allowed select-none ${geoDenied ? 'text-gray-300 italic' : 'text-gray-400'}`}
+            />
+          </div>
         </Field>
-        <Field label="Longitude (optionnel)">
-          <input type="text" placeholder="15.2429" value={form.lng} onChange={set('lng')} className={inputCls} />
+        <Field label="Longitude">
+          <div className="relative">
+            {geoLoading
+              ? <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 animate-spin" />
+              : <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" />
+            }
+            <input
+              type="text"
+              readOnly
+              placeholder={geoLoading ? 'Localisation…' : geoDenied ? 'Accès refusé' : ''}
+              value={form.lng}
+              className={`${inputCls} pl-9 bg-gray-50 cursor-not-allowed select-none ${geoDenied ? 'text-gray-300 italic' : 'text-gray-400'}`}
+            />
+          </div>
         </Field>
       </div>
+      {geoDenied && (
+        <p className="text-[11px] text-gray-300 -mt-3">
+          La localisation a été refusée. Les coordonnées ne seront pas transmises.
+        </p>
+      )}
 
       {/* ── Contact & Réseaux ── */}
       <Section label="Contact & Réseaux sociaux" icon={Phone} />
@@ -330,10 +418,17 @@ function RegistrationModal({ onClose, categories, quartiers }: {
 
       {/* ── Submit ── */}
       <div className="pt-2 border-t border-gray-100">
-        <button type="submit"
-          className="w-full py-3.5 bg-primary hover:bg-accent text-white rounded-xl font-semibold text-sm transition-all shadow-ember flex items-center justify-center gap-2">
-          Envoyer ma demande
-          <ArrowRight className="w-4 h-4" />
+        {submitError && (
+          <p className="text-xs text-red-500 text-center mb-3 bg-red-50 border border-red-100 rounded-xl py-2 px-3">
+            {submitError}
+          </p>
+        )}
+        <button type="submit" disabled={submitting}
+          className="w-full py-3.5 bg-primary hover:bg-accent disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl font-semibold text-sm transition-all shadow-ember flex items-center justify-center gap-2">
+          {submitting
+            ? <><Loader2 className="w-4 h-4 animate-spin" /> Envoi en cours…</>
+            : <>Envoyer ma demande <ArrowRight className="w-4 h-4" /></>
+          }
         </button>
         <p className="text-center text-[11px] text-gray-300 mt-3">
           * Champs obligatoires · Au moins un moyen de contact requis · 100% gratuit · Réponse sous 24-48h
