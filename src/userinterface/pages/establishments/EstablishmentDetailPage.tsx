@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { Star, MapPin, Phone, Clock, Calendar, Video, Info, Navigation, ArrowLeft } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Star, MapPin, Phone, Clock, Calendar, Video, Info, Navigation, ArrowLeft, ChevronLeft, ChevronRight, X } from 'lucide-react'
 import axios from 'axios'
 import { cn } from '../../../service/utils/cn'
 import DI from '../../../di/ioc'
@@ -9,7 +9,7 @@ import type { IEstablishmentDetailViewModel } from '../../../service/interface/e
 import EstablishmentCard from '../shared/ui/EstablishmentCard'
 import EventCard from '../shared/ui/EventCard'
 import { useOpenStatus } from '../../../service/hooks/useOpenStatus'
-import { transformEvent } from '../../../service/utils/apiTransformers'
+import { transformEvent, transformEstablishment } from '../../../service/utils/apiTransformers'
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'https://zury-backend-production.up.railway.app'
 
@@ -21,7 +21,39 @@ export const EstablishmentDetailPage = () => {
   const [activeTab, setActiveTab] = useState<TabType>('tout')
   const [estEvents, setEstEvents] = useState<any[]>([])
   const [estEventsLoading, setEstEventsLoading] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+  const [similaires, setSimilaires] = useState<any[]>([])
+  const [similairesLoading, setSimilairesLoading] = useState(true)
   const { status: openStatus } = useOpenStatus(est?.id ?? '', !!est?.id)
+
+  const images: string[] = est?.images && est.images.length > 0
+    ? est.images
+    : est?.imageUrl ? [est.imageUrl] : []
+
+  useEffect(() => {
+    if (lightboxIndex === null) return
+    const len = images.length
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') setLightboxIndex(i => i !== null ? (i + 1) % len : null)
+      if (e.key === 'ArrowLeft')  setLightboxIndex(i => i !== null ? (i - 1 + len) % len : null)
+      if (e.key === 'Escape')     setLightboxIndex(null)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [lightboxIndex, images.length])
+
+  useEffect(() => {
+    if (!est?.id) return
+    axios
+      .get(`${BASE_URL}/api/v1/etablissements/${est.id}/similaires/`, { params: { limit: 8 } })
+      .then((res) => {
+        const raw = res.data
+        const list: any[] = raw?.similaires ?? raw?.data ?? raw?.results ?? (Array.isArray(raw) ? raw : [])
+        setSimilaires(list.slice(0, 8).map(transformEstablishment))
+      })
+      .catch(() => setSimilaires([]))
+      .finally(() => setSimilairesLoading(false))
+  }, [est?.id])
 
   useEffect(() => {
     if (activeTab !== 'evenements' || !est?.id) return
@@ -80,7 +112,6 @@ export const EstablishmentDetailPage = () => {
     )
   }
 
-  const images: string[] = est.images && est.images.length > 0 ? est.images : [est.imageUrl].filter(Boolean)
   const coverImage = images.length > 0 ? images[images.length - 1] : null
 
   const handleDirections = () => {
@@ -133,7 +164,7 @@ export const EstablishmentDetailPage = () => {
                   </div>
                   <div className="flex-1">
                     <h1 className="text-3xl font-bold text-dark mb-1">{est.name}</h1>
-                    <p className="text-gray-400 text-sm mb-2">{est.reviewCount?.toLocaleString()} vues</p>
+                    <p className="text-gray-400 text-sm mb-2">{est.viewCount?.toLocaleString()} vues</p>
                     <div className="flex items-center flex-wrap gap-2">
                       <span className="bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full uppercase">
                         {est.category}
@@ -267,9 +298,9 @@ export const EstablishmentDetailPage = () => {
                       </button>
                     </div>
                     <div className="grid grid-cols-3 gap-2">
-                      {images.slice(0, 6).map((img, i) => (
-                        <div key={i} className="relative h-24 rounded-lg overflow-hidden bg-gray-100">
-                          <img src={img} alt={`Photo ${i + 1}`} className="w-full h-full object-cover hover:scale-110 transition-transform cursor-pointer"
+                      {images.slice(0, 3).map((img, i) => (
+                        <div key={i} onClick={() => setLightboxIndex(i)} className="relative h-24 rounded-lg overflow-hidden bg-gray-100 cursor-pointer">
+                          <img src={img} alt={`Photo ${i + 1}`} className="w-full h-full object-cover hover:scale-110 transition-transform"
                             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
                         </div>
                       ))}
@@ -334,9 +365,9 @@ export const EstablishmentDetailPage = () => {
               {images.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {images.map((img, i) => (
-                    <div key={i} className="relative h-64 rounded-xl overflow-hidden bg-gray-100 cursor-pointer">
+                    <div key={i} onClick={() => setLightboxIndex(i)} className="relative h-64 rounded-xl overflow-hidden bg-gray-100 cursor-pointer group">
                       <img src={img} alt={`Photo ${i + 1}`}
-                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                         onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
                     </div>
                   ))}
@@ -390,15 +421,83 @@ export const EstablishmentDetailPage = () => {
         </div>
       </div>
 
+      {/* ── Photo Lightbox ── */}
+      <AnimatePresence>
+        {lightboxIndex !== null && (
+          <motion.div
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/92 backdrop-blur-sm"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setLightboxIndex(null)}
+          >
+            {/* Close */}
+            <button
+              className="absolute top-4 right-4 p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+              onClick={() => setLightboxIndex(null)}
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Counter */}
+            <div className="absolute top-5 left-1/2 -translate-x-1/2 text-white/50 text-sm font-medium tabular-nums">
+              {lightboxIndex + 1} / {images.length}
+            </div>
+
+            {/* Prev */}
+            {images.length > 1 && (
+              <button
+                className="absolute left-4 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+                onClick={(e) => { e.stopPropagation(); setLightboxIndex(i => i !== null ? (i - 1 + images.length) % images.length : null) }}
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+            )}
+
+            {/* Image */}
+            <motion.img
+              key={lightboxIndex}
+              src={images[lightboxIndex]}
+              alt={`Photo ${lightboxIndex + 1}`}
+              className="max-w-[88vw] max-h-[88vh] object-contain rounded-xl shadow-2xl"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              onClick={(e) => e.stopPropagation()}
+            />
+
+            {/* Next */}
+            {images.length > 1 && (
+              <button
+                className="absolute right-4 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+                onClick={(e) => { e.stopPropagation(); setLightboxIndex(i => i !== null ? (i + 1) % images.length : null) }}
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Similar establishments */}
-      {similarEstablishments.length > 0 && (
+      {(similairesLoading || similaires.length > 0) && (
         <div className="bg-white border-t border-gray-100 py-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-2xl font-bold text-dark mb-8">Établissements similaires</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {similarEstablishments.slice(0, 3).map((e, i) => (
-                <EstablishmentCard key={e.id} establishment={e} index={i} />
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {similairesLoading
+                ? [...Array(4)].map((_, i) => (
+                    <div key={i} className="bg-gray-100 rounded-2xl overflow-hidden animate-pulse">
+                      <div className="h-48 bg-gray-200" />
+                      <div className="p-4 space-y-2">
+                        <div className="h-4 bg-gray-200 rounded w-3/4" />
+                        <div className="h-3 bg-gray-200 rounded w-1/2" />
+                      </div>
+                    </div>
+                  ))
+                : similaires.map((e, i) => (
+                    <EstablishmentCard key={e.id} establishment={e} index={i} />
+                  ))
+              }
             </div>
           </div>
         </div>

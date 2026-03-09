@@ -24,17 +24,25 @@ export const explorerViewModel = (): IExplorerViewModel => {
   const lng         = urlParams.get('lng') ? parseFloat(urlParams.get('lng')!) : undefined
   const page        = parseInt(urlParams.get('page') || '1')
 
-  // Use the smart search endpoint for all filtered queries (categorie, quickFilter, text)
-  // "Tous" (categorie='') falls back to getAll to load everything
-  const shouldUseSearch = !!(quickFilter || q || categorie)
+  // Resolve human-readable labels from UUID values (needed for search query pattern)
+  const categorieLabel = categorie
+    ? (categories.find((c: any) => c.value === categorie)?.label ?? '').toLowerCase()
+    : ''
+  const neighborhoodLabel = neighborhood
+    ? (quartiers.find((n: any) => n.value === neighborhood)?.label ?? '').toLowerCase()
+    : ''
+
+  // Use search endpoint when quickFilter (ouvert, proche…) or free-text q is active.
+  // Category alone → getAll with ?categorie=<UUID>.
+  // Category + ouvert/q → search with colon pattern: restaurant:ouvert:poto-poto
+  const shouldUseSearch = !!(quickFilter || q)
 
   const buildSearchQ = (): string => {
-    // Compose colon-separated pattern: categorie:ouvert:quartier
+    // Build colon-separated pattern: <categorie>:<quickFilter>:<quartier>
     const parts: string[] = []
-    if (categorie && categorie !== 'all') parts.push(categorie)
+    if (categorieLabel) parts.push(categorieLabel)
     if (quickFilter === 'ouvert') parts.push('ouvert')
-    // neighborhood only appended when a category is already set (pattern requirement)
-    if (neighborhood && categorie) parts.push(neighborhood)
+    if (neighborhoodLabel && categorieLabel) parts.push(neighborhoodLabel)
 
     if (parts.length > 0) {
       let composed = parts.join(':')
@@ -42,7 +50,7 @@ export const explorerViewModel = (): IExplorerViewModel => {
       return composed
     }
 
-    // Standalone quick filter keywords (gratuit, aujourd'hui, pas cher, luxe, proche)
+    // Standalone quick filter (proche, etc.)
     if (quickFilter) return quickFilter
 
     // Plain text search
@@ -64,7 +72,7 @@ export const explorerViewModel = (): IExplorerViewModel => {
       if (ordering) params.ordering = ordering
       getAll(params)
     }
-  }, [q, categorie, neighborhood, minRating, ordering, page, quickFilter, lat, lng])
+  }, [q, categorie, neighborhood, minRating, ordering, page, quickFilter, lat, lng, categorieLabel, neighborhoodLabel])
 
   return { establishments, categories, quartiers, status, totalCount, totalPages }
 }
