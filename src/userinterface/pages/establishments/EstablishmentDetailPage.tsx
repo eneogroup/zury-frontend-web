@@ -1,3 +1,6 @@
+import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Star, MapPin, Phone, Clock, Calendar, Video, Info, Navigation, ArrowLeft, ChevronLeft, ChevronRight, X, MessageSquare, Send, Users, ChevronDown, CheckCircle2, Loader2, Utensils, ShoppingBag, Plus, Minus, Trash2 } from 'lucide-react'
 import { useSelector, useDispatch } from 'react-redux'
 import type { RootState } from '../../../store/store'

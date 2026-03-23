@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { Calendar, MapPin, Users, Clock, ArrowLeft, Ticket, Phone, ExternalLink, X, Plus, Minus, Loader2, CheckCircle2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSelector } from 'react-redux'

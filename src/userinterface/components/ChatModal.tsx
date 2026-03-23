@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { MessageSquare, Send, X, User, Check, CheckCheck } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useWebSocket } from '../../../service/hooks/useWebSocket'
-import { cn } from '../../../service/utils/cn'
+import { useWebSocket } from '../../service/hooks/useWebSocket'
+import { cn } from '../../service/utils/cn'
 
 interface Message {
   id: string

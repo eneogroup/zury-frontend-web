@@ -53,17 +53,17 @@ export const apiSlice = createApi({
       }),
     }),
     getUserFavorites: builder.query<any, void>({
-      query: () => '/api/v1/me/favoris/',
+      query: () => '/api/v1/me/favorites/',
     }),
     toggleEstablishmentFavorite: builder.mutation<any, string>({
       query: (id) => ({
-        url: `/api/v1/etablissements/${id}/favori/`,
+        url: `/api/v1/etablissements/${id}/favorite/`,
         method: 'POST',
       }),
     }),
     toggleEventFavorite: builder.mutation<any, string>({
       query: (id) => ({
-        url: `/api/v1/events/${id}/favori/`,
+        url: `/api/v1/events/${id}/favorite/`,
         method: 'POST',
       }),
     }),

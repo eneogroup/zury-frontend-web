@@ -1,3 +1,6 @@
+import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import { User, Mail, Shield, Save, Loader2, Camera, History, Calendar, MapPin, Ticket, Clock, CheckCircle2, ChevronRight, Users, ShoppingBag, Award, Headphones } from 'lucide-react'
 import { useGetUserProfileQuery, useUpdateUserProfileMutation, useGetUserHistoryQuery, useGetUserTableReservationsQuery, useGetUserEventBookingsQuery, useGetUserOrdersQuery } from '../../../store/apiSlice'
 import { cn } from '../../../service/utils/cn'
