@@ -14,6 +14,8 @@ import { CartePage } from './userinterface/pages/carte/CartePage'
 import { EneoAcademyPage } from './userinterface/pages/eneo-academy/EneoAcademyPage'
 import { JoinZuryPage } from './userinterface/pages/rejoindre-zury/JoinZuryPage'
 import { FavoritesPage } from './userinterface/pages/favoris/FavoritesPage'
+import { UserProfilePage } from './userinterface/pages/profil/UserProfilePage'
+import { ProtectedRoute } from './userinterface/pages/shared/ui/ProtectedRoute'
 import ScrollToTop from './service/utils/ScrollToTop'
 import { KeycloakService } from './service/auth/KeycloakService'
 
@@ -40,6 +42,7 @@ function App() {
                 <Route path="/eneo-academy" element={<EneoAcademyPage />} />
                 <Route path="/rejoindre-zury" element={<JoinZuryPage />} />
                 <Route path="/favoris" element={<FavoritesPage />} />
+                <Route path="/profil" element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />
               </Routes>
             </main>
             <Footer />

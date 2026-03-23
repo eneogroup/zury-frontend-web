@@ -4,6 +4,7 @@ import { eventSlice } from '../domain/usecase/event.usecase'
 import { categorySlice } from '../domain/usecase/category.usecase'
 import { apiSlice } from './apiSlice'
 import authReducer from './authSlice'
+import cartReducer from './cartSlice'
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     event: eventSlice.reducer,
     category: categorySlice.reducer,
     auth: authReducer,
+    cart: cartReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(apiSlice.middleware),

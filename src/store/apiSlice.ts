@@ -42,6 +42,83 @@ export const apiSlice = createApi({
         body: payload,
       }),
     }),
+    getUserProfile: builder.query<any, void>({
+      query: () => '/api/v1/me/',
+    }),
+    updateUserProfile: builder.mutation<any, any>({
+      query: (payload) => ({
+        url: '/api/v1/me/',
+        method: 'PATCH',
+        body: payload,
+      }),
+    }),
+    getUserFavorites: builder.query<any, void>({
+      query: () => '/api/v1/me/favoris/',
+    }),
+    toggleEstablishmentFavorite: builder.mutation<any, string>({
+      query: (id) => ({
+        url: `/api/v1/etablissements/${id}/favori/`,
+        method: 'POST',
+      }),
+    }),
+    toggleEventFavorite: builder.mutation<any, string>({
+      query: (id) => ({
+        url: `/api/v1/events/${id}/favori/`,
+        method: 'POST',
+      }),
+    }),
+    getUserHistory: builder.query<any, void>({
+      query: () => '/api/v1/me/history/',
+    }),
+    addReview: builder.mutation<any, { id: string; note: number; commentaire: string }>({
+      query: ({ id, ...body }) => ({
+        url: `/api/v1/establishments/${id}/reviews/`,
+        method: 'POST',
+        body,
+      }),
+    }),
+    deleteReview: builder.mutation<any, string>({
+      query: (reviewId) => ({
+        url: `/api/v1/reviews/${reviewId}/`,
+        method: 'DELETE',
+      }),
+    }),
+    bookEvent: builder.mutation<any, { eventId: string; nombre_places: number }>({
+      query: ({ eventId, ...body }) => ({
+        url: `/api/v1/events/${eventId}/book/`,
+        method: 'POST',
+        body,
+      }),
+    }),
+    bookTable: builder.mutation<any, { estId: string; date: string; heure: string; nombre_personnes: number; notes: string }>({
+      query: ({ estId, ...body }) => ({
+        url: `/api/v1/establishments/${estId}/table-reservations/`,
+        method: 'POST',
+        body,
+      }),
+    }),
+    getUserTableReservations: builder.query<any, void>({
+      query: () => '/api/v1/me/table-reservations/',
+    }),
+    getUserEventBookings: builder.query<any, void>({
+      query: () => '/api/v1/me/bookings/',
+    }),
+    createOrder: builder.mutation<any, { estId: string; items: any[]; total: number; adresse_livraison?: string }>({
+      query: ({ estId, ...body }) => ({
+        url: `/api/v1/establishments/${estId}/orders/`,
+        method: 'POST',
+        body,
+      }),
+    }),
+    getOrderDetails: builder.query<any, string>({
+      query: (orderId) => `/api/v1/orders/${orderId}/`,
+    }),
+    getUserOrders: builder.query<any, void>({
+      query: () => '/api/v1/me/orders/',
+    }),
+    getMenus: builder.query<any, string>({
+      query: (estId) => `/api/v1/establishments/${estId}/menus/`,
+    }),
   }),
 })
 
@@ -53,4 +130,20 @@ export const {
   useGetSimilarEstablishmentsQuery,
   useSearchGlobalQuery,
   useTrackViewMutation,
+  useGetUserProfileQuery,
+  useUpdateUserProfileMutation,
+  useGetUserFavoritesQuery,
+  useToggleEstablishmentFavoriteMutation,
+  useToggleEventFavoriteMutation,
+  useGetUserHistoryQuery,
+  useAddReviewMutation,
+  useDeleteReviewMutation,
+  useBookEventMutation,
+  useBookTableMutation,
+  useGetUserTableReservationsQuery,
+  useGetUserEventBookingsQuery,
+  useCreateOrderMutation,
+  useGetOrderDetailsQuery,
+  useGetUserOrdersQuery,
+  useGetMenusQuery,
 } = apiSlice

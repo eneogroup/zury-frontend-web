@@ -9,9 +9,11 @@ const keycloakConfig = {
 }
 
 const keycloak = new Keycloak(keycloakConfig)
+let isKeycloakInitialized = false
 
 export const KeycloakService = {
   init: async () => {
+    if (isKeycloakInitialized) return keycloak.authenticated
     try {
       const authenticated = await keycloak.init({
         onLoad: 'check-sso',
@@ -23,6 +25,8 @@ export const KeycloakService = {
       if (authenticated) {
         KeycloakService.updateReduxState()
       }
+      
+      isKeycloakInitialized = true
       
       // Handle automatic token refresh
       keycloak.onTokenExpired = () => {

@@ -120,22 +120,24 @@ export default function Header() {
             </div>
 
             {/* Favorites button */}
-            <Link
-              to="/favoris"
-              className={cn(
-                'hidden md:flex items-center justify-center w-10 h-10 rounded-full transition-all relative',
-                location.pathname === '/favoris'
-                  ? 'bg-red-500/20 text-red-400'
-                  : 'text-white/60 hover:text-white hover:bg-white/10'
-              )}
-            >
-              <Heart className={cn('w-4 h-4', location.pathname === '/favoris' && 'fill-red-400')} />
-              {favorites.length > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
-                  {favorites.length > 9 ? '9+' : favorites.length}
-                </span>
-              )}
-            </Link>
+            {isAuthenticated && (
+              <Link
+                to="/favoris"
+                className={cn(
+                  'hidden md:flex items-center justify-center w-10 h-10 rounded-full transition-all relative',
+                  location.pathname === '/favoris'
+                    ? 'bg-red-500/20 text-red-400'
+                    : 'text-white/60 hover:text-white hover:bg-white/10'
+                )}
+              >
+                <Heart className={cn('w-4 h-4', location.pathname === '/favoris' && 'fill-red-400')} />
+                {favorites.length > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                    {favorites.length > 9 ? '9+' : favorites.length}
+                  </span>
+                )}
+              </Link>
+            )}
 
             {/* CTA button (Auth) */}
             {isAuthenticated ? (
@@ -197,18 +199,20 @@ export default function Header() {
                   {item.name}
                 </Link>
               ))}
-              <Link to="/favoris" onClick={() => setMobileMenuOpen(false)}
-                className={cn('flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors',
-                  location.pathname === '/favoris' ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/10 hover:text-white'
-                )}>
-                <Heart className="w-4 h-4" />
-                Mes favoris
-                {favorites.length > 0 && (
-                  <span className="ml-auto bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                    {favorites.length}
-                  </span>
-                )}
-              </Link>
+              {isAuthenticated && (
+                <Link to="/favoris" onClick={() => setMobileMenuOpen(false)}
+                  className={cn('flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors',
+                    location.pathname === '/favoris' ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/10 hover:text-white'
+                  )}>
+                  <Heart className="w-4 h-4" />
+                  Mes favoris
+                  {favorites.length > 0 && (
+                    <span className="ml-auto bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                      {favorites.length}
+                    </span>
+                  )}
+                </Link>
+              )}
               {isAuthenticated ? (
                 <button onClick={() => KeycloakService.logout()} className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-white/10 transition-colors text-left">
                   <LogOut className="w-4 h-4" />
