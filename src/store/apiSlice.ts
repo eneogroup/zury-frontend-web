@@ -1,10 +1,21 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import type { RootState } from './store'
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'https://zury-backend-production.up.railway.app'
 
 export const apiSlice = createApi({
   reducerPath: 'api',
-  baseQuery: fetchBaseQuery({ baseUrl: BASE_URL }),
+  baseQuery: fetchBaseQuery({ 
+    baseUrl: BASE_URL,
+    prepareHeaders: (headers, { getState }) => {
+      // By default, if we have a token in the store, let's use that for authenticated requests
+      const token = (getState() as RootState).auth?.token
+      if (token) {
+        headers.set('authorization', `Bearer ${token}`)
+      }
+      return headers
+    },
+  }),
   endpoints: (builder) => ({
     getEstablishments: builder.query<any, any>({
       query: (params) => ({ url: '/api/v1/etablissements/', params }),

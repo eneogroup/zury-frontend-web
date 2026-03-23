@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import { HelmetProvider } from 'react-helmet-async'
@@ -14,8 +15,13 @@ import { EneoAcademyPage } from './userinterface/pages/eneo-academy/EneoAcademyP
 import { JoinZuryPage } from './userinterface/pages/rejoindre-zury/JoinZuryPage'
 import { FavoritesPage } from './userinterface/pages/favoris/FavoritesPage'
 import ScrollToTop from './service/utils/ScrollToTop'
+import { KeycloakService } from './service/auth/KeycloakService'
 
 function App() {
+  useEffect(() => {
+    KeycloakService.init()
+  }, [])
+
   return (
     <HelmetProvider>
       <Provider store={store}>

@@ -48,23 +48,22 @@ const QUICK_FILTERS = [
     hoverClass: "hover:border-green-300 hover:text-green-700 hover:bg-green-50",
   },
 
-  // {
-  //   id: "pas cher",
-  //   label: "Pas cher",
-  //   Icon: Tag,
-  //   activeClass: "bg-orange-500 text-white border-orange-500",
-  //   hoverClass:
-  //     "hover:border-orange-300 hover:text-orange-700 hover:bg-orange-50",
-  // },
-
-  // {
-  //   id: "luxe",
-  //   label: "Luxe",
-  //   Icon: Award,
-  //   activeClass: "bg-purple-500 text-white border-purple-500",
-  //   hoverClass:
-  //     "hover:border-purple-300 hover:text-purple-700 hover:bg-purple-50",
-  // },
+  {
+    id: "pas cher",
+    label: "Pas cher",
+    Icon: Tag,
+    activeClass: "bg-orange-500 text-white border-orange-500",
+    hoverClass:
+      "hover:border-orange-300 hover:text-orange-700 hover:bg-orange-50",
+  },
+  {
+    id: "luxe",
+    label: "Luxe",
+    Icon: Award,
+    activeClass: "bg-purple-500 text-white border-purple-500",
+    hoverClass:
+      "hover:border-purple-300 hover:text-purple-700 hover:bg-purple-50",
+  },
   {
     id: "proche",
     label: "Proche de moi",

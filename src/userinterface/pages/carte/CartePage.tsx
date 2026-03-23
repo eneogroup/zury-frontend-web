@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { MapPin, Search, Navigation, Star, X } from 'lucide-react'
+import { MapPin, Search, Navigation, Star, X, LocateFixed, Loader2 } from 'lucide-react'
 import DI from '../../../di/ioc'
 
 // Fix Leaflet default marker icons (Vite/webpack asset issue)
@@ -57,6 +57,20 @@ export const CartePage = () => {
   const [searchQ, setSearchQ]               = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
   const [flyTarget, setFlyTarget]           = useState<[number, number] | null>(null)
+  const [geoLoading, setGeoLoading]         = useState(false)
+
+  const locateMe = () => {
+    if (!navigator.geolocation) return
+    setGeoLoading(true)
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setGeoLoading(false)
+        setFlyTarget([pos.coords.latitude, pos.coords.longitude])
+      },
+      () => setGeoLoading(false),
+      { timeout: 10000 }
+    )
+  }
 
   const filtered = establishments.filter((e: any) => {
     const matchQ   = !searchQ || e.name.toLowerCase().includes(searchQ.toLowerCase()) ||
@@ -256,6 +270,16 @@ export const CartePage = () => {
               </Marker>
             ))}
           </MapContainer>
+
+          {/* GPS Locator */}
+          <button
+            onClick={locateMe}
+            disabled={geoLoading}
+            className="absolute top-4 right-4 z-[1000] w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-dark hover:text-primary transition-all active:scale-95 border border-gray-100 disabled:opacity-75"
+            title="Ma position"
+          >
+            {geoLoading ? <Loader2 className="w-5 h-5 animate-spin text-primary" /> : <LocateFixed className="w-5 h-5" />}
+          </button>
 
           {/* Legend */}
           <div className="absolute bottom-6 right-4 bg-white rounded-xl p-3 shadow-md border border-gray-100 z-[1000]">

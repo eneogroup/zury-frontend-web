@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Search, Menu, X, Heart } from 'lucide-react'
+import { Search, Menu, X, Heart, LogOut, User } from 'lucide-react'
+import { useSelector } from 'react-redux'
+import type { RootState } from '../../store/store'
+import { KeycloakService } from '../../service/auth/KeycloakService'
 import { cn } from '../../service/utils/cn'
 import { useFavorites } from '../../service/hooks/useFavorites'
 
@@ -19,6 +22,7 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const { favorites } = useFavorites()
+  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth)
 
   const isHome = location.pathname === '/'
 
@@ -133,13 +137,33 @@ export default function Header() {
               )}
             </Link>
 
-            {/* CTA button */}
-            <Link
-              to="/rejoindre-zury"
-              className="hidden md:flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-white text-sm font-semibold rounded-full transition-all duration-200 hover:shadow-ember"
-            >
-              Rejoindre
-            </Link>
+            {/* CTA button (Auth) */}
+            {isAuthenticated ? (
+              <div className="hidden md:flex items-center gap-3">
+                <Link to="/profil" className="flex items-center gap-2 group">
+                  <div className="w-9 h-9 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-white/20 transition">
+                    <User className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="flex flex-col items-start hidden lg:flex">
+                    <span className="text-white text-sm font-medium leading-none">{user?.firstName || user?.username}</span>
+                  </div>
+                </Link>
+                <button
+                  onClick={() => KeycloakService.logout()}
+                  className="w-9 h-9 flex items-center justify-center text-white/60 hover:text-red-400 hover:bg-white/10 rounded-full transition-all"
+                  title="Se déconnecter"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => KeycloakService.login()}
+                className="hidden md:flex items-center gap-2 px-5 py-2 min-h-10 bg-primary hover:bg-primary/90 text-white text-sm font-semibold rounded-full transition-all duration-200 hover:shadow-ember"
+              >
+                Se connecter
+              </button>
+            )}
 
             {/* Mobile menu toggle */}
             <button
@@ -185,6 +209,17 @@ export default function Header() {
                   </span>
                 )}
               </Link>
+              {isAuthenticated ? (
+                <button onClick={() => KeycloakService.logout()} className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-white/10 transition-colors text-left">
+                  <LogOut className="w-4 h-4" />
+                  Se déconnecter
+                </button>
+              ) : (
+                <button onClick={() => KeycloakService.login()} className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-primary hover:bg-white/10 transition-colors text-left border-t border-white/10 mt-2">
+                  <User className="w-4 h-4" />
+                  Se connecter
+                </button>
+              )}
             </div>
           </div>
         )}
