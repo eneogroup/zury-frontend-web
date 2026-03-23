@@ -10,6 +10,7 @@ import {
 import { CountUp } from '../shared/ui/CountUp'
 import type { RootState, AppDispatch } from '../../../store/store'
 import { getGlobalStats, getCategories, getQuartiers } from '../../../domain/usecase/category.usecase'
+import SEO from '../shared/ui/SEO'
 
 /* ── Constants ───────────────────────────────────────────────────────────── */
 const benefits = [
@@ -497,7 +498,10 @@ export const JoinZuryPage = () => {
 
   return (
     <div className="min-h-screen bg-light">
-
+      <SEO 
+        title="Inscrire mon établissement - Zury Congo" 
+        description="Rejoignez Zury Congo et augmentez votre visibilité auprès de milliers d'utilisateurs à Brazzaville et Pointe-Noire. Inscription 100% gratuite."
+      />
       {/* Hero */}
       <section className="relative bg-gradient-to-br from-dark via-dark/95 to-primary/20 text-white py-20 overflow-hidden">
         <div className="absolute inset-0 opacity-10 pointer-events-none">

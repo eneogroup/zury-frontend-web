@@ -8,6 +8,7 @@ import DI from '../../../di/ioc'
 import type { IEstablishmentDetailViewModel } from '../../../service/interface/establishment.viewmodel.interface'
 import EstablishmentCard from '../shared/ui/EstablishmentCard'
 import EventCard from '../shared/ui/EventCard'
+import SEO from '../shared/ui/SEO'
 import { transformEvent, transformEstablishment } from '../../../service/utils/apiTransformers'
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'https://zury-backend-production.up.railway.app'
@@ -121,6 +122,13 @@ export const EstablishmentDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-light">
+      <SEO 
+        title={`${est.name} - Zury Congo`} 
+        description={est.description || `Découvrez ${est.name} à ${est.neighborhood}.`}
+        image={coverImage || 'https://zury-web.vercel.app/logo.png'}
+        url={`https://zury-web.vercel.app/establishments/${est.id}`}
+      />
+      
       {/* Breadcrumb bar */}
       <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">

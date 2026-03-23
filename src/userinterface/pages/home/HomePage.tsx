@@ -11,6 +11,7 @@ import EstablishmentCard from '../shared/ui/EstablishmentCard'
 import EventCard from '../shared/ui/EventCard'
 import EstablishmentCardSkeleton from '../shared/ui/EstablishmentCardSkeleton'
 import EventCardSkeleton from '../shared/ui/EventCardSkeleton'
+import SEO from '../shared/ui/SEO'
 import type { IHomeViewModel } from '../../../service/interface/home.viewmodel.interface'
 
 /* ── Hero images ─────────────────────────────────────────────────────────── */
@@ -81,14 +82,18 @@ function Hero({ stats }: { stats: any }) {
           Brazzaville &amp; Pointe-Noire
         </motion.p>
 
-        {/* Title */}
-        <motion.h1
+        {/* Visually hidden but semantically correct H1 for SEO */}
+        <h1 className="sr-only">Zury Congo - Le Guide Ultime pour Sortir à Brazzaville et Pointe-Noire</h1>
+
+        {/* Visual Title */}
+        <motion.div
+          role="heading" aria-level={2}
           initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
           className="font-display text-[clamp(3rem,8vw,6rem)] font-bold text-white leading-[0.92] tracking-tight mb-7 max-w-2xl">
           Où voulez‑vous<br />
           <span className="text-transparent bg-clip-text bg-ember-gradient italic">sortir&nbsp;?</span>
-        </motion.h1>
+        </motion.div>
 
         {/* Sub */}
         <motion.p
@@ -322,6 +327,7 @@ export const HomePage = () => {
 
   return (
     <>
+      <SEO title="Zury Congo - Le Guide Ultime pour Sortir à Brazzaville et Pointe-Noire" />
       <Hero stats={stats} />
 
       <div className="bg-light">
