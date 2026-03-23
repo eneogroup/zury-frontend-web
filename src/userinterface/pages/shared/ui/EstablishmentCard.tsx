@@ -1,8 +1,10 @@
 import { MapPin, Star, ArrowRight, Heart } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useRef, useEffect } from 'react'
 import { useFavorites } from '../../../../service/hooks/useFavorites'
-import { useOpenStatus } from '../../../../service/hooks/useOpenStatus'
+import { EstablishmentGateway } from '../../../../infrastructure/gateways/establishment.gateway'
+import { getDeviceId } from '../../../../service/utils/deviceId'
 
 const CATEGORY_CONFIG: Record<string, { dot: string; badge: string; label: string }> = {
   restaurant: { dot: 'bg-primary', badge: 'bg-primary/10 text-primary', label: 'Restaurant' },
@@ -22,6 +24,7 @@ interface EstablishmentCardProps {
     reviewCount: number
     imageUrl: string
     isPremium?: boolean
+    isOpen?: boolean
   }
   index?: number
   showOpenStatus?: boolean
@@ -31,7 +34,7 @@ interface EstablishmentCardProps {
 export default function EstablishmentCard({ establishment, index = 0, showOpenStatus = false, source = 'direct' }: EstablishmentCardProps) {
   const cfg = CATEGORY_CONFIG[establishment.category] ?? CATEGORY_CONFIG.restaurant
   const { isFavorite, toggleFavorite } = useFavorites()
-  const { status: openStatus } = useOpenStatus(establishment.id, showOpenStatus)
+  const openStatus = establishment.isOpen === true ? 'open' : establishment.isOpen === false ? 'closed' : 'unknown'
   const fav = isFavorite(establishment.id)
 
   const handleFavorite = (e: React.MouseEvent) => {
@@ -47,8 +50,33 @@ export default function EstablishmentCard({ establishment, index = 0, showOpenSt
     })
   }
 
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          try {
+            new EstablishmentGateway().trackView({
+              etablissement: establishment.id,
+              device_id: getDeviceId(),
+              duree_consultation: 0,
+              source: source,
+            });
+          } catch (e) {}
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    if (cardRef.current) observer.observe(cardRef.current);
+    return () => observer.disconnect();
+  }, [establishment.id, source]);
+
   return (
     <motion.div
+      ref={cardRef}
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, delay: index * 0.06, ease: [0.16, 1, 0.3, 1] }}

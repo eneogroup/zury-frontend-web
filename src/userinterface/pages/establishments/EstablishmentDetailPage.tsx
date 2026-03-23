@@ -8,7 +8,6 @@ import DI from '../../../di/ioc'
 import type { IEstablishmentDetailViewModel } from '../../../service/interface/establishment.viewmodel.interface'
 import EstablishmentCard from '../shared/ui/EstablishmentCard'
 import EventCard from '../shared/ui/EventCard'
-import { useOpenStatus } from '../../../service/hooks/useOpenStatus'
 import { transformEvent, transformEstablishment } from '../../../service/utils/apiTransformers'
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'https://zury-backend-production.up.railway.app'
@@ -24,7 +23,7 @@ export const EstablishmentDetailPage = () => {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const [similaires, setSimilaires] = useState<any[]>([])
   const [similairesLoading, setSimilairesLoading] = useState(true)
-  const { status: openStatus } = useOpenStatus(est?.id ?? '', !!est?.id)
+  const openStatus = est?.isOpen === true ? 'open' : est?.isOpen === false ? 'closed' : 'unknown'
 
   const images: string[] = est?.images && est.images.length > 0
     ? est.images

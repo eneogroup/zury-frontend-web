@@ -1,11 +1,10 @@
-import axios from 'axios'
 import { SingletonMixin } from '../../service/utils/singleton.mixin'
-
-const BASE_URL = import.meta.env.VITE_API_URL || 'https://zury-backend-production.up.railway.app'
+import { store } from '../../store/store'
+import { apiSlice } from '../../store/apiSlice'
 
 export class EstablishmentGateway extends SingletonMixin() {
-  private async handleResponse(response: any) {
-    const json = response.data
+  private async handleResponse(responseData: any) {
+    const json = responseData
     if (json.success && json.data !== undefined) return json.data
     return json
   }
@@ -20,8 +19,8 @@ export class EstablishmentGateway extends SingletonMixin() {
     ordering?: string
   }) {
     try {
-      const response = await axios.get(`${BASE_URL}/api/v1/etablissements/`, { params })
-      return { data: await this.handleResponse(response), error: null }
+      const result = await store.dispatch(apiSlice.endpoints.getEstablishments.initiate(params)).unwrap()
+      return { data: await this.handleResponse(result), error: null }
     } catch (error) {
       return { error, data: null }
     }
@@ -29,8 +28,8 @@ export class EstablishmentGateway extends SingletonMixin() {
 
   async getFeatured() {
     try {
-      const response = await axios.get(`${BASE_URL}/api/v1/etablissements/featured/`)
-      const data = await this.handleResponse(response)
+      const result = await store.dispatch(apiSlice.endpoints.getFeaturedEstablishments.initiate()).unwrap()
+      const data = await this.handleResponse(result)
       return { data: Array.isArray(data) ? { results: data } : data, error: null }
     } catch (error) {
       return { error, data: null }
@@ -39,8 +38,8 @@ export class EstablishmentGateway extends SingletonMixin() {
 
   async getRecent() {
     try {
-      const response = await axios.get(`${BASE_URL}/api/v1/etablissements/recents/`)
-      const data = await this.handleResponse(response)
+      const result = await store.dispatch(apiSlice.endpoints.getRecentEstablishments.initiate()).unwrap()
+      const data = await this.handleResponse(result)
       return { data: Array.isArray(data) ? { results: data } : data, error: null }
     } catch (error) {
       return { error, data: null }
@@ -49,8 +48,8 @@ export class EstablishmentGateway extends SingletonMixin() {
 
   async getById(id: string) {
     try {
-      const response = await axios.get(`${BASE_URL}/api/v1/etablissements/${id}/`)
-      return { data: await this.handleResponse(response), error: null }
+      const result = await store.dispatch(apiSlice.endpoints.getEstablishmentById.initiate(id)).unwrap()
+      return { data: await this.handleResponse(result), error: null }
     } catch (error) {
       return { error, data: null }
     }
@@ -58,8 +57,8 @@ export class EstablishmentGateway extends SingletonMixin() {
 
   async getSimilar(id: string) {
     try {
-      const response = await axios.get(`${BASE_URL}/api/v1/etablissements/${id}/similaires/?limit=8`)
-      return { data: await this.handleResponse(response), error: null }
+      const result = await store.dispatch(apiSlice.endpoints.getSimilarEstablishments.initiate(id)).unwrap()
+      return { data: await this.handleResponse(result), error: null }
     } catch (error) {
       return { error, data: null }
     }
@@ -70,17 +69,19 @@ export class EstablishmentGateway extends SingletonMixin() {
       const params: any = { q }
       if (lat !== undefined) params.latitude = lat
       if (lng !== undefined) params.longitude = lng
-      const response = await axios.get(`${BASE_URL}/api/v1/search/`, { params })
-      return { data: await this.handleResponse(response), error: null }
+      const result = await store.dispatch(apiSlice.endpoints.searchGlobal.initiate(params)).unwrap()
+      return { data: await this.handleResponse(result), error: null }
     } catch (error) {
       return { error, data: null }
     }
   }
 
   async getOpenStatus(id: string) {
+    // This is generally unused now but preserved for interface compatibility.
+    // The open status is fetched natively via the EtablissementListSerializer now!
     try {
-      const response = await axios.get(`${BASE_URL}/api/v1/etablissements/${id}/statut-ouverture/`)
-      return { data: await this.handleResponse(response), error: null }
+      const result = await store.dispatch(apiSlice.endpoints.getEstablishmentById.initiate(id)).unwrap()
+      return { data: await this.handleResponse(result), error: null }
     } catch (error) {
       return { error, data: null }
     }
@@ -93,7 +94,7 @@ export class EstablishmentGateway extends SingletonMixin() {
     source: string
   }) {
     try {
-      await axios.post(`${BASE_URL}/api/v1/tracking/vue-etablissement/`, payload)
+      await store.dispatch(apiSlice.endpoints.trackView.initiate(payload)).unwrap()
     } catch {
       // Silently fail — tracking should never block the UI
     }

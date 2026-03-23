@@ -19,6 +19,7 @@ export function transformEstablishment(item: any) {
     latitude: item.latitude ? parseFloat(String(item.latitude)) : undefined,
     longitude: item.longitude ? parseFloat(String(item.longitude)) : undefined,
     isPremium: item.est_featured || false,
+    isOpen: item.est_ouvert,
   }
 }
 
