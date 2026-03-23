@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import type { RootState } from './store'
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'https://zury-backend-production.up.railway.app'
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://api-zury.eneogroup.site'
 
 export const apiSlice = createApi({
   reducerPath: 'api',
@@ -70,11 +70,11 @@ export const apiSlice = createApi({
     getUserHistory: builder.query<any, void>({
       query: () => '/api/v1/me/history/',
     }),
-    addReview: builder.mutation<any, { id: string; note: number; commentaire: string }>({
-      query: ({ id, ...body }) => ({
+    addReview: builder.mutation<any, { id: string; rating: number; comment: string }>({
+      query: ({ id, rating, comment }) => ({
         url: `/api/v1/establishments/${id}/reviews/`,
         method: 'POST',
-        body,
+        body: { rating, comment },
       }),
     }),
     deleteReview: builder.mutation<any, string>({
@@ -119,6 +119,19 @@ export const apiSlice = createApi({
     getMenus: builder.query<any, string>({
       query: (estId) => `/api/v1/establishments/${estId}/menus/`,
     }),
+    getConversations: builder.query<any, void>({
+      query: () => '/api/v1/me/conversations/',
+    }),
+    startConversation: builder.mutation<any, string>({
+      query: (etablissement_id) => ({
+        url: '/api/v1/me/conversations/',
+        method: 'POST',
+        body: { etablissement_id },
+      }),
+    }),
+    getConversationMessages: builder.query<any, string>({
+      query: (conversation_id) => `/api/v1/me/conversations/${conversation_id}/messages/`,
+    }),
   }),
 })
 
@@ -146,4 +159,7 @@ export const {
   useGetOrderDetailsQuery,
   useGetUserOrdersQuery,
   useGetMenusQuery,
+  useGetConversationsQuery,
+  useStartConversationMutation,
+  useGetConversationMessagesQuery,
 } = apiSlice

@@ -8,8 +8,13 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isInitialized } = useSelector((state: RootState) => state.auth)
 
   useEffect(() => {
-    if (isInitialized && !isAuthenticated) {
-      KeycloakService.login({ redirectUri: window.location.href })
+    // Avoid triggering login if we just came back from Keycloak or if we are already authenticated
+    const hasCode = window.location.href.includes('code=') || window.location.href.includes('state=')
+    
+    if (isInitialized && !isAuthenticated && !hasCode) {
+      // Use origin + pathname to avoid redirect loops with fragments
+      const redirectUri = window.location.origin + window.location.pathname
+      KeycloakService.login({ redirectUri })
     }
   }, [isInitialized, isAuthenticated])
 

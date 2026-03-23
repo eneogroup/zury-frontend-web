@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Star, MapPin, Phone, Clock, Calendar, Video, Info, Navigation, ArrowLeft, ChevronLeft, ChevronRight, X, MessageSquare, Send, Users, ChevronDown, CheckCircle2, Loader2, Utensils, ShoppingBag, Plus, Minus, Trash2 } from 'lucide-react'
 import { useSelector, useDispatch } from 'react-redux'
 import type { RootState } from '../../../store/store'
-import { useAddReviewMutation, useBookTableMutation, useGetMenusQuery, useCreateOrderMutation } from '../../../store/apiSlice'
+import { useAddReviewMutation, useBookTableMutation, useGetMenusQuery, useCreateOrderMutation, useStartConversationMutation } from '../../../store/apiSlice'
 import { addToCart, removeFromCart, updateQuantity, clearCart } from '../../../store/cartSlice'
 import { KeycloakService } from '../../../service/auth/KeycloakService'
 import { ChatModal } from '../../components/ChatModal'
@@ -17,7 +17,7 @@ import EventCard from '../shared/ui/EventCard'
 import SEO from '../shared/ui/SEO'
 import { transformEvent, transformEstablishment } from '../../../service/utils/apiTransformers'
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'https://zury-backend-production.up.railway.app'
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://api-zury.eneogroup.site'
 
 type TabType = 'tout' | 'apropos' | 'photos' | 'videos' | 'evenements' | 'avis' | 'menu'
 
@@ -41,6 +41,7 @@ export const EstablishmentDetailPage = () => {
   const [bookTable, { isLoading: isBookingTable }] = useBookTableMutation()
   const { data: menuData, isLoading: isMenuLoading } = useGetMenusQuery(est?.id || '', { skip: !est?.id || activeTab !== 'menu' })
   const [createOrder, { isLoading: isOrdering }] = useCreateOrderMutation()
+  const [startConversation, { isLoading: isStartingConv }] = useStartConversationMutation()
 
   const [reviewNote, setReviewNote] = useState(5)
   const [reviewComment, setReviewComment] = useState('')
@@ -48,6 +49,7 @@ export const EstablishmentDetailPage = () => {
   const [reservationModalOpen, setReservationModalOpen] = useState(false)
   const [orderModalOpen, setOrderModalOpen] = useState(false)
   const [chatModalOpen, setChatModalOpen] = useState(false)
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null)
   const [bookingSuccess, setBookingSuccess] = useState(false)
   const [orderSuccess, setOrderSuccess] = useState(false)
   const [orderAddress, setOrderAddress] = useState('')
@@ -127,7 +129,11 @@ export const EstablishmentDetailPage = () => {
     e.preventDefault()
     if (!est?.id || !reviewComment.trim()) return
     try {
-      await addReview({ id: est.id, note: reviewNote, commentaire: reviewComment }).unwrap()
+      await addReview({ 
+        id: est.id, 
+        rating: reviewNote, 
+        comment: reviewComment 
+      }).unwrap()
       setReviewComment('')
       setReviewNote(5)
       fetchReviews() // Reload reviews seamlessly
@@ -293,11 +299,24 @@ export const EstablishmentDetailPage = () => {
                   Réserver une table
                 </button>
                 <button 
-                  onClick={() => setChatModalOpen(true)}
-                  className="flex items-center justify-center gap-2 px-6 py-2.5 bg-white border border-gray-200 text-dark rounded-xl font-semibold hover:bg-gray-50 transition-all shadow-sm"
+                  disabled={isStartingConv}
+                  onClick={async () => {
+                    if (!isAuthenticated) {
+                      KeycloakService.login({ redirectUri: window.location.href })
+                      return
+                    }
+                    try {
+                      const conv = await startConversation(est.id).unwrap()
+                      setActiveConversationId(conv.id)
+                      setChatModalOpen(true)
+                    } catch (err) {
+                      console.error('Erreur démarrage conversation', err)
+                    }
+                  }}
+                  className="flex items-center justify-center gap-2 px-6 py-2.5 bg-white border border-gray-200 text-dark rounded-xl font-semibold hover:bg-gray-50 transition-all shadow-sm disabled:opacity-50"
                 >
                   <MessageSquare className="w-4 h-4 text-primary" />
-                  Message
+                  {isStartingConv ? 'Connexion...' : 'Message'}
                 </button>
               </div>
             </div>
@@ -646,20 +665,24 @@ export const EstablishmentDetailPage = () => {
                     <div key={i} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
                       <div className="flex justify-between items-start mb-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                            {(rev.user?.first_name || 'A')?.charAt(0)}
+                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+                            {rev.author?.avatar_url ? (
+                              <img src={rev.author.avatar_url} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              <span className="text-primary font-bold">{(rev.author?.full_name || 'U')?.charAt(0)}</span>
+                            )}
                           </div>
                           <div>
-                            <p className="font-semibold text-dark text-sm">{rev.user?.first_name || 'Utilisateur'} {rev.user?.last_name}</p>
+                            <p className="font-semibold text-dark text-sm">{rev.author?.full_name || 'Utilisateur'}</p>
                             <p className="text-xs text-gray-400">{new Date(rev.created_at).toLocaleDateString()}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-1">
                           <Star className="w-4 h-4 fill-gold text-gold" />
-                          <span className="text-sm font-bold text-dark">{rev.note}/5</span>
+                          <span className="text-sm font-bold text-dark">{rev.rating}/5</span>
                         </div>
                       </div>
-                      <p className="text-gray-600 leading-relaxed text-sm">{rev.commentaire}</p>
+                      <p className="text-gray-600 leading-relaxed text-sm">{rev.comment}</p>
                     </div>
                   ))}
                 </div>
@@ -1008,12 +1031,14 @@ export const EstablishmentDetailPage = () => {
         )}
       </AnimatePresence>
 
+    {activeConversationId && (
       <ChatModal 
         isOpen={chatModalOpen} 
         onClose={() => setChatModalOpen(false)} 
         partnerName={est.name} 
-        partnerId={est.id} 
+        conversationId={activeConversationId} 
       />
+    )}
     </div>
   )
 }

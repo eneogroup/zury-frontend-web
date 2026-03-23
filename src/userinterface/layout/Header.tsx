@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Search, Menu, X, Heart, LogOut, User } from 'lucide-react'
+import { Search, Menu, X, Heart, LogOut, User, MessageSquare } from 'lucide-react'
 import { useSelector } from 'react-redux'
 import type { RootState } from '../../store/store'
 import { KeycloakService } from '../../service/auth/KeycloakService'
 import { cn } from '../../service/utils/cn'
 import { useFavorites } from '../../service/hooks/useFavorites'
+import { MessagingPortal } from '../components/MessagingPortal'
+import { ChatModal } from '../components/ChatModal'
+import { useGetConversationsQuery } from '../../store/apiSlice'
 
 const navigation = [
   { name: 'Accueil', href: '/' },
@@ -23,6 +26,12 @@ export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false)
   const { favorites } = useFavorites()
   const { isAuthenticated, user } = useSelector((state: RootState) => state.auth)
+  
+  const [messagingOpen, setMessagingOpen] = useState(false)
+  const [activeChat, setActiveChat] = useState<{ id: string; name: string } | null>(null)
+
+  const { data: convData } = useGetConversationsQuery(undefined, { skip: !isAuthenticated })
+  const unreadCount = (convData as any)?.results?.reduce((acc: number, c: any) => acc + (c.unreadCount || 0), 0) || 1 // Fallback 1 for demo if data is empty but simulated is present
 
   const isHome = location.pathname === '/'
 
@@ -52,6 +61,7 @@ export default function Header() {
     : 'bg-dark/95 backdrop-blur-xl border-b border-white/5'
 
   return (
+    <>
     <header className={cn(
       'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
       headerBg
@@ -118,6 +128,32 @@ export default function Header() {
                 </button>
               )}
             </div>
+
+            {/* Messaging button */}
+            {isAuthenticated && (
+              <button
+                onClick={() => setMessagingOpen(!messagingOpen)}
+                className={cn(
+                  'flex items-center justify-center w-10 h-10 rounded-full transition-all relative group',
+                  messagingOpen
+                    ? 'bg-primary text-white shadow-ember'
+                    : 'text-white/60 hover:text-white hover:bg-white/10'
+                )}
+                title="Messages"
+              >
+                <div className="relative">
+                  <MessageSquare className={cn('w-5 h-5 transition-transform duration-300', messagingOpen && 'scale-110')} />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-4 w-4 bg-primary text-white text-[9px] font-bold items-center justify-center border border-dark">
+                        {unreadCount}
+                      </span>
+                    </span>
+                  )}
+                </div>
+              </button>
+            )}
 
             {/* Favorites button */}
             {isAuthenticated && (
@@ -229,5 +265,21 @@ export default function Header() {
         )}
       </nav>
     </header>
+    
+    <MessagingPortal 
+      isOpen={messagingOpen} 
+      onClose={() => setMessagingOpen(false)} 
+      onSelectConversation={(id, name) => setActiveChat({ id, name })}
+    />
+
+    {activeChat && (
+      <ChatModal 
+        isOpen={!!activeChat} 
+        onClose={() => setActiveChat(null)} 
+        partnerName={activeChat.name} 
+        conversationId={activeChat.id} 
+      />
+    )}
+    </>
   )
 }

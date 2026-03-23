@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { MessageSquare, Send, X, User, Check, CheckCheck } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useSelector } from 'react-redux'
+import type { RootState } from '../../store/store'
 import { useWebSocket } from '../../service/hooks/useWebSocket'
+import { useGetConversationMessagesQuery } from '../../store/apiSlice'
 import { cn } from '../../service/utils/cn'
 
 interface Message {
@@ -17,29 +20,66 @@ interface ChatModalProps {
   isOpen: boolean
   onClose: () => void
   partnerName: string
-  partnerId: string
+  conversationId: string
 }
 
-export const ChatModal = ({ isOpen, onClose, partnerName, partnerId }: ChatModalProps) => {
-  const [messages, setMessages] = useState<Message[]>([
-    { id: '1', senderId: 'partner', text: `Bonjour ! Comment puis-je vous aider chez ${partnerName} ?`, timestamp: new Date().toISOString(), isMe: false, status: 'read' }
-  ])
+export const ChatModal = ({ isOpen, onClose, partnerName, conversationId }: ChatModalProps) => {
+  const [messages, setMessages] = useState<Message[]>([])
+  
+  const { data: historyData, isLoading: isHistoryLoading } = useGetConversationMessagesQuery(conversationId, {
+    skip: !isOpen || !conversationId
+  })
+
+  // Populate history
+  useEffect(() => {
+    if (historyData) {
+      const historyItems: Message[] = historyData.map((m: any) => ({
+        id: m.id,
+        senderId: m.sender_type === 'USER' ? 'user' : 'partner',
+        text: m.content,
+        timestamp: m.created_at,
+        isMe: m.sender_type === 'USER',
+        status: 'read'
+      }))
+      
+      if (historyItems.length === 0) {
+        setMessages([
+          { id: 'welcome', senderId: 'partner', text: `Bonjour ! Comment puis-je vous aider chez ${partnerName} ?`, timestamp: new Date().toISOString(), isMe: false, status: 'read' }
+        ])
+      } else {
+        setMessages(historyItems)
+      }
+    }
+  }, [historyData, partnerName])
+
   const [inputText, setInputText] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  // In a real app, the URL would be derived from the partnerId/token
-  const wsUrl = `wss://zury-backend-production.up.railway.app/ws/chat/${partnerId}/`
+  const token = useSelector((state: RootState) => state.auth.token)
+
+  // Dynamic WebSocket URL based on API base
+  const apiBase = import.meta.env.VITE_API_URL || 'https://api-zury.eneogroup.site'
+  const wsBase = apiBase.replace('https://', 'wss://').replace('http://', 'ws://')
+  // Append token to URL if available (many backends require it for WS auth)
+  const wsUrl = `${wsBase}/ws/chat/${conversationId}/${token ? `?token=${token}` : ''}`
   const { isConnected, sendMessage } = useWebSocket({
     url: isOpen ? wsUrl : '',
     onMessage: (data) => {
-      setMessages(prev => [...prev, {
-        id: Date.now().toString(),
-        senderId: 'partner',
-        text: data.message,
-        timestamp: new Date().toISOString(),
-        isMe: false,
+      // Backend format: { id, sender_sub, sender_type, content, lu, created_at }
+      const isMe = data.sender_type === 'USER'
+      const arrived: Message = {
+        id: data.id || Date.now().toString(),
+        senderId: isMe ? 'user' : 'partner',
+        text: data.content || '',
+        timestamp: data.created_at || new Date().toISOString(),
+        isMe: isMe,
         status: 'read'
-      }])
+      }
+      setMessages(prev => {
+        // Avoid duplicates if we just sent it
+        if (prev.some(m => m.id === arrived.id)) return prev
+        return [...prev, arrived]
+      })
     }
   })
 
@@ -62,7 +102,7 @@ export const ChatModal = ({ isOpen, onClose, partnerName, partnerId }: ChatModal
     }
 
     setMessages(prev => [...prev, newMessage])
-    sendMessage({ message: inputText })
+    sendMessage({ content: inputText.trim() })
     setInputText('')
   }
 

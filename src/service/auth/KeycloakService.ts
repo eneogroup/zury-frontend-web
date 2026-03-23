@@ -10,42 +10,40 @@ const keycloakConfig = {
 
 const keycloak = new Keycloak(keycloakConfig)
 let isKeycloakInitialized = false
+let initPromise: Promise<boolean> | null = null
 
 export const KeycloakService = {
-  init: async () => {
-    if (isKeycloakInitialized) return keycloak.authenticated
-    try {
-      const authenticated = await keycloak.init({
-        onLoad: 'check-sso',
-        silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
-        pkceMethod: 'S256',
-        checkLoginIframe: false,
-      })
+  init: async (): Promise<boolean> => {
+    if (initPromise) return initPromise
+    
+    initPromise = (async () => {
+      if (isKeycloakInitialized) return keycloak.authenticated || false
       
-      if (authenticated) {
-        KeycloakService.updateReduxState()
-      }
-      
-      isKeycloakInitialized = true
-      
-      // Handle automatic token refresh
-      keycloak.onTokenExpired = () => {
-        keycloak.updateToken(30).then((refreshed) => {
-          if (refreshed) {
-            KeycloakService.updateReduxState()
-          }
-        }).catch(() => {
-          KeycloakService.logout()
+      try {
+        const authenticated = await keycloak.init({
+          onLoad: 'check-sso',
+          silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
+          pkceMethod: 'S256',
+          checkLoginIframe: false,
+          enableLogging: true,
         })
+        
+        if (authenticated) {
+          KeycloakService.updateReduxState()
+        }
+        
+        isKeycloakInitialized = true
+        store.dispatch(setInitialized(true))
+        return authenticated
+      } catch (error) {
+        console.error('Keycloak initialization failed', error)
+        isKeycloakInitialized = true // Mark as finished even if failed
+        store.dispatch(setInitialized(true))
+        return false
       }
+    })()
 
-      store.dispatch(setInitialized(true))
-      return authenticated
-    } catch (error) {
-      console.error('Keycloak initialization failed', error)
-      store.dispatch(setInitialized(true))
-      return false
-    }
+    return initPromise
   },
 
   updateReduxState: () => {
