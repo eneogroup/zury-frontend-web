@@ -34,9 +34,18 @@ function Hero({ stats }: { stats: any }) {
     return () => clearInterval(t)
   }, [])
 
+  const PROXIMITY_KEYWORDS = /proche|près|pres|near/i
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    navigate(searchQuery.trim() ? `/explorer?q=${encodeURIComponent(searchQuery)}` : '/explorer')
+    const trimmed = searchQuery.trim()
+    if (!trimmed) { navigate('/explorer'); return }
+    // Proximity keyword → let ExplorerPage's chip handler request GPS
+    if (PROXIMITY_KEYWORDS.test(trimmed)) {
+      navigate('/explorer?quickFilter=proche')
+      return
+    }
+    navigate(`/explorer?q=${encodeURIComponent(trimmed)}`)
   }
 
   return (
@@ -123,9 +132,9 @@ function Hero({ stats }: { stats: any }) {
           {/* Quick chips */}
           <div className="flex flex-wrap gap-2 mt-4">
             {[
-              { label: '🍽️ Restaurants', q: 'restaurant' },
-              { label: '🍹 Bars', q: 'bar' },
-              { label: '🏨 Hôtels', q: 'hotel' },
+              { label: '🍽️ Restaurants', q: '113' },
+              { label: '🍹 Bars', q: '115' },
+              { label: '🏨 Hôtels', q: '114' },
               { label: '🎉 Événements', href: '/evenements' },
             ].map((chip) => (
               <button key={chip.label}
@@ -207,10 +216,10 @@ function SectionHeader({
 
 /* ── Categories ───────────────────────────────────────────────────────────── */
 const categoriesList = [
-  { name: 'Hôtels',       icon: Hotel,          slug: 'hotel',      image: 'https://media-cdn.tripadvisor.com/media/photo-s/2e/3b/29/4b/caption.jpg' },
-  { name: 'Restaurants',  icon: UtensilsCrossed, slug: 'restaurant', image: 'https://www.olympic-palace-hotel.net/assets/img/oph_oriental1.jpg' },
-  { name: 'Bars & Lounge',icon: Wine,            slug: 'bar',        image: 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1b/07/b2/3b/vue-d-ensemble-du-pichichi.jpg?w=1200&h=-1&s=1' },
-  { name: 'Pâtisseries',  icon: Cake,            slug: 'lounge',     image: 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0f/1c/3d/82/photo0jpg.jpg?w=900&h=500&s=1' },
+  { name: 'Hôtels',       icon: Hotel,          slug: '114',      image: 'https://media-cdn.tripadvisor.com/media/photo-s/2e/3b/29/4b/caption.jpg' },
+  { name: 'Restaurants',  icon: UtensilsCrossed, slug: '113', image: 'https://www.olympic-palace-hotel.net/assets/img/oph_oriental1.jpg' },
+  { name: 'Bars & Lounge',icon: Wine,            slug: '115',        image: 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1b/07/b2/3b/vue-d-ensemble-du-pichichi.jpg?w=1200&h=-1&s=1' },
+  { name: 'Pâtisseries',  icon: Cake,            slug: '116',     image: 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0f/1c/3d/82/photo0jpg.jpg?w=900&h=500&s=1' },
 ]
 
 function Categories() {

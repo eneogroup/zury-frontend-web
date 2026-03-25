@@ -46,14 +46,20 @@ export default function Header() {
     setSearchOpen(false)
   }, [location.pathname])
 
+  const PROXIMITY_KEYWORDS = /proche|près|pres|near/i
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    if (searchQuery.trim()) {
-      navigate(`/explorer?q=${encodeURIComponent(searchQuery.trim())}`)
-      setSearchQuery('')
-      setSearchOpen(false)
-      setMobileMenuOpen(false)
+    const trimmed = searchQuery.trim()
+    if (!trimmed) return
+    if (PROXIMITY_KEYWORDS.test(trimmed)) {
+      navigate('/explorer?quickFilter=proche')
+    } else {
+      navigate(`/explorer?q=${encodeURIComponent(trimmed)}`)
     }
+    setSearchQuery('')
+    setSearchOpen(false)
+    setMobileMenuOpen(false)
   }
 
   const headerBg = isHome && !scrolled

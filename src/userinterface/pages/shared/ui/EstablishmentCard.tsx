@@ -6,18 +6,54 @@ import { useFavorites } from '../../../../service/hooks/useFavorites'
 import { EstablishmentGateway } from '../../../../infrastructure/gateways/establishment.gateway'
 import { getDeviceId } from '../../../../service/utils/deviceId'
 
-const CATEGORY_CONFIG: Record<string, { dot: string; badge: string; label: string }> = {
-  restaurant: { dot: 'bg-primary', badge: 'bg-primary/10 text-primary', label: 'Restaurant' },
-  bar:        { dot: 'bg-gold',    badge: 'bg-gold/15 text-yellow-700',  label: 'Bar' },
-  hotel:      { dot: 'bg-blue-500',badge: 'bg-blue-50 text-blue-600',    label: 'Hôtel' },
-  lounge:     { dot: 'bg-purple-500', badge: 'bg-purple-50 text-purple-600', label: 'Lounge' },
+// Known categories with specific brand colors
+const KNOWN_CATEGORIES: Record<string, { dot: string; badge: string; label: string }> = {
+  restaurant:        { dot: 'bg-primary',     badge: 'bg-primary/10 text-primary',         label: 'Restaurant' },
+  bar:               { dot: 'bg-gold',        badge: 'bg-gold/15 text-yellow-700',          label: 'Bar' },
+  hôtel:             { dot: 'bg-blue-500',    badge: 'bg-blue-50 text-blue-600',            label: 'Hôtel' },
+  hotel:             { dot: 'bg-blue-500',    badge: 'bg-blue-50 text-blue-600',            label: 'Hôtel' },
+  lounge:            { dot: 'bg-purple-500',  badge: 'bg-purple-50 text-purple-600',        label: 'Lounge' },
+  'night club':      { dot: 'bg-purple-500',  badge: 'bg-purple-50 text-purple-600',        label: 'Night Club' },
+  'nightclub':       { dot: 'bg-purple-500',  badge: 'bg-purple-50 text-purple-600',        label: 'Night Club' },
+  'parc zoologique': { dot: 'bg-green-500',   badge: 'bg-green-50 text-green-700',          label: 'Parc Zoologique' },
+  'site touristique':{ dot: 'bg-teal-500',    badge: 'bg-teal-50 text-teal-700',            label: 'Site Touristique' },
+  cave:              { dot: 'bg-stone-500',   badge: 'bg-stone-50 text-stone-700',          label: 'Cave' },
+  maquis:            { dot: 'bg-orange-500',  badge: 'bg-orange-50 text-orange-700',        label: 'Maquis' },
+  motel:             { dot: 'bg-sky-500',     badge: 'bg-sky-50 text-sky-700',              label: 'Motel' },
+  pâtisserie:        { dot: 'bg-pink-400',    badge: 'bg-pink-50 text-pink-700',            label: 'Pâtisserie' },
+  patisserie:        { dot: 'bg-pink-400',    badge: 'bg-pink-50 text-pink-700',            label: 'Pâtisserie' },
+}
+
+// Fallback color palette for unknown categories (cycles through colors)
+const FALLBACK_PALETTE = [
+  { dot: 'bg-indigo-500', badge: 'bg-indigo-50 text-indigo-700' },
+  { dot: 'bg-cyan-500',   badge: 'bg-cyan-50 text-cyan-700' },
+  { dot: 'bg-rose-500',   badge: 'bg-rose-50 text-rose-700' },
+  { dot: 'bg-amber-500',  badge: 'bg-amber-50 text-amber-700' },
+  { dot: 'bg-lime-500',   badge: 'bg-lime-50 text-lime-700' },
+]
+
+function hashString(str: string): number {
+  let h = 0
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0
+  return h
+}
+
+function getCategoryConfig(category: string, categoryLabel?: string) {
+  const key = (category || '').toLowerCase().trim()
+  if (KNOWN_CATEGORIES[key]) return { ...KNOWN_CATEGORIES[key] }
+  // Dynamic fallback: derive color from hash, use real label for display
+  const palette = FALLBACK_PALETTE[hashString(key) % FALLBACK_PALETTE.length]
+  const label = categoryLabel || (key ? key.charAt(0).toUpperCase() + key.slice(1) : 'Autre')
+  return { ...palette, label }
 }
 
 interface EstablishmentCardProps {
   establishment: {
     id: string
     name: string
-    category: 'restaurant' | 'bar' | 'hotel' | 'lounge'
+    category: string
+    categoryLabel?: string
     address: string
     neighborhood: string
     rating: number
@@ -32,7 +68,7 @@ interface EstablishmentCardProps {
 }
 
 export default function EstablishmentCard({ establishment, index = 0, showOpenStatus = false, source = 'direct' }: EstablishmentCardProps) {
-  const cfg = CATEGORY_CONFIG[establishment.category] ?? CATEGORY_CONFIG.restaurant
+  const cfg = getCategoryConfig(establishment.category, establishment.categoryLabel)
   const { isFavorite, toggleFavorite } = useFavorites()
   const openStatus = establishment.isOpen === true ? 'open' : establishment.isOpen === false ? 'closed' : 'unknown'
   const fav = isFavorite(establishment.id)
