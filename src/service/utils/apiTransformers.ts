@@ -1,16 +1,13 @@
-type EstablishmentCategory = 'restaurant' | 'bar' | 'hotel' | 'lounge'
-
 export function transformEstablishment(item: any) {
-  const categoryName = (item.categorie_nom || item.categorie || '').toLowerCase()
-  let category: EstablishmentCategory = 'restaurant'
-  if (categoryName.includes('bar')) category = 'bar'
-  else if (categoryName.includes('hôtel') || categoryName.includes('hotel')) category = 'hotel'
-  else if (categoryName.includes('lounge') || categoryName.includes('club')) category = 'lounge'
+  // Preserve the real category name from the API (used for badge display)
+  const categoryName = (item.categorie_nom || item.categorie || '').toLowerCase().trim()
+  const category = categoryName || 'autre'
 
   return {
     id: item.id,
     name: item.nom,
     category,
+    categoryLabel: item.categorie_nom || item.categorie || category,
     address: item.adresse,
     neighborhood: item.quartier_nom || item.quartier || '',
     rating: parseFloat(item.note_moyenne) || 0,
@@ -19,6 +16,7 @@ export function transformEstablishment(item: any) {
     latitude: item.latitude ? parseFloat(String(item.latitude)) : undefined,
     longitude: item.longitude ? parseFloat(String(item.longitude)) : undefined,
     isPremium: item.est_featured || false,
+    isOpen: item.est_ouvert,
   }
 }
 

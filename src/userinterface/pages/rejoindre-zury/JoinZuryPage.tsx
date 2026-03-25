@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { motion, AnimatePresence } from 'framer-motion'
+import { z } from 'zod'
 import {
   ArrowRight, Eye, TrendingUp, Calendar, BarChart3, Star, Users,
   FileText, CheckCircle, Rocket, X, Building2, MapPin, Phone, Mail,
@@ -9,6 +10,7 @@ import {
 import { CountUp } from '../shared/ui/CountUp'
 import type { RootState, AppDispatch } from '../../../store/store'
 import { getGlobalStats, getCategories, getQuartiers } from '../../../domain/usecase/category.usecase'
+import SEO from '../shared/ui/SEO'
 
 /* ── Constants ───────────────────────────────────────────────────────────── */
 const benefits = [
@@ -47,6 +49,27 @@ const INIT: RegForm = {
   phone: '', emailEtab: '', website: '', facebook: '', instagram: '',
   contactName: '', contactEmail: '', comment: '',
 }
+
+const formSchema = z.object({
+  name: z.string().min(2, "Le nom de l'établissement doit contenir au moins 2 caractères"),
+  description: z.string().min(10, "La description est trop courte"),
+  category: z.string().min(1, "Veuillez sélectionner une catégorie"),
+  neighborhood: z.string().min(1, "Veuillez sélectionner un quartier"),
+  address: z.string().min(5, "L'adresse est requise"),
+  lat: z.string().optional(),
+  lng: z.string().optional(),
+  phone: z.string().optional(),
+  emailEtab: z.string().email("Email de l'établissement invalide").optional().or(z.literal('')),
+  website: z.string().url("URL du site web invalide").optional().or(z.literal('')),
+  facebook: z.string().url("URL Facebook invalide").optional().or(z.literal('')),
+  instagram: z.string().url("URL Instagram invalide").optional().or(z.literal('')),
+  contactName: z.string().optional(),
+  contactEmail: z.string().email("Votre email personnel est invalide"),
+  comment: z.string().optional(),
+}).refine(data => data.phone || data.emailEtab, {
+  message: "Veuillez fournir au moins un moyen de contact pour l'établissement (téléphone ou email)",
+  path: ["phone"]
+});
 
 /* ── Input wrapper ───────────────────────────────────────────────────────── */
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
@@ -139,6 +162,13 @@ function RegistrationModal({ onClose, categories, quartiers }: {
     e.preventDefault()
     setSubmitting(true)
     setSubmitError(null)
+
+    const validation = formSchema.safeParse(form)
+    if (!validation.success) {
+      setSubmitError(validation.error.errors[0].message)
+      setSubmitting(false)
+      return
+    }
 
     const body = new FormData()
     body.append('nom', form.name)
@@ -468,7 +498,10 @@ export const JoinZuryPage = () => {
 
   return (
     <div className="min-h-screen bg-light">
-
+      <SEO 
+        title="Inscrire mon établissement - Zury Congo" 
+        description="Rejoignez Zury Congo et augmentez votre visibilité auprès de milliers d'utilisateurs à Brazzaville et Pointe-Noire. Inscription 100% gratuite."
+      />
       {/* Hero */}
       <section className="relative bg-gradient-to-br from-dark via-dark/95 to-primary/20 text-white py-20 overflow-hidden">
         <div className="absolute inset-0 opacity-10 pointer-events-none">

@@ -48,23 +48,22 @@ const QUICK_FILTERS = [
     hoverClass: "hover:border-green-300 hover:text-green-700 hover:bg-green-50",
   },
 
-  // {
-  //   id: "pas cher",
-  //   label: "Pas cher",
-  //   Icon: Tag,
-  //   activeClass: "bg-orange-500 text-white border-orange-500",
-  //   hoverClass:
-  //     "hover:border-orange-300 hover:text-orange-700 hover:bg-orange-50",
-  // },
-
-  // {
-  //   id: "luxe",
-  //   label: "Luxe",
-  //   Icon: Award,
-  //   activeClass: "bg-purple-500 text-white border-purple-500",
-  //   hoverClass:
-  //     "hover:border-purple-300 hover:text-purple-700 hover:bg-purple-50",
-  // },
+  {
+    id: "pas cher",
+    label: "Pas cher",
+    Icon: Tag,
+    activeClass: "bg-orange-500 text-white border-orange-500",
+    hoverClass:
+      "hover:border-orange-300 hover:text-orange-700 hover:bg-orange-50",
+  },
+  {
+    id: "luxe",
+    label: "Luxe",
+    Icon: Award,
+    activeClass: "bg-purple-500 text-white border-purple-500",
+    hoverClass:
+      "hover:border-purple-300 hover:text-purple-700 hover:bg-purple-50",
+  },
   {
     id: "proche",
     label: "Proche de moi",
@@ -132,9 +131,49 @@ export const ExplorerPage = () => {
     navigate(`?${params.toString()}`);
   };
 
+  const PROXIMITY_KEYWORDS = /proche|près|pres|near/i;
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    updateParams({ q: searchInput });
+    const trimmed = searchInput.trim();
+    if (!trimmed) return;
+
+    // If the query contains a proximity keyword, we need GPS coordinates
+    if (PROXIMITY_KEYWORDS.test(trimmed)) {
+      if (!navigator.geolocation) {
+        // No geolocation support — fallback to chip-based proximity filter
+        updateParams({ quickFilter: 'proche', q: '' });
+        return;
+      }
+      setGeoLoading(true);
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setGeoLoading(false);
+          const p = new URLSearchParams(searchParams);
+          p.set('q', trimmed);
+          p.set('lat', pos.coords.latitude.toString());
+          p.set('lng', pos.coords.longitude.toString());
+          p.delete('quickFilter');
+          p.delete('page');
+          navigate(`?${p.toString()}`);
+        },
+        () => {
+          setGeoLoading(false);
+          // GPS denied — use the chip filter without text (avoids 400)
+          const p = new URLSearchParams(searchParams);
+          p.set('quickFilter', 'proche');
+          p.delete('q');
+          p.delete('lat');
+          p.delete('lng');
+          p.delete('page');
+          navigate(`?${p.toString()}`);
+        },
+        { timeout: 10000 },
+      );
+      return;
+    }
+
+    updateParams({ q: trimmed });
   };
 
   const toggleQuickFilter = (filterId: string) => {
@@ -563,15 +602,37 @@ export const ExplorerPage = () => {
 };
 
 // ─── List row component ─────────────────────────────────────────────────────
-const CATEGORY_CONFIG: Record<
-  string,
-  { dot: string; label: string; color: string }
-> = {
-  restaurant: { dot: "bg-primary", label: "Restaurant", color: "text-primary" },
-  bar: { dot: "bg-gold", label: "Bar", color: "text-yellow-700" },
-  hotel: { dot: "bg-blue-500", label: "Hôtel", color: "text-blue-600" },
-  lounge: { dot: "bg-purple-500", label: "Lounge", color: "text-purple-600" },
-};
+const KNOWN_CAT_COLORS: Record<string, { dot: string; label: string; color: string }> = {
+  restaurant:         { dot: 'bg-primary',    label: 'Restaurant',       color: 'text-primary' },
+  bar:                { dot: 'bg-gold',       label: 'Bar',              color: 'text-yellow-700' },
+  hotel:              { dot: 'bg-blue-500',   label: 'Hôtel',            color: 'text-blue-600' },
+  hôtel:              { dot: 'bg-blue-500',   label: 'Hôtel',            color: 'text-blue-600' },
+  lounge:             { dot: 'bg-purple-500', label: 'Lounge',           color: 'text-purple-600' },
+  'night club':       { dot: 'bg-purple-500', label: 'Night Club',       color: 'text-purple-600' },
+  'parc zoologique':  { dot: 'bg-green-500',  label: 'Parc Zoologique',  color: 'text-green-700' },
+  'site touristique': { dot: 'bg-teal-500',   label: 'Site Touristique', color: 'text-teal-700' },
+  cave:               { dot: 'bg-stone-500',  label: 'Cave',             color: 'text-stone-700' },
+  maquis:             { dot: 'bg-orange-500', label: 'Maquis',           color: 'text-orange-700' },
+  motel:              { dot: 'bg-sky-500',    label: 'Motel',            color: 'text-sky-700' },
+  pâtisserie:         { dot: 'bg-pink-400',   label: 'Pâtisserie',       color: 'text-pink-700' },
+  patisserie:         { dot: 'bg-pink-400',   label: 'Pâtisserie',       color: 'text-pink-700' },
+}
+
+const FALLBACK_ROW_DOTS = ['bg-indigo-500','bg-cyan-500','bg-rose-500','bg-amber-500','bg-lime-500']
+const FALLBACK_ROW_COLORS = ['text-indigo-700','text-cyan-700','text-rose-700','text-amber-700','text-lime-700']
+function hashStr(str: string): number {
+  let h = 0
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0
+  return h
+}
+function getRowCategoryConfig(category: string, categoryLabel?: string) {
+  const key = (category || '').toLowerCase().trim()
+  if (KNOWN_CAT_COLORS[key]) return KNOWN_CAT_COLORS[key]
+  const idx = hashStr(key) % FALLBACK_ROW_DOTS.length
+  const label = categoryLabel || (key ? key.charAt(0).toUpperCase() + key.slice(1) : 'Autre')
+  return { dot: FALLBACK_ROW_DOTS[idx], label, color: FALLBACK_ROW_COLORS[idx] }
+}
+
 
 function EstablishmentListRow({
   establishment,
@@ -580,8 +641,7 @@ function EstablishmentListRow({
   establishment: any;
   index: number;
 }) {
-  const cfg =
-    CATEGORY_CONFIG[establishment.category] ?? CATEGORY_CONFIG.restaurant;
+  const cfg = getRowCategoryConfig(establishment.category, establishment.categoryLabel);
   const { isFavorite, toggleFavorite } = useFavorites();
   const fav = isFavorite(establishment.id);
 

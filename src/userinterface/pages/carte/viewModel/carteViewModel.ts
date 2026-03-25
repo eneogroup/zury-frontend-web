@@ -7,7 +7,7 @@ export const carteViewModel = () => {
   const { establishments, status } = DI.resolve<any>('establishmentPresenter')
 
   useEffectHook(() => {
-    getAll({ page_size: 100 })
+    getAll({ page_size: 1000 })
   }, [])
 
   return { establishments, status }

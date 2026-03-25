@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { SingletonMixin } from '../../service/utils/singleton.mixin'
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'https://zury-backend-production.up.railway.app'
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://api-zury.eneogroup.site'
 
 export class StatsGateway extends SingletonMixin() {
   private async handleResponse(response: any) {
