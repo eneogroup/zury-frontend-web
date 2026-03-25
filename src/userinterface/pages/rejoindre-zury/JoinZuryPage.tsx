@@ -165,7 +165,7 @@ function RegistrationModal({ onClose, categories, quartiers }: {
 
     const validation = formSchema.safeParse(form)
     if (!validation.success) {
-      setSubmitError(validation.error.errors[0].message)
+      setSubmitError(validation.error.issues[0].message)
       setSubmitting(false)
       return
     }

@@ -11,6 +11,7 @@ export const UserProfilePage = () => {
   
   const [formData, setFormData] = useState({
     firstName: '',
+    lastName: '',
     telephone: '',
   })
   
