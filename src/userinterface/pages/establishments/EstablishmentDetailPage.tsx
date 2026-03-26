@@ -280,12 +280,12 @@ export const EstablishmentDetailPage = () => {
               <div className="flex flex-wrap gap-2">
                 {est.phone && (
                   <a href={`tel:${est.phone}`}
-                    className="flex items-center justify-center gap-2 px-6 py-2.5 border border-gray-200 text-dark rounded-xl font-semibold hover:bg-gray-50 transition-colors">
+                    className="flex items-center justify-center gap-2 px-6 py-2.5 border border-gray-200 bg-primary text-white rounded-xl font-semibold hover:bg-gray-50 transition-colors">
                     <Phone className="w-4 h-4" />
                     Appeler
                   </a>
                 )}
-                <button
+                {/* <button
                   onClick={() => {
                     if (!isAuthenticated) {
                       KeycloakService.login({ redirectUri: window.location.href })
@@ -297,8 +297,8 @@ export const EstablishmentDetailPage = () => {
                 >
                   <Calendar className="w-4 h-4" />
                   Réserver une table
-                </button>
-                <button 
+                </button> */}
+                {/* <button 
                   disabled={isStartingConv}
                   onClick={async () => {
                     if (!isAuthenticated) {
@@ -317,7 +317,7 @@ export const EstablishmentDetailPage = () => {
                 >
                   <MessageSquare className="w-4 h-4 text-primary" />
                   {isStartingConv ? 'Connexion...' : 'Message'}
-                </button>
+                </button> */}
               </div>
             </div>
           </div>
