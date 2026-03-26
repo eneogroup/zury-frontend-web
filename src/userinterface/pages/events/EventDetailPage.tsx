@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Calendar, MapPin, Users, Clock, ArrowLeft, Ticket, ExternalLink, X } from 'lucide-react'
+import { Calendar, MapPin, Users, Clock, ArrowLeft, Ticket, ExternalLink, X, Share2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import DI from '../../../di/ioc'
 import type { IEventDetailViewModel } from '../../../service/interface/events.viewmodel.interface'
@@ -9,6 +9,27 @@ export const EventDetailPage = () => {
   const { currentEvent: event, detailStatus } =
     DI.resolve<IEventDetailViewModel>('eventDetailViewModel')
   const [flyerOpen, setFlyerOpen] = useState(false)
+
+  const handleShare = async () => {
+    if (!event) return;
+    
+    const shareData = {
+      title: event.title,
+      text: `Découvrez l'événement "${event.title}" sur Zury !`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        alert("Lien copié dans le presse-papier !");
+      }
+    } catch (err) {
+      console.error("Erreur lors du partage :", err);
+    }
+  };
 
   /* ── Loading ─────────────────────────────────────────────────────────── */
   if (detailStatus === 'loading') {
@@ -256,7 +277,7 @@ export const EventDetailPage = () => {
               )}
 
               {/* CTA */}
-              <div className="p-5">
+              <div className="p-5 flex flex-col gap-3">
                 <button
                   onClick={() => {
                     const phoneNumber = event.telephone ? event.telephone.replace(/\D/g, '') : ''
@@ -275,6 +296,14 @@ export const EventDetailPage = () => {
                 >
                   {!isComplete && <Ticket className="w-4 h-4" />}
                   {isComplete ? 'Événement complet' : 'Réserver maintenant'}
+                </button>
+
+                <button
+                  onClick={handleShare}
+                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-semibold text-sm transition-all bg-gray-50 text-dark hover:bg-gray-100 border border-gray-200"
+                >
+                  <Share2 className="w-4 h-4" />
+                  Partager l'événement
                 </button>
               </div>
             </div>

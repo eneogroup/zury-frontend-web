@@ -45,6 +45,17 @@ export const getWeekendEvents = createAsyncThunk(
   }
 )
 
+export const getThisWeekEvents = createAsyncThunk(
+  'event/getThisWeek',
+  async (_, { rejectWithValue }) => {
+    try {
+      return await eventRepository.getThisWeek()
+    } catch (error) {
+      return rejectWithValue(error)
+    }
+  }
+)
+
 export const getEventById = createAsyncThunk(
   'event/getById',
   async (id: string, { rejectWithValue }) => {
@@ -59,10 +70,14 @@ export const getEventById = createAsyncThunk(
 interface EventState {
   events: any[]
   upcomingEvents: any[]
+  todayEvents: any[]
+  thisWeekEvents: any[]
   weekendEvents: any[]
   currentEvent: any | null
   status: 'idle' | 'loading' | 'success' | 'error'
   upcomingStatus: 'idle' | 'loading' | 'success' | 'error'
+  todayStatus: 'idle' | 'loading' | 'success' | 'error'
+  thisWeekStatus: 'idle' | 'loading' | 'success' | 'error'
   weekendStatus: 'idle' | 'loading' | 'success' | 'error'
   detailStatus: 'idle' | 'loading' | 'success' | 'error'
   totalCount: number
@@ -72,10 +87,14 @@ interface EventState {
 const initialState: EventState = {
   events: [],
   upcomingEvents: [],
+  todayEvents: [],
+  thisWeekEvents: [],
   weekendEvents: [],
   currentEvent: null,
   status: 'idle',
   upcomingStatus: 'idle',
+  todayStatus: 'idle',
+  thisWeekStatus: 'idle',
   weekendStatus: 'idle',
   detailStatus: 'idle',
   totalCount: 0,
@@ -104,12 +123,19 @@ export const eventSlice = createSlice({
       })
       .addCase(getUpcomingEvents.rejected, (state) => { state.upcomingStatus = 'error' })
 
-      .addCase(getTodayEvents.pending, (state) => { state.status = 'loading' })
+      .addCase(getTodayEvents.pending, (state) => { state.todayStatus = 'loading' })
       .addCase(getTodayEvents.fulfilled, (state, { payload }) => {
-        state.events = payload.events
-        state.status = 'success'
+        state.todayEvents = payload.events
+        state.todayStatus = 'success'
       })
-      .addCase(getTodayEvents.rejected, (state) => { state.status = 'error' })
+      .addCase(getTodayEvents.rejected, (state) => { state.todayStatus = 'error' })
+
+      .addCase(getThisWeekEvents.pending, (state) => { state.thisWeekStatus = 'loading' })
+      .addCase(getThisWeekEvents.fulfilled, (state, { payload }) => {
+        state.thisWeekEvents = payload.events
+        state.thisWeekStatus = 'success'
+      })
+      .addCase(getThisWeekEvents.rejected, (state) => { state.thisWeekStatus = 'error' })
 
       .addCase(getWeekendEvents.pending, (state) => { state.weekendStatus = 'loading' })
       .addCase(getWeekendEvents.fulfilled, (state, { payload }) => {

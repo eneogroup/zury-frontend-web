@@ -56,6 +56,16 @@ export class EventGateway extends SingletonMixin() {
     }
   }
 
+  async getThisWeek() {
+    try {
+      const response = await axios.get(`${BASE_URL}/api/v1/events/cette_semaine/`)
+      const data = await this.handleResponse(response)
+      return { data: Array.isArray(data) ? { results: data } : data, error: null }
+    } catch (error) {
+      return { error, data: null }
+    }
+  }
+
   async getById(id: string) {
     try {
       const response = await axios.get(`${BASE_URL}/api/v1/events/${id}/`)

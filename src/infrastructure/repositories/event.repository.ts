@@ -23,13 +23,22 @@ export const eventRepository = {
   getToday: async () => {
     const { error, data } = await new EventGateway().getToday()
     if (error || !data) return { error, events: [] }
-    return { error: null, events: (data.results || []).map(transformEvent) }
+    const list = data.events || data.results || []
+    return { error: null, events: list.map(transformEvent) }
   },
 
   getThisWeekend: async () => {
     const { error, data } = await new EventGateway().getThisWeekend()
     if (error || !data) return { error, events: [] }
-    return { error: null, events: (data.results || []).map(transformEvent) }
+    const list = data.events || data.results || []
+    return { error: null, events: list.map(transformEvent) }
+  },
+
+  getThisWeek: async () => {
+    const { error, data } = await new EventGateway().getThisWeek()
+    if (error || !data) return { error, events: [] }
+    const list = data.events || data.results || []
+    return { error: null, events: list.map(transformEvent) }
   },
 
   getById: async (id: string) => {

@@ -1,5 +1,5 @@
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { Tag, CalendarDays, Clock, Sunset, LayoutGrid } from 'lucide-react'
+import { Tag, CalendarDays, Calendar, Clock, Sunset, LayoutGrid } from 'lucide-react'
 import { motion } from 'framer-motion'
 import DI from '../../../di/ioc'
 import EventCard from '../shared/ui/EventCard'
@@ -9,10 +9,11 @@ import Pagination from '../shared/ui/Pagination'
 import type { IEventsViewModel } from '../../../service/interface/events.viewmodel.interface'
 
 const PERIOD_FILTERS = [
-  { id: 'all',      label: 'Tous',         Icon: LayoutGrid,   subtitle: 'Tous les événements'          },
-  { id: 'upcoming', label: 'À venir',      Icon: CalendarDays, subtitle: 'Prochainement à Brazzaville'  },
-  { id: 'today',    label: "Aujourd'hui",  Icon: Clock,        subtitle: "Ce qui se passe aujourd'hui"  },
-  { id: 'weekend',  label: 'Ce weekend',   Icon: Sunset,       subtitle: 'Le programme du weekend'      },
+  { id: 'all',       label: 'Tous',          Icon: LayoutGrid,   subtitle: 'Tous les événements'          },
+  { id: 'upcoming',  label: 'À venir',       Icon: CalendarDays, subtitle: 'Prochainement à Brazzaville'  },
+  { id: 'this_week', label: 'Cette semaine', Icon: Calendar,     subtitle: 'Événements de la semaine'     },
+  { id: 'today',     label: "Aujourd'hui",   Icon: Clock,        subtitle: "Ce qui se passe aujourd'hui"  },
+  { id: 'weekend',   label: 'Ce weekend',    Icon: Sunset,       subtitle: 'Le programme du weekend'      },
 ]
 
 export const EventsPage = () => {
