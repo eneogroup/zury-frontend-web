@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Calendar, MapPin, Users, Clock, ArrowLeft, Ticket, ExternalLink, X } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import DI from '../../../di/ioc'
 import type { IEventDetailViewModel } from '../../../service/interface/events.viewmodel.interface'
 
