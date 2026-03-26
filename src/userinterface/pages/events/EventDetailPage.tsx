@@ -1,11 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Calendar, MapPin, Users, Clock, ArrowLeft, Ticket, Phone, ExternalLink, X, Plus, Minus, Loader2, CheckCircle2 } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useSelector } from 'react-redux'
-import type { RootState } from '../../../store/store'
-import { useBookEventMutation } from '../../../store/apiSlice'
-import { KeycloakService } from '../../../service/auth/KeycloakService'
+import { Calendar, MapPin, Users, Clock, ArrowLeft, Ticket, ExternalLink, X } from 'lucide-react'
+import { motion } from 'framer-motion'
 import DI from '../../../di/ioc'
 import type { IEventDetailViewModel } from '../../../service/interface/events.viewmodel.interface'
 
@@ -13,12 +9,6 @@ export const EventDetailPage = () => {
   const { currentEvent: event, detailStatus } =
     DI.resolve<IEventDetailViewModel>('eventDetailViewModel')
   const [flyerOpen, setFlyerOpen] = useState(false)
-  const [bookingModalOpen, setBookingModalOpen] = useState(false)
-  const [placesCount, setPlacesCount] = useState(1)
-  const [bookingSuccess, setBookingSuccess] = useState(false)
-
-  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated)
-  const [bookEvent, { isLoading: isBooking }] = useBookEventMutation()
 
   /* ── Loading ─────────────────────────────────────────────────────────── */
   if (detailStatus === 'loading') {
@@ -154,7 +144,7 @@ export const EventDetailPage = () => {
               </span>
               <span className="flex items-center gap-1.5">
                 <MapPin className="w-4 h-4 text-gray-400" />
-                {event.establishment}
+                {event.adressePropre || event.lieuPersonnalise || event.establishment || 'Lieu non renseigné'}
               </span>
             </div>
 
@@ -234,7 +224,9 @@ export const EventDetailPage = () => {
                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-300 mb-2 flex items-center gap-1.5">
                   <MapPin className="w-3 h-3" /> Lieu
                 </p>
-                <p className="text-sm font-semibold text-dark leading-snug">{event.establishment}</p>
+                <p className="text-sm font-semibold text-dark leading-snug">
+                  {event.adressePropre || event.lieuPersonnalise || event.establishment || 'Lieu non renseigné'}
+                </p>
               </div>
 
               {/* Capacity */}
@@ -267,11 +259,13 @@ export const EventDetailPage = () => {
               <div className="p-5">
                 <button
                   onClick={() => {
-                    if (!isAuthenticated) {
-                      KeycloakService.login({ redirectUri: window.location.href })
-                      return
+                    const phoneNumber = event.telephone ? event.telephone.replace(/\D/g, '') : ''
+                    if (!isComplete && phoneNumber) {
+                      const message = encodeURIComponent(`Bonjour, j'ai vu votre événement sur Zury et je souhaite réserver des places pour l'événement "${event.title}".`)
+                      window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank')
+                    } else if (!isComplete && !phoneNumber) {
+                      alert("Aucun numéro de réservation n'est disponible pour cet événement.")
                     }
-                    if (!isComplete) setBookingModalOpen(true)
                   }}
                   className={`flex items-center justify-center gap-2 w-full py-3 rounded-xl font-semibold text-sm transition-all ${
                     isComplete
@@ -288,104 +282,6 @@ export const EventDetailPage = () => {
 
         </div>
       </div>
-
-      {/* ── Booking Modal ──────────────────────────────────────────────── */}
-      <AnimatePresence>
-        {bookingModalOpen && (
-          <motion.div 
-            className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-          >
-            <motion.div 
-              className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl"
-              initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {bookingSuccess ? (
-                <div className="p-8 text-center space-y-4">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <CheckCircle2 className="w-8 h-8 text-green-500" />
-                  </div>
-                  <h3 className="text-xl font-bold text-dark">Réservation confirmée !</h3>
-                  <p className="text-gray-500 text-sm">
-                    Votre réservation pour "{event.title}" a été enregistrée avec succès. Vous recevrez un mail de confirmation.
-                  </p>
-                  <button 
-                    onClick={() => {
-                      setBookingModalOpen(false)
-                      setBookingSuccess(false)
-                    }}
-                    className="w-full py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition-all"
-                  >
-                    Fermer
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-                    <h3 className="text-lg font-bold text-dark">Réserver vos places</h3>
-                    <button onClick={() => setBookingModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400">
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-                  
-                  <div className="p-8 space-y-6">
-                    <div className="text-center">
-                      <p className="text-sm text-gray-400 mb-1 font-medium">Nombre de personnes</p>
-                      <div className="flex items-center justify-center gap-8">
-                        <button 
-                          onClick={() => setPlacesCount(Math.max(1, placesCount - 1))}
-                          className="w-12 h-12 rounded-2xl border border-gray-200 flex items-center justify-center text-dark hover:border-primary hover:text-primary transition-all disabled:opacity-30"
-                          disabled={placesCount <= 1}
-                        >
-                          <Minus className="w-5 h-5" />
-                        </button>
-                        <span className="text-4xl font-display font-bold text-dark w-12">{placesCount}</span>
-                        <button 
-                          onClick={() => setPlacesCount(Math.min(availablePlaces || 10, placesCount + 1))}
-                          className="w-12 h-12 rounded-2xl border border-gray-200 flex items-center justify-center text-dark hover:border-primary hover:text-primary transition-all disabled:opacity-30"
-                          disabled={placesCount >= (availablePlaces || 10)}
-                        >
-                          <Plus className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="bg-gray-50 rounded-2xl p-5 space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-500">Prix unitaire</span>
-                        <span className="font-semibold text-dark">{event.price}</span>
-                      </div>
-                      <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-200">
-                        <span className="text-dark">Total</span>
-                        <span className="text-primary">
-                          {event.price === 'Gratuit' ? 'Gratuit' : `${parseInt(event.price?.replace(/\D/g, '') || '0') * placesCount} FCFA`}
-                        </span>
-                      </div>
-                    </div>
-
-                    <button 
-                      disabled={isBooking}
-                      onClick={async () => {
-                        try {
-                          await bookEvent({ eventId: event.id, nombre_places: placesCount }).unwrap()
-                          setBookingSuccess(true)
-                        } catch (err) {
-                          console.error('Booking error:', err)
-                        }
-                      }}
-                      className="w-full py-4 bg-primary text-white rounded-2xl font-bold tracking-wide hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
-                    >
-                      {isBooking ? <Loader2 className="w-5 h-5 animate-spin" /> : <Ticket className="w-5 h-5" />}
-                      Confirmer la réservation
-                    </button>
-                  </div>
-                </>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* ── Flyer lightbox ── */}
       <AnimatePresence>

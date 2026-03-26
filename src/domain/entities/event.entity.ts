@@ -1,13 +1,14 @@
 export class EventEntity {
   id!: string
-  etablissement_id: string = ''
-  etablissement_nom: string = ''
+  etablissement_id?: string
+  etablissement_nom?: string
   titre: string = ''
   description: string = ''
   date_debut: string = ''
-  date_fin: string = ''
+  date_fin?: string
+  adresse_propre?: string
   prix: string = '0'
-  telephone: string = ''
+  telephone?: string
   est_gratuit: boolean = false
   nb_places_total: number = 0
   nb_places_reservees: number = 0
