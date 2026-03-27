@@ -280,7 +280,7 @@ export const EstablishmentDetailPage = () => {
               <div className="flex flex-wrap gap-2">
                 {est.phone && (
                   <a href={`tel:${est.phone}`}
-                    className="flex items-center justify-center gap-2 px-6 py-2.5 border border-gray-200 bg-primary text-white rounded-xl font-semibold hover:bg-gray-50 transition-colors">
+                    className="flex items-center justify-center gap-2 px-6 py-2.5 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition-all shadow-lg shadow-primary/10">
                     <Phone className="w-4 h-4" />
                     Appeler
                   </a>

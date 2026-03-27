@@ -201,12 +201,12 @@ export default function Header() {
                 </button>
               </div>
             ) : (
-              <button
-                onClick={() => KeycloakService.login()}
+              <Link
+                to="/rejoindre-zury"
                 className="hidden md:flex items-center gap-2 px-5 py-2 min-h-10 bg-primary hover:bg-primary/90 text-white text-sm font-semibold rounded-full transition-all duration-200 hover:shadow-ember"
               >
-                Se connecter
-              </button>
+                Rejoindre
+              </Link>
             )}
 
             {/* Mobile menu toggle */}
@@ -261,10 +261,10 @@ export default function Header() {
                   Se déconnecter
                 </button>
               ) : (
-                <button onClick={() => KeycloakService.login()} className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-primary hover:bg-white/10 transition-colors text-left border-t border-white/10 mt-2">
+                <Link to="/rejoindre-zury" onClick={() => setMobileMenuOpen(false)} className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-primary hover:bg-white/10 transition-colors text-left border-t border-white/10 mt-2">
                   <User className="w-4 h-4" />
-                  Se connecter
-                </button>
+                  Rejoindre
+                </Link>
               )}
             </div>
           </div>
